@@ -24,9 +24,9 @@
 
 ## アプリケーションの実行準備
 
-- `npm install` を実地してnode_modulesをinstall
-- `npm run prisma-generate` を実地してnode_modules配下に@prisma/client を生成
-- `npm run migrate:local` を実地してテーブルを作成
+- `npm install` を実施してnode_modulesをinstall
+- `npm run migrate:local` を実施してテーブルを作成
+- `npm run prisma-generate` を実施してnode_modules配下に@prisma/client を生成
 
 ## アプリケーションの実行法
 
