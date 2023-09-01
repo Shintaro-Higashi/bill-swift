@@ -32,7 +32,7 @@ CREATE TABLE `company` (
     `existence` BOOLEAN NULL,
 
     PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+);
 
 -- CreateTable
 CREATE TABLE `pharmacy` (
@@ -56,7 +56,7 @@ CREATE TABLE `pharmacy` (
 
     INDEX `pharmacy_FK1`(`company_id`),
     PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+);
 
 -- CreateTable
 CREATE TABLE `pharmacy_base_compounding_setting` (
@@ -75,7 +75,7 @@ CREATE TABLE `pharmacy_base_compounding_setting` (
 
     INDEX `pharmacy_base_compounding_setting_FK1`(`pharmacy_id`),
     PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+);
 
 
 -- AddForeignKey
@@ -111,7 +111,7 @@ VALUES (
     , now()
     , null
     , null
-)
+);
 
 alter table company
   add constraint company_FK1 foreign key (updated_by) references user(id);
