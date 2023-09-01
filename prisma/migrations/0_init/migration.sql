@@ -29,7 +29,7 @@ CREATE TABLE `company` (
     `updated_at` TIMESTAMP(0) NULL,
     `updated_by` VARCHAR(64) NULL,
     `deleted_at` TIMESTAMP(0) NULL,
-    `existence` BOOLEAN NULL,
+    `existence` BOOLEAN as (CASE WHEN deleted_at IS NULL THEN 1 ELSE NULL END) comment '削除有無:1:有効 NULL:論理削除',
 
     PRIMARY KEY (`id`)
 );
@@ -52,7 +52,7 @@ CREATE TABLE `pharmacy` (
     `updated_at` TIMESTAMP(0) NULL,
     `updated_by` VARCHAR(64) NULL,
     `deleted_at` TIMESTAMP(0) NULL,
-    `existence` BOOLEAN NULL,
+    `existence` BOOLEAN as (CASE WHEN deleted_at IS NULL THEN 1 ELSE NULL END) comment '削除有無:1:有効 NULL:論理削除',
 
     INDEX `pharmacy_FK1`(`company_id`),
     PRIMARY KEY (`id`)
@@ -71,7 +71,7 @@ CREATE TABLE `pharmacy_base_compounding_setting` (
     `updated_at` TIMESTAMP(0) NULL,
     `updated_by` VARCHAR(64) NULL,
     `deleted_at` TIMESTAMP(0) NULL,
-    `existence` BOOLEAN NULL,
+    `existence` BOOLEAN as (CASE WHEN deleted_at IS NULL THEN 1 ELSE NULL END) comment '削除有無:1:有効 NULL:論理削除',
 
     INDEX `pharmacy_base_compounding_setting_FK1`(`pharmacy_id`),
     PRIMARY KEY (`id`)
