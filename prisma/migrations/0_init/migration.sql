@@ -100,7 +100,7 @@ INTO user(
     , deleted_at                                -- 削除日時
 )
 VALUES (
-    '2'
+    '1'
     ,'demo555@upstream-j.co.jp'
     , 'Admin User'
     , 'アドミンユーザ'
