@@ -1,5 +1,8 @@
 # prisma cli 主な利用方法
 
+参考サイト
+https://tech-blog.s-yoshiki.com/entry/315
+
 既存DB構成からschema.prismaを作成
 ```bash
 npx prisma db pull
