@@ -9,7 +9,7 @@
   - https://refine.dev/docs/
 - ComponentFrameWork: MUI
 - ORM: Prisma
-- Test: 
+- Test:
   - e2eはcypress(※PlayWright のほうが並列処理可能なため変更するかも)
   - 単体テストはjest
   - バックエンドはjest、それ以外はcypressが実装コストのバランスがよさそう
@@ -18,9 +18,13 @@
 ## 開発環境の準備
 
 - MySQL version8系をインストール
-- フォルダ直下に .env.local をしてDB接続先を定義(.envのDATABASE_URLを参考にする) 
+- フォルダ直下に .env.local をしてDB接続先を定義(.envのDATABASE_URLを参考にする)
 - voltaをinstall (projectごとにNode,npmのversionを使い分けることが可能)
   - 参考: https://zenn.dev/aiueda/articles/7dcecaa05d4f24
+- VSCodeをインストール（https://code.visualstudio.com/）
+  - 拡張機能「NextJS Developer Extensions Pack」をインストール
+    - 設定①：Editor: Default Formatter -> Prettier - Code formatter
+    - 設定②：Editor: Format On Save -> チェック
 
 ## アプリケーションの実行準備
 
@@ -36,17 +40,17 @@ npm run dev
 
 設定/会社のメニューのみ程度動作します
 
-
 ---
 
 ---
 
 ---
+
 ※以降の情報は基盤開発中のメモ情報です。内容は参考程度に見てください
 
 ## カスタマイズ情報など共有情報
 
-- ルーティング定義は routes/*.tsx に各機能ごとに配置する
+- ルーティング定義は routes/\*.tsx に各機能ごとに配置する
 - primsaは prisma-case-format を利用してsnake_caseのカラム名定義を変数はcamelCaseに変換している
 - DBのページング検索はprisma拡張クライアントを利用してpaginateメソッドを利用可能にしている
 - MUIコンポーネントのpropsデフォルト値を定義する場合は core/contexts/themeContext.tsx に設定可
@@ -69,4 +73,3 @@ npm run dev
 
 develop(release前), review(お客様確認用) のブランチを用意して運用していく..とおもったが
 PRの運用が手間になりそうなのでいい方法を検討中
-
