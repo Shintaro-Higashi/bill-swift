@@ -1,12 +1,12 @@
 import { CompanyCreation, CompanyEditing, CompanyQuery } from '@/types/companies'
 import {
-  fetchPagedCompanies as fetchPaged,
-  fetchCompany as fetch,
-  createCompany as create,
-  updateCompany as update,
   archiveCompany as archive,
+  createCompany as create,
+  fetchCompany as fetch,
+  fetchPagedCompanies as fetchPaged,
+  updateCompany as update,
 } from '@/servers/repositories/CompanyRepository'
-import { depend } from '@/core/utils/velona'
+import depend from '@/core/utils/velona'
 import { performTransaction } from '@/servers/repositories/performTransaction'
 
 /**

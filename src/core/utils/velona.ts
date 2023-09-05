@@ -7,7 +7,7 @@ type Deps<T extends Record<string, any>> = {
   [P in keyof T]: T[P] extends { _velona: boolean } ? (...args: Parameters<T[P]>) => ReturnType<T[P]> : T[P]
 }
 
-export const depend = <T extends Record<string, any>, U extends any[], V>(
+const depend = <T extends Record<string, any>, U extends any[], V>(
   dependencies: T,
   cb: (deps: Deps<T>, ...args: U) => V,
 ) => {
@@ -20,3 +20,4 @@ export const depend = <T extends Record<string, any>, U extends any[], V>(
 
   return fn
 }
+export default depend

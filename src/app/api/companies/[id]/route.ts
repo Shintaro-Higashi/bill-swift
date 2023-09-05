@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/servers/repositories/prisma/configs/prisma'
-import { CompanyEditing, CompanyEditingSchema } from '@/types/companies'
-import { getCurrentDate } from '@/core/utils/dateUtil'
+import { CompanyEditingSchema } from '@/types/companies'
 import { badRequestErrorResponse, notFoundResponse } from '@/core/utils/responseUtil'
 import { archiveCompany, fetchCompany, updateCompany } from '@/servers/services/CompanyService'
 // パスパラメータ

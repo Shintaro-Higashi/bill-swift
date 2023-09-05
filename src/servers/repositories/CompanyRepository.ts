@@ -5,8 +5,8 @@ import { PaginationResult } from '@/types'
 import { CompanyModel } from '@/types/models/companyModel'
 import { getCurrentDate } from '@/core/utils/dateUtil'
 import { createId } from '@paralleldrive/cuid2'
+import depend from '@/core/utils/velona'
 import SortOrder = Prisma.SortOrder
-import { depend } from '@/core/utils/velona'
 
 /**
  * 会社のページング検索を実地します。
