@@ -1,5 +1,3 @@
-import { Prisma } from '.prisma/client'
-
 export interface IPost {
   id: string
   title: string
@@ -14,12 +12,5 @@ export interface ICategory {
   title: string
 }
 
-// ページング検索結果
-export type PaginationResult<M> = {
-  // 検索結果レコード
-  items: M
-  // 検索結果件数
-  count: number
-  // 取得した検索結果レコードの件数
-  pageCount: number
-}
+export * from './models/paginationModel'
+export * from './models/commonRelateUserModel'

@@ -1,7 +1,7 @@
 import { CompanyCreation, CompanyEditing, CompanyQuery } from '@/types/companies'
 import { Prisma } from '.prisma/client'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
-import { PaginationResult } from '@/types'
+import { PaginationModel } from '@/types'
 import { CompanyModel } from '@/types/models/companyModel'
 import { getCurrentDate } from '@/core/utils/dateUtil'
 import { createId } from '@paralleldrive/cuid2'
@@ -13,7 +13,7 @@ import SortOrder = Prisma.SortOrder
  * @param params 検索条件
  * @return 検索結果
  */
-export const fetchPagedCompanies = async (params: CompanyQuery): Promise<PaginationResult<CompanyModel>> => {
+export const fetchPagedCompanies = async (params: CompanyQuery): Promise<PaginationModel<CompanyModel>> => {
   const orderBy: Prisma.CompanyOrderByWithRelationInput[] = [{ id: SortOrder.asc }]
   if (params.sort && params.order) {
     orderBy.unshift({ [params.sort]: params.order })
@@ -26,7 +26,7 @@ export const fetchPagedCompanies = async (params: CompanyQuery): Promise<Paginat
     pageNo: params.pageNo,
     pageSize: params.pageSize,
   })
-  return entities as unknown as PaginationResult<CompanyModel>
+  return entities as unknown as PaginationModel<CompanyModel>
 }
 
 /**
