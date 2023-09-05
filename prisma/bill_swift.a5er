@@ -246,7 +246,7 @@ Position="薬局・施設・患者",1700,300,397,249
 ZOrder=8
 
 [Entity]
-PName=helth_facility
+PName=health_facility
 LName=施設
 Comment=施設の情報を管理
 TableOption=
@@ -268,7 +268,7 @@ Field="患者ソート種別","aptient_sort_type","enum(\qNAME\q, \qCODE\q, \qOT
 EffectMode=None
 Color=$000000
 BkColor=$99FFFF
-ModifiedDateTime=20230817170830
+ModifiedDateTime=20230905093146
 Position="薬局・施設・患者",1000,1400,389,495
 Position="MAIN",700,900,302,95
 ZOrder=9
@@ -304,7 +304,7 @@ Left=1700
 Top=900
 Field="ID","id","*UUID","NOT NULL",0,"","",$FFFFFFFF,""
 Field="患者ID","patient_id","*UUID","NOT NULL",,"","",$FFFFFFFF,""
-Field="施設ID","helth_facility_id","*UUID","NOT NULL",,"","",$FFFFFFFF,""
+Field="施設ID","health_facility_id","*UUID","NOT NULL",,"","",$FFFFFFFF,""
 Field="入居日","start_date","DATE","NOT NULL",,"","",$FFFFFFFF,""
 Field="退居日","end_date","DATE","NOT NULL",,"\q2100-01-01\q","",$FFFFFFFF,""
 Field="退居理由","reason","CHAR(1)",,,"","0: 死亡, 1: 転居",$FFFFFFFF,""
@@ -312,7 +312,7 @@ Field="請求書ソート順","bill_sort","INT",,,"","施設単位での請求�
 EffectMode=None
 Color=$000000
 BkColor=$99FFFF
-ModifiedDateTime=20230817170444
+ModifiedDateTime=20230905093203
 Position="薬局・施設・患者",1700,900,397,301
 Position="MAIN",700,1200,296,101
 ZOrder=11
@@ -390,7 +390,7 @@ TermPos2=R
 ZOrder=16
 
 [Relation]
-Entity1=helth_facility
+Entity1=health_facility
 Entity2=health_facility_relate_pharmacy
 RelationType1=2
 RelationType2=3
@@ -461,12 +461,12 @@ TermPos2=R
 ZOrder=21
 
 [Relation]
-Entity1=helth_facility
+Entity1=health_facility
 Entity2=patient_relate_health_facility
 RelationType1=2
 RelationType2=3
 Fields1=id
-Fields2=helth_facility_id
+Fields2=health_facility_id
 Cardinarity1=
 Cardinarity2=
 Position="MAIN",0,3210,6300,3275,R,R,""
@@ -2192,6 +2192,7 @@ Fields2=pharmacy_group_id
 Cardinarity1=
 Cardinarity2=
 Position="薬局・施設・患者",0,5029,6630,5130,R,R,""
+Position="NSIPS",0,1232,8768,1232,R,R,""
 Dependence=0
 Caption=
 PName=
