@@ -93,7 +93,7 @@ const ListPage: React.FC = () => {
         sortable: false,
         filterable: false,
         renderCell: function render({ row }) {
-          return row.userCompanyCreatedByTouser?.name
+          return row.updatedUser?.name
         },
       },
       {

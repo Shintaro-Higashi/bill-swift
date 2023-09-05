@@ -4,10 +4,11 @@ import { Stack, Typography } from '@mui/material'
 import { useShow } from '@refinedev/core'
 import { CloneButton, DateField, Show, TextFieldComponent as TextField } from '@refinedev/mui'
 import React from 'react'
-import { CompanyModel } from '@/types/companies'
+
 import { notFound } from 'next/navigation'
 import { DATE_FORMAT, HTTP_STATUS } from '@/core/configs/constants'
 import { setTitle } from '@/core/utils/refineUtil'
+import { CompanyModel } from '@/types/models/companyModel'
 
 const ShowPage: React.FC = () => {
   setTitle()
@@ -56,7 +57,7 @@ const ShowPage: React.FC = () => {
         <Typography variant='body1' fontWeight='bold'>
           作成者
         </Typography>
-        <TextField value={record?.userCompanyCreatedByTouser?.name} />
+        <TextField value={record?.createdUser?.name} />
         <Typography variant='body1' fontWeight='bold'>
           更新日時
         </Typography>
@@ -64,7 +65,7 @@ const ShowPage: React.FC = () => {
         <Typography variant='body1' fontWeight='bold'>
           更新者
         </Typography>
-        <TextField value={record?.userCompanyUpdatedByTouser?.name} />
+        <TextField value={record?.updatedUser?.name} />
       </Stack>
     </Show>
   )

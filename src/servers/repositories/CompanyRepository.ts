@@ -21,7 +21,7 @@ export const fetchPagedCompanies = async (params: CompanyQuery): Promise<Paginat
 
   const entities = await prisma.company.paginate({
     where: { id: params.id, name: { contains: params.name }, existence: true },
-    include: { userCompanyCreatedByTouser: true, userCompanyUpdatedByTouser: true },
+    include: { createdUser: true, updatedUser: true },
     orderBy: orderBy,
     pageNo: params.pageNo,
     pageSize: params.pageSize,
@@ -37,7 +37,7 @@ export const fetchPagedCompanies = async (params: CompanyQuery): Promise<Paginat
 export const fetchCompany = async (id: string) => {
   return await prisma.company.findUnique({
     where: { id: id, existence: true },
-    include: { userCompanyCreatedByTouser: true, userCompanyUpdatedByTouser: true },
+    include: { createdUser: true, updatedUser: true },
   })
 }
 
