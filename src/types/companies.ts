@@ -1,12 +1,5 @@
 import { z } from 'zod'
-import { Company, User } from '@prisma/client'
 import { paginationQuerySchema } from '@/types/paging'
-
-// 会社情報
-export type CompanyModel = Company & {
-  userCompanyCreatedByTouser: User | null
-  userCompanyUpdatedByTouser: User | null
-}
 
 // 企業検索クエリスキーマ
 export const CompanyQuerySchema = z

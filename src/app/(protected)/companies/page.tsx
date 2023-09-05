@@ -1,6 +1,6 @@
 'use client'
 
-import { CompanyModel, CompanyQuery, CompanyQuerySchema } from '@/types/companies'
+import { CompanyQuery, CompanyQuerySchema } from '@/types/companies'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
@@ -20,6 +20,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import { zodResolver } from '@hookform/resolvers/zod'
 import StickyTableContent from '@/components/core/grid/stickyTableContent'
 import MuiLink from '@mui/material/Link'
+import { CompanyModel } from '@/types/models/companyModel'
 
 /**
  * 会社一覧画面です。
