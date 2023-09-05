@@ -1,8 +1,6 @@
-import { CompanyCreation, CompanyEditing, CompanyQuery } from '@/types/companies'
+import { CompanyCreationDto, CompanyEditingDto, CompanyModel, CompanyQueryDto, PaginationModel } from '@/types'
 import { Prisma } from '.prisma/client'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
-import { PaginationModel } from '@/types'
-import { CompanyModel } from '@/types/models/companyModel'
 import { getCurrentDate } from '@/core/utils/dateUtil'
 import { createId } from '@paralleldrive/cuid2'
 import depend from '@/core/utils/velona'
@@ -13,7 +11,7 @@ import SortOrder = Prisma.SortOrder
  * @param params 検索条件
  * @return 検索結果
  */
-export const fetchPagedCompanies = async (params: CompanyQuery): Promise<PaginationModel<CompanyModel>> => {
+export const fetchPagedCompanies = async (params: CompanyQueryDto): Promise<PaginationModel<CompanyModel>> => {
   const orderBy: Prisma.CompanyOrderByWithRelationInput[] = [{ id: SortOrder.asc }]
   if (params.sort && params.order) {
     orderBy.unshift({ [params.sort]: params.order })
@@ -45,7 +43,7 @@ export const fetchCompany = async (id: string) => {
  * 会社を作成します。
  * @param params
  */
-export const createCompany = depend({ client: prisma }, async ({ client }, params: CompanyCreation) => {
+export const createCompany = depend({ client: prisma }, async ({ client }, params: CompanyCreationDto) => {
   const now = getCurrentDate()
   return await client.company.create({
     data: {
@@ -64,7 +62,7 @@ export const createCompany = depend({ client: prisma }, async ({ client }, param
  * @param id 会社ID
  * @param params 会社情報
  */
-export const updateCompany = depend({ client: prisma }, async ({ client }, id: string, params: CompanyEditing) => {
+export const updateCompany = depend({ client: prisma }, async ({ client }, id: string, params: CompanyEditingDto) => {
   const now = getCurrentDate()
   return await client.company.update({
     data: {

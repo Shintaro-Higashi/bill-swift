@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { paginationQuerySchema } from '@/types/paging'
+import { paginationQuerySchema } from '@/types/schema/pagination'
 
 // 企業検索クエリスキーマ
 export const CompanyQuerySchema = z
@@ -13,9 +13,6 @@ export const CompanyQuerySchema = z
     sort: z.union([z.literal('name'), z.literal('updatedAt')]),
   })
   .partial()
-
-// 企業検索クエリ
-export type CompanyQuery = z.infer<typeof CompanyQuerySchema>
 
 // 会社作成スキーマ
 export const CompanyCreationSchema = z.object({
@@ -32,10 +29,6 @@ export const CompanyCreationSchema = z.object({
   // FAX番号
   fax: z.string().max(15).optional(),
 })
-// 会社作成フォーム
-export type CompanyCreation = z.infer<typeof CompanyCreationSchema>
 
 // 会社編集スキーマ
 export const CompanyEditingSchema = CompanyCreationSchema.extend({})
-// 会社編集フォーム
-export type CompanyEditing = z.infer<typeof CompanyEditingSchema>

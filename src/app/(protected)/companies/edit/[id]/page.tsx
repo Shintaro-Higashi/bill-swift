@@ -4,14 +4,13 @@ import { Box, TextField } from '@mui/material'
 import { Edit } from '@refinedev/mui'
 import { useForm } from '@refinedev/react-hook-form'
 import { HttpError } from '@refinedev/core'
-import { CompanyEditing, CompanyEditingSchema } from '@/types/companies'
+import { CompanyEditingForm, CompanyEditingSchema, CompanyModel } from '@/types'
 import React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useConfirm from '@/core/hooks/useConfirm'
 import { notFound } from 'next/navigation'
 import { HTTP_STATUS } from '@/core/configs/constants'
 import { setTitle } from '@/core/utils/refineUtil'
-import { CompanyModel } from '@/types/models/companyModel'
 
 const EditPage: React.FC = () => {
   setTitle()
@@ -21,7 +20,7 @@ const EditPage: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CompanyModel, HttpError, CompanyEditing>({
+  } = useForm<CompanyModel, HttpError, CompanyEditingForm>({
     resolver: zodResolver(CompanyEditingSchema),
   })
 

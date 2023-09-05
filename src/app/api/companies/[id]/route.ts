@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { CompanyEditingSchema } from '@/types/companies'
+import { CompanyEditingSchema } from '@/types'
 import { badRequestErrorResponse, notFoundResponse } from '@/core/utils/responseUtil'
-import { archiveCompany, fetchCompany, updateCompany } from '@/servers/services/CompanyService'
-// パスパラメータ
-type Params = {
-  // 会社ID
-  id: string
-}
+import { archiveCompany, fetchCompany, updateCompany } from '@/servers/services/companyService'
+import { ByIdRequest } from '@/types'
 
 /**
  * 会社詳細情報を取得するAPIです。
  */
-export async function GET(_req: NextRequest, { params }: { params: Params }) {
-  const entity = await fetchCompany(params.id)
+export async function GET(_req: NextRequest, { params: { id } }: { params: ByIdRequest }) {
+  const entity = await fetchCompany(id)
   if (!entity) {
     return notFoundResponse()
   }
@@ -24,7 +20,7 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
  * @param req リクエスト情報
  * @param params パスパラメータ
  */
-export async function PATCH(req: NextRequest, { params }: { params: Params }) {
+export async function PATCH(req: NextRequest, { params }: { params: ByIdRequest }) {
   const editData = await req.json()
   const parsed = CompanyEditingSchema.safeParse(editData)
   if (!parsed.success) {
@@ -37,7 +33,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
 /**
  * 会社詳細情報を削除するAPIです。
  */
-export async function DELETE(_req: NextRequest, { params }: { params: Params }) {
-  const entity = await archiveCompany(params.id)
+export async function DELETE(_req: NextRequest, { params: { id } }: { params: ByIdRequest }) {
+  const entity = await archiveCompany(id)
   return NextResponse.json({ id: entity.id })
 }

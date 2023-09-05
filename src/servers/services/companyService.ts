@@ -1,11 +1,11 @@
-import { CompanyCreation, CompanyEditing, CompanyQuery } from '@/types/companies'
+import { CompanyCreationDto, CompanyEditingDto, CompanyQueryDto } from '@/types'
 import {
   archiveCompany as archive,
   createCompany as create,
   fetchCompany as fetch,
   fetchPagedCompanies as fetchPaged,
   updateCompany as update,
-} from '@/servers/repositories/CompanyRepository'
+} from '@/servers/repositories/companyRepository'
 import depend from '@/core/utils/velona'
 import { performTransaction } from '@/servers/repositories/performTransaction'
 
@@ -14,7 +14,7 @@ import { performTransaction } from '@/servers/repositories/performTransaction'
  * @param params 検索条件
  * @return 検索結果
  */
-export const fetchPagedCompanies = depend({ fetchPaged }, async ({ fetchPaged }, params: CompanyQuery) => {
+export const fetchPagedCompanies = depend({ fetchPaged }, async ({ fetchPaged }, params: CompanyQueryDto) => {
   return await fetchPaged(params)
 })
 
@@ -31,7 +31,7 @@ export const fetchCompany = depend({ fetch }, async ({ fetch }, id: string) => {
  * 会社を作成します。
  * @param params
  */
-export const createCompany = depend({ create }, async ({ create }, params: CompanyCreation) => {
+export const createCompany = depend({ create }, async ({ create }, params: CompanyCreationDto) => {
   return await performTransaction(async (tx: any) => {
     const tCreate: typeof create = (create as any).inject({ client: tx })
     return await tCreate(params)
@@ -43,7 +43,7 @@ export const createCompany = depend({ create }, async ({ create }, params: Compa
  * @param id 会社ID
  * @param params 会社情報
  */
-export const updateCompany = depend({ update }, async ({ update }, id: string, params: CompanyEditing) => {
+export const updateCompany = depend({ update }, async ({ update }, id: string, params: CompanyEditingDto) => {
   return await performTransaction(async (tx: any) => {
     const tUpdate: typeof update = (update as any).inject({ client: tx })
     return await tUpdate(id, params)

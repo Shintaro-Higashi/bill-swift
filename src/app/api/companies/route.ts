@@ -1,15 +1,15 @@
 import { queryToObject } from '@/core/utils/commonUtil'
 import { badRequestErrorResponse } from '@/core/utils/responseUtil'
-import { CompanyCreationSchema, CompanyQuery, CompanyQuerySchema } from '@/types/companies'
+import { CompanyCreationSchema, CompanyQueryRequest, CompanyQuerySchema } from '@/types'
 import { NextRequest, NextResponse } from 'next/server'
-import { createCompany, fetchPagedCompanies } from '@/servers/services/CompanyService'
+import { createCompany, fetchPagedCompanies } from '@/servers/services/companyService'
 
 /**
  * 会社リストを取得するAPIです。
  * @param req リクエスト情報
  */
 export async function GET(req: NextRequest) {
-  const query = queryToObject<CompanyQuery>(new URL(req.url).searchParams)
+  const query = queryToObject<CompanyQueryRequest>(new URL(req.url).searchParams)
   const parsed = CompanyQuerySchema.safeParse(query)
   if (!parsed.success) {
     return badRequestErrorResponse(parsed.error)

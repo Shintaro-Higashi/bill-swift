@@ -4,7 +4,7 @@ import { Box, TextField } from '@mui/material'
 import { Create } from '@refinedev/mui'
 import { useForm } from '@refinedev/react-hook-form'
 import { BaseRecord, HttpError } from '@refinedev/core'
-import { CompanyCreation, CompanyCreationSchema } from '@/types/companies'
+import { CompanyCreationForm, CompanyCreationSchema } from '@/types'
 import React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useConfirm from '@/core/hooks/useConfirm'
@@ -18,7 +18,7 @@ const CreatePage: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<BaseRecord, HttpError, CompanyCreation>({
+  } = useForm<BaseRecord, HttpError, CompanyCreationForm>({
     resolver: zodResolver(CompanyCreationSchema),
   })
 

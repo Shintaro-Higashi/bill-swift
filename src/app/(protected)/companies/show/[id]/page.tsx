@@ -8,7 +8,7 @@ import React from 'react'
 import { notFound } from 'next/navigation'
 import { DATE_FORMAT, HTTP_STATUS } from '@/core/configs/constants'
 import { setTitle } from '@/core/utils/refineUtil'
-import { CompanyModel } from '@/types/models/companyModel'
+import { CompanyModel } from '@/types'
 
 const ShowPage: React.FC = () => {
   setTitle()

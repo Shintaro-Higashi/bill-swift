@@ -1,6 +1,5 @@
 'use client'
 
-import { CompanyQuery, CompanyQuerySchema } from '@/types/companies'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
@@ -20,7 +19,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import { zodResolver } from '@hookform/resolvers/zod'
 import StickyTableContent from '@/components/core/grid/stickyTableContent'
 import MuiLink from '@mui/material/Link'
-import { CompanyModel } from '@/types/models/companyModel'
+import { CompanyModel, CompanyQueryForm, CompanyQueryRequest, CompanyQuerySchema } from '@/types'
 
 /**
  * 会社一覧画面です。
@@ -29,7 +28,7 @@ const ListPage: React.FC = () => {
   setTitle()
   const Link = useLink()
   const errorNotification = new QueryFormErrorNotification()
-  const { dataGridProps, filters, search } = useDataGrid<CompanyModel, HttpError, CompanyQuery>({
+  const { dataGridProps, filters, search } = useDataGrid<CompanyModel, HttpError, CompanyQueryRequest>({
     syncWithLocation: true,
     onSearch: (query) => {
       const { id, name } = query
@@ -50,7 +49,7 @@ const ListPage: React.FC = () => {
     handleSubmit,
     formState: { errors },
     setError,
-  } = useForm<BaseRecord, HttpError, CompanyQuery>({
+  } = useForm<BaseRecord, HttpError, CompanyQueryForm>({
     resolver: zodResolver(CompanyQuerySchema),
     defaultValues: {
       id: getDefaultFilter('id', filters, 'eq'),
