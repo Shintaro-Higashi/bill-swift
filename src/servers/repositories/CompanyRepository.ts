@@ -6,6 +6,7 @@ import { CompanyModel } from '@/types/models/companyModel'
 import { getCurrentDate } from '@/core/utils/dateUtil'
 import { createId } from '@paralleldrive/cuid2'
 import SortOrder = Prisma.SortOrder
+import { depend } from '@/core/utils/velona'
 
 /**
  * 会社のページング検索を実地します。
@@ -44,55 +45,48 @@ export const fetchCompany = async (id: string) => {
  * 会社を作成します。
  * @param params
  */
-export const createCompany = async (params: CompanyCreation) => {
+export const createCompany = depend({ client: prisma }, async ({ client }, params: CompanyCreation) => {
   const now = getCurrentDate()
-
-  return await prisma.$transaction(async (tx) => {
-    return await tx.company.create({
-      data: {
-        id: createId(),
-        ...params,
-        createdBy: '1',
-        updatedBy: '1',
-        createdAt: now,
-        updatedAt: now,
-      },
-    })
+  return await client.company.create({
+    data: {
+      id: createId(),
+      ...params,
+      createdBy: '1',
+      updatedBy: '1',
+      createdAt: now,
+      updatedAt: now,
+    },
   })
-}
+})
 
 /**
  * 指定の会社情報を更新します。
  * @param id 会社ID
  * @param params 会社情報
  */
-export const updateCompany = async (id: string, params: CompanyEditing) => {
+export const updateCompany = depend({ client: prisma }, async ({ client }, id: string, params: CompanyEditing) => {
   const now = getCurrentDate()
-  return await prisma.$transaction(async (tx) => {
-    return await tx.company.update({
-      data: {
-        ...params,
-        updatedBy: '1',
-        updatedAt: now,
-      },
-      where: { id: id, existence: true },
-    })
+  return await client.company.update({
+    data: {
+      ...params,
+      updatedBy: '1',
+      updatedAt: now,
+    },
+    where: { id: id, existence: true },
   })
-}
+})
 
 /**
  * 指定の会社情報を論理削除します。
  * @param id 会社ID
  */
-export const archiveCompany = async (id: string) => {
+export const archiveCompany = depend({ client: prisma }, async ({ client }, id: string) => {
   const now = getCurrentDate()
-  return await prisma.$transaction(async (tx) => {
-    return await tx.company.update({
-      data: {
-        updatedBy: '1',
-        deletedAt: now,
-      },
-      where: { id: id, deletedAt: null },
-    })
+  return await client.company.update({
+    data: {
+      updatedBy: '1',
+      deletedAt: now,
+    },
+    where: { id: id, deletedAt: null },
   })
-}
+})

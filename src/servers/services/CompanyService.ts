@@ -7,6 +7,7 @@ import {
   archiveCompany as archive,
 } from '@/servers/repositories/CompanyRepository'
 import { depend } from '@/core/utils/velona'
+import { performTransaction } from '@/servers/repositories/performTransaction'
 
 /**
  * 会社のページング検索を実地します。
@@ -31,7 +32,10 @@ export const fetchCompany = depend({ fetch }, async ({ fetch }, id: string) => {
  * @param params
  */
 export const createCompany = depend({ create }, async ({ create }, params: CompanyCreation) => {
-  return await create(params)
+  return await performTransaction(async (tx) => {
+    const tCreate: create = create.inject({ client: tx })
+    return await tCreate(params)
+  })
 })
 
 /**
@@ -40,7 +44,10 @@ export const createCompany = depend({ create }, async ({ create }, params: Compa
  * @param params 会社情報
  */
 export const updateCompany = depend({ update }, async ({ update }, id: string, params: CompanyEditing) => {
-  return await update(id, params)
+  return await performTransaction(async (tx) => {
+    const tUpdate: update = update.inject({ client: tx })
+    return await tUpdate(id, params)
+  })
 })
 
 /**
@@ -49,5 +56,8 @@ export const updateCompany = depend({ update }, async ({ update }, id: string, p
  * @return 会社情報
  */
 export const archiveCompany = depend({ archive }, async ({ archive }, id: string) => {
-  return await archive(id)
+  return await performTransaction(async (tx) => {
+    const tArchive: archive = archive.inject({ client: tx })
+    return await tArchive(id)
+  })
 })

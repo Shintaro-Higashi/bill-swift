@@ -17,5 +17,6 @@ export const depend = <T extends Record<string, any>, U extends any[], V>(
     (deps: Deps<T>) =>
     (...args: U) =>
       cb(deps, ...args)
+
   return fn
 }
