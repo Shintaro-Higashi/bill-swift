@@ -10,9 +10,6 @@ import replacements from './replaceRelationFieldHash'
 // 置換するprismaスキーマ
 const schemaFile = path.join(__dirname, 'schema.prisma')
 
-// 置換した文字列とその件数を追跡するための変数
-let totalReplacements = 0
-
 // ファイルを非同期で読み込む
 fs.readFile(schemaFile, 'utf8', (err, data) => {
   if (err) {
@@ -26,7 +23,6 @@ fs.readFile(schemaFile, 'utf8', (err, data) => {
     const regex = new RegExp(search, 'g')
     const matches = updatedData.match(regex)
     if (matches) {
-      totalReplacements += matches.length
       updatedData = updatedData.replace(regex, replace)
       console.log(`フィールド'${search}'が${matches.length}件見つかりました`)
     } else {
