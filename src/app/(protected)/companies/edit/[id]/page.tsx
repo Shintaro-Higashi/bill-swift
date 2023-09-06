@@ -33,7 +33,7 @@ const EditPage: React.FC = () => {
 
   const { $confirm } = useConfirm()
 
-  const handleEdit = (e: React.BaseSyntheticEvent | any) => {
+  const handleEdit = (e: any) => {
     $confirm({
       message: '会社を編集します。操作を続けてもよろしいですか',
       onConfirm() {
