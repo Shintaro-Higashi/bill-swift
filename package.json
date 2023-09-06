@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS=--max_old_space_size=4096 refine dev",
+    "dev": "cross-env FORCE_COLOR=true NODE_OPTIONS=--max_old_space_size=4096 refine dev | pino-pretty -tc",
     "start": "cross-env NODE_OPTIONS=--max_old_space_size=4096 refine dev",
     "build": "refine build && rimraf .next/cache",
     "start:prod": "refine start",
@@ -44,6 +44,8 @@
     "next": "^13.4.16",
     "next-i18next": "^14.0.0",
     "nookies": "^2.5.2",
+    "pino": "^8.15.0",
+    "pino-pretty": "^10.2.0",
     "prisma": "^5.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -66,6 +68,7 @@
     "eslint-config-next": "^13.4.16",
     "prettier": "^3.0.2",
     "prisma-case-format": "^1.7.2",
+    "prisma-query-log": "^3.2.0",
     "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
