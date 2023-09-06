@@ -13,7 +13,8 @@ const errorMap: ZodErrorMap = (issue, _ctx) => {
   switch (issue.code) {
     case ZodIssueCode.invalid_type:
       if (issue.received === ZodParsedType.undefined) {
-        message = 'Required'
+        // message = 'Required'
+        message = '必須項目です'
       } else {
         message = `Expected ${issue.expected}, received ${issue.received}`
       }
@@ -69,9 +70,10 @@ const errorMap: ZodErrorMap = (issue, _ctx) => {
           issue.minimum
         } element(s)`
       else if (issue.type === 'string')
-        message = `String must contain ${issue.exact ? 'exactly' : issue.inclusive ? `at least` : `over`} ${
-          issue.minimum
-        } character(s)`
+        // message = `String must contain ${issue.exact ? 'exactly' : issue.inclusive ? `at least` : `over`} ${
+        //   issue.minimum
+        // } character(s)`
+        message = `${issue.minimum}文字${issue.exact ? `` : issue.inclusive ? `以上` : `より多く`}で入力してください`
       else if (issue.type === 'number')
         message = `Number must be ${
           issue.exact ? `exactly equal to ` : issue.inclusive ? `greater than or equal to ` : `greater than `
