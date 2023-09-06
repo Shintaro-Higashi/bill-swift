@@ -3,15 +3,18 @@ import { CompanyCreationForm, CompanyEditingForm } from '@/types'
 import { Box, TextField } from '@mui/material'
 import React from 'react'
 
+// 会社作成、編集フォームプロパティ
+type Props = {
+  /** 会社作成、編集入力フィールド情報 */
+  register: UseFormRegister<CompanyCreationForm | CompanyEditingForm>
+  // ォーム入力エラー情報
+  errors: FieldErrors<CompanyCreationForm | CompanyEditingForm>
+}
+
 /**
  * 会社作成、編集フォームです。
- * @params props.register 会社作成、編集入力フィールド情報
- * @params props.errors フォーム入力エラー情報
  */
-export const CompanySaveForm = (props: {
-  register: UseFormRegister<CompanyCreationForm | CompanyEditingForm>
-  errors: FieldErrors<CompanyCreationForm | CompanyEditingForm>
-}) => {
+export const CompanySaveForm = (props: Props) => {
   const { register, errors } = props
   return (
     <Box component='form' sx={{ display: 'flex', flexDirection: 'column' }} autoComplete='off'>
