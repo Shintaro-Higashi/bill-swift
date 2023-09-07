@@ -55,7 +55,7 @@ export const CompanySaveForm = (props: Props) => {
       />
       <TextField
         {...register('fax')}
-        label='電話番号'
+        label='FAX番号'
         placeholder='0362310529'
         error={!!errors.fax}
         helperText={'ハイフンなしで入力 ' + (errors.fax?.message || '')}
