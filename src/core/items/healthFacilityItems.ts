@@ -26,9 +26,9 @@ export const PATIENT_SORT_TYPE_LIST = sortTypeKeys.map((key) => ({
  * @param defaultValue 該当キーがない場合のデフォルト値
  * @return 患者ソート順値
  */
-export const getPatientSortTypeValue = (key: keyof typeof PATIENT_SORT_TYPE | string, defaultValue: string = '') => {
+export const getPatientSortTypeValue = (key: PatientSortTypeKey | string, defaultValue: string = '') => {
   if (key in PATIENT_SORT_TYPE) {
-    return PATIENT_SORT_TYPE[key as keyof typeof PATIENT_SORT_TYPE]
+    return PATIENT_SORT_TYPE[key as PatientSortTypeKey]
   }
   return defaultValue
 }
@@ -38,9 +38,7 @@ export const getPatientSortTypeValue = (key: keyof typeof PATIENT_SORT_TYPE | st
  * @param value 患者ソート順値
  * @return 患者ソート順値。該当key情報がない場合はundefined
  */
-export const getPatientSortTypeKey = (value: string): keyof typeof PATIENT_SORT_TYPE | undefined => {
-  const keys = Object.keys(PATIENT_SORT_TYPE) as (keyof typeof PATIENT_SORT_TYPE)[]
+export const getPatientSortTypeKey = (value: PatientSortTypeValue | string): PatientSortTypeKey | undefined => {
+  const keys = Object.keys(PATIENT_SORT_TYPE) as PatientSortTypeKey[]
   return keys.find((key) => PATIENT_SORT_TYPE[key] === value)
 }
-
-console.log(getPatientSortTypeValue('あいうえお'))
