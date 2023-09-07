@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "cross-env FORCE_COLOR=true NODE_OPTIONS=--max_old_space_size=4096 refine dev | pino-pretty -tc",
-    "start": "cross-env NODE_OPTIONS=--max_old_space_size=4096 refine dev",
     "build": "refine build && rimraf .next/cache",
     "start:prod": "refine start",
     "prisma-generate": "dotenv -e .env.local -- prisma db pull && prisma-case-format --file ./prisma/schema.prisma && ts-node --project tsconfig.local.json prisma/replaceRelationField.ts && prisma generate",

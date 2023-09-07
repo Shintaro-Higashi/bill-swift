@@ -1,4 +1,4 @@
-import { utcToZonedTime, zonedTimeToUtc, format } from 'date-fns-tz'
+import { format, formatInTimeZone, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz'
 
 /**
  * 日付に関連するユーティリティ関数を提供します。
@@ -31,4 +31,21 @@ export const getCurrentFormatDate = ({ fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = '
  */
 export const toUTCDate = (date: Date, { timeZone = 'Asia/Tokyo' } = {}) => {
   return zonedTimeToUtc(date, timeZone)
+}
+
+/**
+ * 指定の日付を指定書式の文字列に変換します。
+ * @param datetime 日付
+ * @param options オプション
+ * @param options.fmt 書式 [yyyy-MM-dd HH:mm:ss]
+ * @param options.timeZone タイムゾーン [Asia/Tokyo]
+ * @return 指定書式変換後の日付文字列
+ */
+export const formatDateTime = (
+  datetime: Date | undefined | null,
+  options: { fmt?: string; timeZone?: string } = {},
+) => {
+  if (!datetime) return ''
+  const { fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = 'Asia/Tokyo' } = options
+  return formatInTimeZone(datetime, timeZone, fmt)
 }

@@ -1,27 +1,28 @@
 'use client'
 
-import { Stack, Typography } from '@mui/material'
+import { Stack } from '@mui/material'
 import { useShow } from '@refinedev/core'
-import { CloneButton, DateField, Show, TextFieldComponent as TextField } from '@refinedev/mui'
+import { CloneButton, Show } from '@refinedev/mui'
 import React from 'react'
 
 import { notFound } from 'next/navigation'
-import { DATE_FORMAT, HTTP_STATUS } from '@/core/configs/constants'
+import { HTTP_STATUS } from '@/core/configs/constants'
 import { setTitle } from '@/core/utils/refineUtil'
 import { CompanyModel } from '@/types'
+import { FieldItem } from '@components/core/content/FieldItem'
+import { formatDateTime } from '@/core/utils/dateUtil'
 
 const ShowPage: React.FC = () => {
   setTitle()
   const { queryResult } = useShow<CompanyModel>({ errorNotification: false })
   const { data, isLoading, error } = queryResult
   const record = data?.data
-
   if ((error as any)?.statusCode === HTTP_STATUS.NOT_FOUND) {
     notFound()
   }
   return (
     <Show
-      isLoading={isLoading}
+      isLoading={isLoading && !record}
       headerButtons={({ defaultButtons }) => (
         <>
           {defaultButtons}
@@ -30,42 +31,14 @@ const ShowPage: React.FC = () => {
       )}
     >
       <Stack gap={1}>
-        <Typography variant='body1' fontWeight='bold'>
-          ID
-        </Typography>
-        <TextField value={record?.id} />
-        <Typography variant='body1' fontWeight='bold'>
-          会社名
-        </Typography>
-        <TextField value={record?.name} />
-        <Typography variant='body1' fontWeight='bold'>
-          郵便番号
-        </Typography>
-        <TextField value={record?.postalCode} />
-        <Typography variant='body1' fontWeight='bold'>
-          住所1
-        </Typography>
-        <TextField value={record?.address1} />
-        <Typography variant='body1' fontWeight='bold'>
-          住所2
-        </Typography>
-        <TextField value={record?.address2} />
-        <Typography variant='body1' fontWeight='bold'>
-          作成日時
-        </Typography>
-        <DateField value={record?.createdAt} format={DATE_FORMAT} />
-        <Typography variant='body1' fontWeight='bold'>
-          作成者
-        </Typography>
-        <TextField value={record?.createdUser?.name} />
-        <Typography variant='body1' fontWeight='bold'>
-          更新日時
-        </Typography>
-        <DateField value={record?.updatedAt} format={DATE_FORMAT} />
-        <Typography variant='body1' fontWeight='bold'>
-          更新者
-        </Typography>
-        <TextField value={record?.updatedUser?.name} />
+        <FieldItem label='ID' value={record?.id} />
+        <FieldItem label='会社名' value={record?.name} />
+        <FieldItem label='郵便番号' value={record?.postalCode} />
+        <FieldItem label='住所' value={(record?.address1 || '') + '\n' + (record?.address2 || '')} multiline />
+        <FieldItem label='作成日時' value={formatDateTime(record?.createdAt)} />
+        <FieldItem label='作成者' value={record?.createdUser?.name} />
+        <FieldItem label='更新日時' value={formatDateTime(record?.createdAt)} />
+        <FieldItem label='更新者' value={record?.updatedUser?.name} />
       </Stack>
     </Show>
   )
