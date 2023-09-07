@@ -26,7 +26,7 @@ export const PATIENT_SORT_TYPE_LIST = sortTypeKeys.map((key) => ({
  * @param defaultValue 該当キーがない場合のデフォルト値
  * @return 患者ソート順値
  */
-export const getPatientSortTypeValue = (key: PatientSortTypeKey | string, defaultValue: string = '') => {
+export const getPatientSortTypeValue = (key: PatientSortTypeKey, defaultValue: string = '') => {
   if (key in PATIENT_SORT_TYPE) {
     return PATIENT_SORT_TYPE[key as PatientSortTypeKey]
   }
