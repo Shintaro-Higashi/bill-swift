@@ -13,7 +13,7 @@ export type PatientSortTypeKey = keyof typeof PATIENT_SORT_TYPE
 export type PatientSortTypeValue = (typeof PATIENT_SORT_TYPE)[keyof typeof PATIENT_SORT_TYPE]
 
 /** 患者ソート順キーリスト */
-export const PATIENT_SORT_TYPE_KEY_LIST = Object.keys(PATIENT_SORT_TYPE) as PatientSortTypeKey[]
+export const PATIENT_SORT_TYPE_KEY_LIST = Object.keys(PATIENT_SORT_TYPE) as readonly PatientSortTypeKey[]
 
 /** 患者ソート順リスト */
 export const PATIENT_SORT_TYPE_LIST = PATIENT_SORT_TYPE_KEY_LIST.map((key) => ({
