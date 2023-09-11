@@ -1,0 +1,7 @@
+/** prisma seedなど自作のBatchを実地する時に利用するtsconfigです */
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "allowSyntheticDefaultImports": true
+  }
+}

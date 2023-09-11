@@ -1,0 +1,182 @@
+{
+  "pages": {
+    "login": {
+      "title": "Sign in to your account",
+      "signin": "ログイン",
+      "signup": "Sign up",
+      "divider": "or",
+      "fields": {
+        "email": "Email",
+        "password": "Password"
+      },
+      "errors": {
+        "validEmail": "未登録のメールアドレスです"
+      },
+      "buttons": {
+        "submit": "Login",
+        "forgotPassword": "パスワードを忘れた場合",
+        "noAccount": "Don’t have an account?",
+        "rememberMe": "次回から自動でログイン"
+      }
+    },
+    "forgotPassword": {
+      "title": "パスワード再設定",
+      "fields": {
+        "email": "Email"
+      },
+      "errors": {
+        "validEmail": "未登録のメールアドレスです"
+      },
+      "buttons": {
+        "submit": "パスワードの再設定"
+      }
+    },
+    "register": {
+      "title": "Sign up for your account",
+      "fields": {
+        "email": "Email",
+        "password": "Password"
+      },
+      "errors": {
+        "validEmail": "Invalid email address"
+      },
+      "buttons": {
+        "submit": "登録",
+        "haveAccount": "アカウントをお持ちの場合"
+      }
+    },
+    "updatePassword": {
+      "title": "Update password",
+      "fields": {
+        "password": "New Password",
+        "confirmPassword": "Confirm new password"
+      },
+      "errors": {
+        "confirmPasswordNotMatch": "Passwords do not match"
+      },
+      "buttons": {
+        "submit": "Update"
+      }
+    },
+    "error": {
+      "info": "You may have forgotten to add the {{action}} component to {{resource}} resource.",
+      "404": "Sorry, the page you visited does not exist.",
+      "resource404": "Are you sure you have created the {{resource}} resource.",
+      "backHome": "Back Home"
+    }
+  },
+  "actions": {
+    "list": "一覧",
+    "create": "作成",
+    "edit": "編集",
+    "show": "表示"
+  },
+  "buttons": {
+    "create": "作成",
+    "save": "保存",
+    "logout": "ログアウト",
+    "delete": "削除",
+    "edit": "編集",
+    "cancel": "キャンセル",
+    "confirm": "操作を続けてもよろしいですか?",
+    "filter": "フィルタ",
+    "clear": "クリア",
+    "refresh": "最新に更新",
+    "show": "表示",
+    "undo": "戻す",
+    "import": "インポート",
+    "clone": "複製",
+    "notAccessTitle": "アクセス権限がありません",
+    "search": "検索"
+  },
+  "warnWhenUnsavedChanges": "Are you sure you want to leave? You have unsaved changes.",
+  "notifications": {
+    "success": "操作完了",
+    "error": "エラー (ステータス: {{statusCode}})",
+    "undoable": "You have {{seconds}} seconds to undo",
+    "createSuccess": "{{resource}} を作成しました",
+    "createError": "{{resource}} の作成ができませんでした (ステータス: {{statusCode}})",
+    "deleteSuccess": "{{resource}} を削除しました",
+    "deleteError": "{{resource}} の削除ができませんでした (ステータス: {{statusCode}})",
+    "editSuccess": "{{resource}} を変更しました",
+    "editError": "{{resource}} の変更ができませんでした (ステータス: {{statusCode}})",
+    "importProgress": "インポート中: {{processed}}/{{total}}"
+  },
+  "loading": "Loading",
+  "tags": {
+    "clone": "複製"
+  },
+  "dashboard": {
+    "title": "ダッシュボード"
+  },
+  "documentTitle": {
+    "default": "bill-swift",
+    "suffix": " | bill-swift",
+    "post": {
+      "list": "記事一覧",
+      "show": "#{{id}} Show Post | bill-swift",
+      "edit": "#{{id}} Edit Post | bill-swift",
+      "create": "Create new Post | bill-swift",
+      "clone": "#{{id}} Clone Post | bill-swift"
+    }
+  },
+  "autoSave": {
+    "success": "saved",
+    "error": "auto save failure",
+    "loading": "saving...",
+    "idle": "waiting for changes"
+  },
+  "settingGroups": {
+    "settingGroups": "設定"
+  },
+  "patients": {
+    "patients": "患者",
+    "titles": {
+      "list": "患者一覧",
+      "show": "患者詳細",
+      "edit": "患者編集",
+      "create": "患者作成",
+      "clone": "患者複製作成"
+    }
+  },
+  "companies": {
+    "companies": "会社",
+    "titles": {
+      "list": "会社一覧",
+      "show": "会社詳細",
+      "edit": "会社編集",
+      "create": "会社作成",
+      "clone": "会社複製作成"
+    }
+  },
+  "pharmacies": {
+    "pharmacies": "薬局",
+    "titles": {
+      "list": "薬局一覧",
+      "show": "薬局詳細",
+      "edit": "薬局編集",
+      "create": "薬局作成",
+      "clone": "薬局複製作成"
+    }
+  },
+  "users": {
+    "users": "ユーザ",
+    "titles": {
+      "list": "ユーザ一覧",
+      "show": "ユーザ詳細",
+      "edit": "ユーザ編集",
+      "create": "ユーザ作成",
+      "clone": "ユーザ複製作成"
+    }
+  },
+  "posts": {
+    "posts": "記事",
+    "titles": {
+      "list": "記事一覧",
+      "show": "記事詳細",
+      "edit": "記事編集",
+      "create": "記事作成",
+      "clone": "記事複製作成"
+    }
+  }
+}
