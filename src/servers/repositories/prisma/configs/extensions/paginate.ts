@@ -34,7 +34,7 @@ const paginate = {
           pageSize: number | undefined
         },
       ): Promise<PaginationResult<T, A>> {
-        const { pageNo = PAGINATE_CONFIG.DEFAULT_PAGE_SIZE, pageSize = 1 } = args
+        const { pageNo = 1, pageSize = PAGINATE_CONFIG.DEFAULT_PAGE_SIZE } = args
         const [items, count] = await Promise.all([
           this.findMany({
             select: (args as any).select,
