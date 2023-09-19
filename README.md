@@ -6,7 +6,7 @@
   - バックエンドもapp directoryを利用したRestAPIを提供して実装
 - Refine dev
   - 管理画面系構築FW。主要なComponentFrameWorkを自由に選択可能、カスタマイズ性が強い等の理由で採用
-  - https://refine.dev/docs/
+  - <https://refine.dev/docs/>
 - ComponentFrameWork: MUI
 - ORM: Prisma
 - Test:
@@ -20,8 +20,8 @@
 - MySQL version8系をインストール
 - フォルダ直下に .env.local をしてDB接続先を定義(.envのDATABASE_URLを参考にする)
 - voltaをinstall (projectごとにNode,npmのversionを使い分けることが可能)
-  - 参考: https://zenn.dev/aiueda/articles/7dcecaa05d4f24
-- VSCodeをインストール（https://code.visualstudio.com/）
+  - 参考: <https://zenn.dev/aiueda/articles/7dcecaa05d4f24>
+- VSCodeをインストール（<https://code.visualstudio.com/）>
   - 拡張機能「NextJS Developer Extensions Pack」をインストール
     - 設定①：Editor: Default Formatter -> Prettier - Code formatter
     - 設定②：Editor: Format On Save -> チェック
@@ -54,14 +54,14 @@ npm run dev
 - primsaは prisma-case-format を利用してsnake_caseのカラム名定義を変数はcamelCaseに変換している
 - DBのページング検索はprisma拡張クライアントを利用してpaginateメソッドを利用可能にしている
 - MUIコンポーネントのpropsデフォルト値を定義する場合は core/contexts/themeContext.tsx に設定可
-- アイコンはここから探す https://mui.com/material-ui/material-icons/
+- アイコンはここから探す <https://mui.com/material-ui/material-icons/>
 - styleの定義
   - MUIはsxプロパティを利用する
-    - https://mui.com/system/getting-started/the-sx-prop/
-    - https://mui.com/system/properties/
+    - <https://mui.com/system/getting-started/the-sx-prop/>
+    - <https://mui.com/system/properties/>
   - その他はemotionで定義する @emotion/react の記述がおすすめ？
-    - https://zuma-lab.com/posts/next-mui-emotion-settings
-    - CSS変換ツール https://transform.tools/css-to-js
+    - <https://zuma-lab.com/posts/next-mui-emotion-settings>
+    - CSS変換ツール <https://transform.tools/css-to-js>
 - prisma extensionはhot reloadされないので注意
 
 ## 実装ルール
