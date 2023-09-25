@@ -13,109 +13,111 @@ const errorMap: ZodErrorMap = (issue, _ctx) => {
   switch (issue.code) {
     case ZodIssueCode.invalid_type:
       if (issue.received === ZodParsedType.undefined) {
-        // message = 'Required'
-        message = '必須項目です'
+        message = '必須項目を入力してください'
       } else {
-        message = `Expected ${issue.expected}, received ${issue.received}`
+        message = `データ型：${JSON.stringify(issue.expected)}で入力してください（入力値：${JSON.stringify(
+          issue.received,
+        )}）`
       }
       break
     case ZodIssueCode.invalid_literal:
-      message = `Invalid literal value, expected ${JSON.stringify(issue.expected, util.jsonStringifyReplacer)}`
+      message = `次の値を入力してください【${JSON.stringify(issue.expected, util.jsonStringifyReplacer)}】`
       break
     case ZodIssueCode.unrecognized_keys:
-      message = `Unrecognized key(s) in object: ${util.joinValues(issue.keys, ', ')}`
+      message = `不正な値が入力されました: ${util.joinValues(issue.keys, ', ')}`
       break
     case ZodIssueCode.invalid_union:
-      message = `Invalid input`
+      message = `不正な値が入力されました`
       break
     case ZodIssueCode.invalid_union_discriminator:
-      message = `Invalid discriminator value. Expected ${util.joinValues(issue.options)}`
+      message = `【${issue.options.map((value) => JSON.stringify(value))}】のいずれかの値を入力してください`
       break
     case ZodIssueCode.invalid_enum_value:
-      message = `Invalid enum value. Expected ${util.joinValues(issue.options)}, received '${issue.received}'`
+      message = `【${issue.options.map((value) => JSON.stringify(value))}】のいずれかの値を入力してください`
       break
     case ZodIssueCode.invalid_arguments:
-      message = `Invalid function arguments`
+      message = `不正な値が入力されました`
       break
     case ZodIssueCode.invalid_return_type:
-      message = `Invalid function return type`
+      message = `不正な値が入力されました`
       break
     case ZodIssueCode.invalid_date:
-      message = `Invalid date`
+      message = `不正な日付が入力されました`
       break
     case ZodIssueCode.invalid_string:
       if (typeof issue.validation === 'object') {
         if ('includes' in issue.validation) {
-          message = `Invalid input: must include "${issue.validation.includes}"`
+          message = `必ず${JSON.stringify(issue.validation.includes)}を含む文字列を入力してください`
 
           if (typeof issue.validation.position === 'number') {
-            message = `${message} at one or more positions greater than or equal to ${issue.validation.position}`
+            message = `${message}　${JSON.stringify(issue.validation.position)}以降で不正な値が検出されました`
           }
         } else if ('startsWith' in issue.validation) {
-          message = `Invalid input: must start with "${issue.validation.startsWith}"`
+          message = `${JSON.stringify(issue.validation.startsWith)}で始まる文字列を入力してください`
         } else if ('endsWith' in issue.validation) {
-          message = `Invalid input: must end with "${issue.validation.endsWith}"`
+          message = `${JSON.stringify(issue.validation.endsWith)}"で終わる文字列を入力してください`
         } else {
           util.assertNever(issue.validation)
         }
       } else if (issue.validation !== 'regex') {
-        message = `Invalid ${issue.validation}`
+        message = `不正な値が入力されました ${JSON.stringify(issue.validation)}`
       } else {
-        message = 'Invalid'
+        message = '不正な値が入力されました'
       }
       break
     case ZodIssueCode.too_small:
       if (issue.type === 'array')
-        message = `Array must contain ${issue.exact ? 'exactly' : issue.inclusive ? `at least` : `more than`} ${
-          issue.minimum
-        } element(s)`
+        message = `${JSON.stringify(issue.minimum)}個${
+          issue.exact ? `の` : issue.inclusive ? `以上の` : `より多く`
+        }項目を選択してください`
       else if (issue.type === 'string')
-        // message = `String must contain ${issue.exact ? 'exactly' : issue.inclusive ? `at least` : `over`} ${
-        //   issue.minimum
-        // } character(s)`
-        message = `${issue.minimum}文字${issue.exact ? `` : issue.inclusive ? `以上` : `より多く`}で入力してください`
+        message = `${JSON.stringify(issue.minimum)}文字${
+          issue.exact ? `` : issue.inclusive ? `以上` : `より多く`
+        }で入力してください`
       else if (issue.type === 'number')
-        message = `Number must be ${
-          issue.exact ? `exactly equal to ` : issue.inclusive ? `greater than or equal to ` : `greater than `
-        }${issue.minimum}`
+        message = `${JSON.stringify(issue.minimum)}${
+          issue.exact ? `を` : issue.inclusive ? `以上で` : `より多く`
+        }入力してください`
       else if (issue.type === 'date')
-        message = `Date must be ${
-          issue.exact ? `exactly equal to ` : issue.inclusive ? `greater than or equal to ` : `greater than `
-        }${new Date(Number(issue.minimum))}`
-      else message = 'Invalid input'
+        message = `日付は${JSON.stringify(new Date(Number(issue.minimum)))}${
+          issue.exact ? `` : issue.inclusive ? `以降` : `より先の日程`
+        }を入力してください`
+      else message = '不正な値が入力されました'
       break
     case ZodIssueCode.too_big:
       if (issue.type === 'array')
-        message = `Array must contain ${issue.exact ? `exactly` : issue.inclusive ? `at most` : `less than`} ${
-          issue.maximum
-        } element(s)`
+        message = `${JSON.stringify(issue.maximum)}個${
+          issue.exact ? `` : issue.inclusive ? `以下` : `未満`
+        }の項目を選択してください`
       else if (issue.type === 'string')
-        message = `${issue.maximum}文字${issue.exact ? `` : issue.inclusive ? `以内` : `未満`} で入力してください`
+        message = `${JSON.stringify(issue.maximum)}文字${
+          issue.exact ? `` : issue.inclusive ? `以下` : `未満`
+        }で入力してください`
       else if (issue.type === 'number')
-        message = `Number must be ${
-          issue.exact ? `exactly` : issue.inclusive ? `less than or equal to` : `less than`
-        } ${issue.maximum}`
+        message = `${JSON.stringify(issue.maximum)}${
+          issue.exact ? `` : issue.inclusive ? `以下` : `未満`
+        }で入力してください`
       else if (issue.type === 'bigint')
-        message = `BigInt must be ${
-          issue.exact ? `exactly` : issue.inclusive ? `less than or equal to` : `less than`
-        } ${issue.maximum}`
+        message = `BigIntは${JSON.stringify(issue.maximum)}${
+          issue.exact ? `` : issue.inclusive ? `以下` : `未満`
+        }で入力してください`
       else if (issue.type === 'date')
-        message = `Date must be ${
-          issue.exact ? `exactly` : issue.inclusive ? `smaller than or equal to` : `smaller than`
-        } ${new Date(Number(issue.maximum))}`
-      else message = 'Invalid input'
+        message = `日付は${JSON.stringify(new Date(Number(issue.maximum)))}${
+          issue.exact ? `` : issue.inclusive ? `以前` : `より前の日程`
+        }を入力してください`
+      else message = '不正な値が入力されました'
       break
     case ZodIssueCode.custom:
-      message = `Invalid input`
+      message = `不正な値が入力されました`
       break
     case ZodIssueCode.invalid_intersection_types:
-      message = `Intersection results could not be merged`
+      message = `不正な値が入力されました`
       break
     case ZodIssueCode.not_multiple_of:
-      message = `Number must be a multiple of ${issue.multipleOf}`
+      message = `${issue.multipleOf}の倍数を入力してください`
       break
     case ZodIssueCode.not_finite:
-      message = 'Number must be finite'
+      message = '有効な数値を入力してください'
       break
     default:
       message = _ctx.defaultError
