@@ -19,15 +19,15 @@ export const CompanyCreationSchema = z.object({
   // 企業名
   name: z.string().max(32).nonempty(),
   // 郵便番号
-  postalCode: z.string().max(7).nonempty(),
+  postalCode: z.string().max(8).nonempty(),
   // 住所1
   address1: z.string().max(20).nonempty(),
   // 住所2
   address2: z.string().max(20).optional(),
   // 電話番号
-  telephone: z.string().max(15).nonempty(),
+  telephone: z.string().max(16).nonempty(),
   // FAX番号
-  fax: z.string().max(15).optional(),
+  fax: z.string().max(16).optional(),
 })
 
 // 会社編集スキーマ

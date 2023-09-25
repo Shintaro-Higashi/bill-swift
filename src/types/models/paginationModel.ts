@@ -4,7 +4,7 @@
  */
 export type PaginationModel<M> = {
   // 検索結果レコード
-  items: M
+  items: M[]
   // 検索結果件数
   count: number
   // 取得した検索結果レコードの件数

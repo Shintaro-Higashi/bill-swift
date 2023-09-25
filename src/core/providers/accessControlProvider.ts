@@ -1,5 +1,4 @@
-import { CanParams } from '@refinedev/core'
-import { AccessControlProvider } from '@refinedev/core/src/contexts/accessControl/IAccessControlContext'
+import { AccessControlProvider, CanParams } from '@refinedev/core'
 
 /**
  * アクセス権限を制御するためのProvider定義です。

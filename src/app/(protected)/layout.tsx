@@ -1,6 +1,6 @@
 'use client'
 
-import { AppIcon } from 'src/components/core/appIcon'
+import { AppIcon } from '@components/core/appIcon'
 import { Header } from '@components/core/header/header'
 import { Authenticated } from '@refinedev/core'
 import { ThemedLayoutV2, ThemedTitleV2 } from '@refinedev/mui'

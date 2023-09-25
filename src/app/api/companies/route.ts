@@ -1,22 +1,20 @@
 import { queryToObject } from '@/core/utils/commonUtil'
-import { badRequestErrorResponse } from '@/core/utils/responseUtil'
 import { CompanyCreationSchema, CompanyQueryRequest, CompanyQuerySchema } from '@/types'
 import { NextRequest, NextResponse } from 'next/server'
 import { createCompany, fetchPagedCompanies } from '@/servers/services/companyService'
+import { performRequest } from '@/core/utils/requestUtil'
 
 /**
  * 会社リストを取得するAPIです。
  * @param req リクエスト情報
  */
 export async function GET(req: NextRequest) {
-  const query = queryToObject<CompanyQueryRequest>(new URL(req.url).searchParams)
-  const parsed = CompanyQuerySchema.safeParse(query)
-  if (!parsed.success) {
-    return badRequestErrorResponse(parsed.error)
-  }
-
-  const response = await fetchPagedCompanies(parsed.data)
-  return NextResponse.json(response)
+  return await performRequest(async () => {
+    const query = queryToObject<CompanyQueryRequest>(new URL(req.url).searchParams)
+    const parseQuery = CompanyQuerySchema.parse(query)
+    const response = await fetchPagedCompanies(parseQuery)
+    return NextResponse.json(response)
+  })
 }
 
 /**
@@ -24,11 +22,10 @@ export async function GET(req: NextRequest) {
  * @param req リクエスト情報
  */
 export async function POST(req: NextRequest) {
-  const createData = await req.json()
-  const parsed = CompanyCreationSchema.safeParse(createData)
-  if (!parsed.success) {
-    return badRequestErrorResponse(parsed.error)
-  }
-  const response = await createCompany(parsed.data)
-  return NextResponse.json(response)
+  return await performRequest(async () => {
+    const createData = await req.json()
+    const parsedCreateData = CompanyCreationSchema.parse(createData)
+    const response = await createCompany(parsedCreateData)
+    return NextResponse.json(response)
+  })
 }

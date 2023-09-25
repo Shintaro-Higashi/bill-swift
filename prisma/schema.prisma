@@ -2,6 +2,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator fabbrica {
+  provider    = "prisma-fabbrica"
+  output      = "../src/tests/__generated__/fabbrica"
+  noTranspile = "true"
+  tsconfig    = "../tsconfig.local.json"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")

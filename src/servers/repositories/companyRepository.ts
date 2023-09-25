@@ -33,7 +33,7 @@ export const fetchPagedCompanies = async (params: CompanyQueryDto): Promise<Pagi
  * @return 会社情報
  */
 export const fetchCompany = async (id: string) => {
-  return await prisma.company.findUnique({
+  return await prisma.company.findUniqueOrThrow({
     where: { id: id, existence: true },
     include: { createdUser: true, updatedUser: true },
   })

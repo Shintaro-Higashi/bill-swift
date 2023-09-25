@@ -5,3 +5,10 @@ node_modules
 # environment variables
 .env.*
 !.env.example
+
+# e2e playwright exclude
+/e2e-results/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+playwright-state.json

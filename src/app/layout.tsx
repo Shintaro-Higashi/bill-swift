@@ -9,8 +9,6 @@ import GlobalStyles from '@mui/material/GlobalStyles'
 import { Refine } from '@refinedev/core'
 import { RefineKbar, RefineKbarProvider } from '@refinedev/kbar'
 import { notificationProvider, RefineSnackbarProvider } from '@refinedev/mui'
-// app dir modeでは動作しない
-// import { UnsavedChangesNotifier } from '@refinedev/nextjs-router'
 import routerProvider from '@refinedev/nextjs-router/app'
 import dataProvider from '@refinedev/simple-rest'
 import { useTranslation } from 'next-i18next'
@@ -19,7 +17,8 @@ import i18nProviderInstance from '@/core/providers/i18nProvider'
 import { z } from 'zod'
 import zodErrorMapJp from '@/core/configs/i18n/zodErrorMapJp'
 import { accessControlProvider } from '@/core/providers/accessControlProvider'
-
+// app dir modeでは動作しない
+// import { UnsavedChangesNotifier } from '@refinedev/nextjs-router'
 /**
  * アプリケーション共通のレイアウト定義です。
  * <pre>

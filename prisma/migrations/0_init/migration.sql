@@ -58,7 +58,6 @@ CREATE TABLE health_facility_code_group (
   , CONSTRAINT health_facility_code_group_PKC PRIMARY KEY (id)
 ) COMMENT '施設コードグループ:施設の採番単位のグループを管理' ;
 
-
 -- 会社
 CREATE TABLE company (
   id VARCHAR(64) NOT NULL COMMENT 'ID'

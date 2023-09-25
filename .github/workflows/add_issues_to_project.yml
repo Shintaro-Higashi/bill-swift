@@ -1,0 +1,24 @@
+# issue テンプレートではprojectの設定ができないため本Actionでissue作成時に自動でProjectの割当を実地します。
+# https://dev.classmethod.jp/articles/github-actions-auto-register-issues-to-projects/
+name: Auto add issue to project
+on:
+  issues:
+    types:
+      - opened
+jobs:
+  add-to-project:
+    name: Add issue to project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1.8.0
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+      - uses: actions/add-to-project@v0.5.0
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        with:
+          project-url: https://github.com/orgs/upstream-japan/projects/3
+          github-token: ${{ env.GITHUB_TOKEN }}

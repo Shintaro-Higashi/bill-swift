@@ -1,14 +1,14 @@
 import { HTTP_STATUS } from '@/core/configs/constants'
-import { HttpError, useResource, useTranslate } from '@refinedev/core'
-import { UseFormSetError } from 'react-hook-form'
-import { OpenNotificationParams } from '@refinedev/core/src/interfaces'
-import { FieldValues } from 'react-hook-form/dist/types/fields'
+import { HttpError, OpenNotificationParams } from '@refinedev/core'
+import { FieldValues, UseFormSetError } from 'react-hook-form'
 
 /**
  * ページタイトルを設定します。
  * @param title
  */
 export const setTitle = (title?: string) => {
+  document.title = 'bill-swift'
+  /*
   const { resource, identifier, action } = useResource()
   if (!resource) {
     document.title = 'bill-swift'
@@ -24,6 +24,7 @@ export const setTitle = (title?: string) => {
   const key = `${identifier}.titles.${action}`
   const translateTitle = translate(key)
   document.title = translateTitle + ' | bill-swift'
+   */
 }
 
 /**

@@ -31,6 +31,7 @@
 - `npm install` を実施してnode_modulesをinstall
 - `npm run migrate:local` を実施してテーブルを作成
 - `npm run prisma-generate` を実施してnode_modules配下に@prisma/client を生成
+- `npx playwright install-deps` を実地してPlaywrightの関連モジュールを全てインストールする
 
 ## アプリケーションの実行法
 
