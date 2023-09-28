@@ -1,0 +1,3 @@
+.terraform/
+terraform.tfvars
+/env/dev/.terraform.lock.hcl

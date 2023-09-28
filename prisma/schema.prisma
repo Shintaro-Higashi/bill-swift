@@ -5,8 +5,8 @@ generator client {
 generator fabbrica {
   provider    = "prisma-fabbrica"
   output      = "../src/tests/__generated__/fabbrica"
-  tsconfig    = "../tsconfig.local.json"
   noTranspile = "true"
+  tsconfig    = "../tsconfig.local.json"
 }
 
 datasource db {

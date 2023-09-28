@@ -35,7 +35,7 @@ const ShowPage: React.FC = () => {
         <FieldItem label='会社名' value={record?.name} />
         <FieldItem label='郵便番号' value={record?.postalCode} />
         <FieldItem label='住所' value={(record?.address1 || '') + '\n' + (record?.address2 || '')} multiline />
-        <FieldItem label='電話番号' value={record?.telephone} />
+        <FieldItem label='電話番号' value={record?.tel} />
         <FieldItem label='FAX番号' value={record?.fax} />
         <FieldItem label='作成日時' value={formatDateTime(record?.createdAt)} />
         <FieldItem label='作成者' value={record?.createdUser?.name} />

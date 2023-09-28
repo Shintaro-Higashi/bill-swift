@@ -47,11 +47,11 @@ export const CompanySaveForm = (props: Props) => {
         helperText={'住所1に収まらない場合に入力 ' + (errors.address2?.message || '')}
       />
       <TextField
-        {...register('telephone')}
+        {...register('tel')}
         label='電話番号'
         placeholder='0362062657'
-        error={!!errors.telephone}
-        helperText={'ハイフンなしで入力 ' + (errors.telephone?.message || '')}
+        error={!!errors.tel}
+        helperText={'ハイフンなしで入力 ' + (errors.tel?.message || '')}
       />
       <TextField
         {...register('fax')}

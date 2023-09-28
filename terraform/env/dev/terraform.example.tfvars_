@@ -1,0 +1,30 @@
+# 変更不要です。タグやリソース名の一部に利用します。
+service = "bill_swift"
+# タグやリソース名の一部に利用します。dev,stage,prod を想定しています。
+environment = "dev"
+# aws credentials アクセスキー
+access_key  = "xxxx"
+# aws credentials  シークレットキー
+secret_key  = "xxxxxxx"
+# リージョン (変更不要です)
+region = "ap-northeast-1"
+#DB情報
+db_identifier = "billswift"
+db_name     = "bill_swift"
+db_username = "root"
+db_password = "xxxxxxxxxxxxxx"
+# github repository
+source_url    = "https://github.com/upstream-japan/bill-swift"
+source_branch = "releases/xxxx" // releases/dev , releases/stage , releases/prod のいずれか
+
+# apprunner ビルド、起動command
+build_command = "npm install && npm run build:dev"
+start_command = "npm run start"
+##
+# app.env
+# *_ssm に関してはサンプル通りのパラメータパス値どおりに AWS Systems Manager > パラメータストア
+# から機密化したパラメータを作成してください。ssmはterraform上では管理していません。
+##
+app_env_url = "https://zucbmhvuqz.ap-northeast-1.awsapprunner.com"
+app_env_next_auth_secret_ssm = "/billswift/dev/next_auth/secret"
+app_env_database_url_ssm = "/billswift/dev/database/url"
