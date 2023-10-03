@@ -54,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   options={{
                     syncWithLocation: true,
                     warnWhenUnsavedChanges: true,
+                    disableTelemetry: true,
                     // 登録,更新系後の遷移先を詳細画面に設定
                     redirect: {
                       afterCreate: 'show',
