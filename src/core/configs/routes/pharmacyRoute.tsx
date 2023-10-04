@@ -1,12 +1,11 @@
 import settingGroupRoute from '@/core/configs/routes/settingGroupRoute'
 import StoreIcon from '@mui/icons-material/Store'
 import { ResourceProps } from '@refinedev/core'
-import companyRoute from '@/core/configs/routes/companyRoute'
 
 const name = 'pharmacies'
-const order = companyRoute.meta?.order + 1
+const order = settingGroupRoute.meta?.order + 1
 /**
- * 薬局管理リソース情報です
+ * 店舗管理リソース情報です
  */
 const ROUTE: ResourceProps = {
   name,
@@ -14,6 +13,7 @@ const ROUTE: ResourceProps = {
   create: `/${name}/create`,
   edit: `/${name}/edit/:id`,
   show: `/${name}/show/:id`,
+  clone: `/${name}/create/:id`,
   meta: {
     parent: settingGroupRoute.name,
     order,

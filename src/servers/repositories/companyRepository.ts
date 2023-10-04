@@ -7,7 +7,7 @@ import depend from '@/core/utils/velona'
 import SortOrder = Prisma.SortOrder
 
 /**
- * 会社のページング検索を実地します。
+ * 会社のページング検索を実施します。
  * @param params 検索条件
  * @return 検索結果
  */

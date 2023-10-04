@@ -7,7 +7,7 @@ import React from 'react'
 type Props = {
   /** 会社作成、編集入力フィールド情報 */
   register: UseFormRegister<CompanyCreationForm | CompanyEditingForm>
-  // ォーム入力エラー情報
+  // フォーム入力エラー情報
   errors: FieldErrors<CompanyCreationForm | CompanyEditingForm>
 }
 

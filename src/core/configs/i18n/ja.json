@@ -150,13 +150,13 @@
     }
   },
   "pharmacies": {
-    "pharmacies": "薬局",
+    "pharmacies": "店舗",
     "titles": {
-      "list": "薬局一覧",
-      "show": "薬局詳細",
-      "edit": "薬局編集",
-      "create": "薬局作成",
-      "clone": "薬局複製作成"
+      "list": "店舗一覧",
+      "show": "店舗詳細",
+      "edit": "店舗編集",
+      "create": "店舗作成",
+      "clone": "店舗複製作成"
     }
   },
   "users": {

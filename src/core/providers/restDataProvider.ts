@@ -73,6 +73,7 @@ const restDataProvider = (apiUrl: string, httpClient: AxiosInstance = axiosInsta
         total: data.count,
       }
     },
+    getMany: undefined,
   }
 }
 
