@@ -31,14 +31,10 @@ const ListPage: React.FC = () => {
   const { dataGridProps, filters, search } = useDataGrid<CompanyModel, HttpError, CompanyQueryRequest>({
     syncWithLocation: true,
     onSearch: (query) => {
-      const { id, name } = query
+      const { name } = query
       // Point: operator値に応じてフィールド名が可変になるので全てeqで統一がよさそう(汎用的なoperatorは対応しないため)
       const filters: CrudFilters = []
-      filters.push(
-        { field: 'id', operator: 'eq', value: id },
-        { field: 'name', operator: 'eq', value: name },
-        { field: '_uid', operator: 'eq', value: uniqueId() },
-      )
+      filters.push({ field: 'name', operator: 'eq', value: name }, { field: '_uid', operator: 'eq', value: uniqueId() })
       return filters
     },
     errorNotification: errorNotification.notification,
@@ -52,7 +48,6 @@ const ListPage: React.FC = () => {
   } = useForm<BaseRecord, HttpError, CompanyQueryForm>({
     resolver: zodResolver(CompanyQuerySchema),
     defaultValues: {
-      id: getDefaultFilter('id', filters, 'eq'),
       name: getDefaultFilter('name', filters, 'eq'),
     },
   })
@@ -128,13 +123,6 @@ const ListPage: React.FC = () => {
               autoComplete='off'
               onSubmit={handleSubmit(search)}
             >
-              <TextField
-                {...register('id')}
-                label='ID'
-                placeholder='ID'
-                error={!!errors.id}
-                helperText={errors.id?.message || QUERY_FORM_HINT.MATCH}
-              />
               <TextField
                 {...register('name')}
                 label='会社名'

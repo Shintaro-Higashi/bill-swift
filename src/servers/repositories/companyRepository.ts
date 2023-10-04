@@ -18,7 +18,7 @@ export const fetchPagedCompanies = async (params: CompanyQueryDto): Promise<Pagi
   }
 
   const entities = await prisma.company.paginate({
-    where: { id: params.id, name: { contains: params.name }, existence: true },
+    where: { name: { contains: params.name }, existence: true },
     include: { createdUser: true, updatedUser: true },
     orderBy: orderBy,
     pageNo: params.pageNo,
@@ -35,7 +35,7 @@ export const fetchPagedCompanies = async (params: CompanyQueryDto): Promise<Pagi
 export const fetchCompany = async (id: string) => {
   return await prisma.company.findUniqueOrThrow({
     where: { id: id, existence: true },
-    include: { createdUser: true, updatedUser: true },
+    include: { healthFacilityCodeGroup: true, createdUser: true, updatedUser: true },
   })
 }
 
@@ -49,8 +49,10 @@ export const createCompany = depend({ client: prisma }, async ({ client }, param
     data: {
       id: createId(),
       ...params,
-      createdBy: '1',
-      updatedBy: '1',
+      // TODO: accountTypeのデータ型が定まり次第修正
+      accountType: params.accountType?.toString(),
+      createdBy: '0000000000000000000U0001',
+      updatedBy: '0000000000000000000U0001',
       createdAt: now,
       updatedAt: now,
     },
@@ -67,7 +69,9 @@ export const updateCompany = depend({ client: prisma }, async ({ client }, id: s
   return await client.company.update({
     data: {
       ...params,
-      updatedBy: '1',
+      // TODO: accountTypeのデータ型が定まり次第修正
+      accountType: params.accountType?.toString(),
+      updatedBy: '0000000000000000000U0001',
       updatedAt: now,
     },
     where: { id: id, existence: true },
@@ -82,7 +86,7 @@ export const archiveCompany = depend({ client: prisma }, async ({ client }, id: 
   const now = getCurrentDate()
   return await client.company.update({
     data: {
-      updatedBy: '1',
+      updatedBy: '0000000000000000000U0001',
       deletedAt: now,
     },
     where: { id: id, deletedAt: null },

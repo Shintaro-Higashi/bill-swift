@@ -39,7 +39,7 @@ export const PharmacyCreationSchema = z.object({
   // 電話番号
   tel: z.string().max(16).nonempty().refine(validTel, validTelMessage),
   // FAX番号
-  fax: z.string().max(16).nullish().refine(validTel, validTelMessage),
+  fax: z.string().max(16).refine(validTel, validTelMessage).nullish(),
 })
 
 // 店舗編集スキーマ

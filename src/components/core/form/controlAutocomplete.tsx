@@ -4,7 +4,7 @@ import { useAutocomplete } from '@refinedev/mui'
 import { TextField, Autocomplete } from '@mui/material'
 
 /**
- * カスタムオートコンプリートプロパティ（※汎用的なコンポーネントにするため、部分的にanyを利用）
+ * ControlAutocompleteプロパティ（※汎用的なコンポーネントにするため、部分的にanyを利用）
  */
 type Props = {
   /** リソース名 */
@@ -28,14 +28,17 @@ type Props = {
 }
 
 /**
+ * ※※※　Resourceによりサーバーの情報を取得する場合は、こちらのControlAutocompleteを使用してください。※※※
+ *
  * MUIのAutoCompleteをReact Hook Formと組み合わせて利用する場合に利用するWrapperComponentです。
  * 通常のControl + Autocomplete を定義するよりも簡易に記述することが可能です。
  *
  * ※オプションのラベルを変更したい場合は、optionLabelを設定してください。
  * 　デフォルトのラベル：オプションのname
  * ※オプションをどの値で検索するかを指定したい場合は、onSearchFieldを設定してください。
- * <pre>
+ *
  * 使用例：オプションのラベルを「名前(カナ)」に設定する場合（queryResultはuseFormより取得）
+ * <pre>
  * const postsData = queryResult?.data ? queryResult.data.data : undefined
  * <ControlAutocomplete
  *   resource='companies'

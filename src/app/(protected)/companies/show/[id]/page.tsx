@@ -11,6 +11,7 @@ import { setTitle } from '@/core/utils/refineUtil'
 import { CompanyModel } from '@/types'
 import { FieldItem } from '@components/core/content/FieldItem'
 import { formatDateTime } from '@/core/utils/dateUtil'
+import { getAccountTypeValue } from '@/shared/items/accountType'
 
 const ShowPage: React.FC = () => {
   setTitle()
@@ -32,11 +33,21 @@ const ShowPage: React.FC = () => {
     >
       <Stack gap={1}>
         <FieldItem label='ID' value={record?.id} />
-        <FieldItem label='会社名' value={record?.name} />
+        <FieldItem label='名称' value={record?.name} />
+        <FieldItem label='カナ名称' value={record?.nameKana} />
         <FieldItem label='郵便番号' value={record?.postalCode} />
         <FieldItem label='住所' value={(record?.address1 || '') + '\n' + (record?.address2 || '')} multiline />
         <FieldItem label='電話番号' value={record?.tel} />
         <FieldItem label='FAX番号' value={record?.fax} />
+        <FieldItem label='インボイス登録番号' value={record?.invoiceNo} />
+        <FieldItem label='金融機関コード' value={record?.financialCode} />
+        <FieldItem label='金融機関名' value={record?.financialName} />
+        <FieldItem label='支店コード' value={record?.branchCode} />
+        <FieldItem label='支店名称' value={record?.branchName} />
+        <FieldItem label='口座種別' value={getAccountTypeValue(record?.accountType)} />
+        <FieldItem label='口座番号' value={record?.accountNo} />
+        <FieldItem label='口座名義' value={record?.accountName} />
+        <FieldItem label='施設コードグループ名' value={record?.healthFacilityCodeGroup?.name} />
         <FieldItem label='作成日時' value={formatDateTime(record?.createdAt)} />
         <FieldItem label='作成者' value={record?.createdUser?.name} />
         <FieldItem label='更新日時' value={formatDateTime(record?.createdAt)} />

@@ -19,6 +19,7 @@ const EditPage: React.FC = () => {
     refineCore: { queryResult, formLoading },
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<CompanyModel, HttpError, CompanyEditingForm>({
     resolver: zodResolver(CompanyEditingSchema),
@@ -48,7 +49,7 @@ const EditPage: React.FC = () => {
       isLoading={formLoading}
       saveButtonProps={{ disabled: saveButtonProps.disabled, onClick: handleSubmit(handleEdit) }}
     >
-      <CompanySaveForm register={register} errors={errors} />
+      <CompanySaveForm register={register} queryResult={queryResult} control={control} errors={errors} />
     </Edit>
   )
 }

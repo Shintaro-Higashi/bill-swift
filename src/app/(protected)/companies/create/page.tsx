@@ -17,6 +17,7 @@ const CreatePage: React.FC = () => {
     refineCore: { formLoading },
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<BaseRecord, HttpError, CompanyCreationForm>({
     resolver: zodResolver(CompanyCreationSchema),
@@ -38,7 +39,7 @@ const CreatePage: React.FC = () => {
       isLoading={formLoading}
       saveButtonProps={{ disabled: saveButtonProps.disabled, onClick: handleSubmit(handleCreate) }}
     >
-      <CompanySaveForm register={register} errors={errors} />
+      <CompanySaveForm register={register} control={control} errors={errors} />
     </Create>
   )
 }

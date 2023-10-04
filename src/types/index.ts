@@ -37,3 +37,10 @@ export * from './models/pharmacyGroupModel'
 export * from './api/pharmacyGroup'
 export * from './server/pharmacyGroup'
 export * from './client/pharmacyGroup'
+
+// 施設コードグループ
+export * from './schema/healthFacilityCodeGroup'
+export * from './models/healthFacilityCodeGroupModel'
+export * from './api/healthFacilityCodeGroup'
+export * from './server/healthFacilityCodeGroup'
+export * from './client/healthFacilityCodeGroup'
