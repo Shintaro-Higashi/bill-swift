@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import { paginationQuerySchema } from '@/types/schema/pagination'
-import { validPostalCode, validPostalCodeMessage } from '@/core/validators/validPostalCode'
-import { validTel, validTelMessage } from '@/core/validators/validTel'
+import { schemaPostalCode } from '@/core/validators/schemaPostalCode'
+import { schemaTel } from '@/core/validators/schemaTel'
+import { schemaString, schemaStringSelectMessage } from '@/core/validators/schemaString'
 
 // 店舗検索クエリスキーマ
 export const PharmacyQuerySchema = z
@@ -21,25 +22,25 @@ export const PharmacyQuerySchema = z
 // 店舗作成スキーマ
 export const PharmacyCreationSchema = z.object({
   // 会社ID
-  companyId: z.string().max(64).nonempty(),
+  companyId: schemaString(64, true, schemaStringSelectMessage),
   // 薬局ID
-  pharmacyGroupId: z.string().max(64).nonempty(),
+  pharmacyGroupId: schemaString(64, true, schemaStringSelectMessage),
   // 店舗名称
-  name: z.string().max(64).nonempty(),
+  name: schemaString(64, true),
   // 店舗カナ名称
-  nameKana: z.string().max(128).nonempty(),
+  nameKana: schemaString(128, true),
   // 医療機関コード
-  medicalInstitutionCode: z.string().max(16).nullish(),
+  medicalInstitutionCode: schemaString(16),
   // 郵便番号
-  postalCode: z.string().nonempty().refine(validPostalCode, validPostalCodeMessage),
+  postalCode: schemaPostalCode(true),
   // 住所1
-  address1: z.string().max(128).nonempty(),
+  address1: schemaString(128, true),
   // 住所2
-  address2: z.string().max(128).nullish(),
+  address2: schemaString(128),
   // 電話番号
-  tel: z.string().max(16).nonempty().refine(validTel, validTelMessage),
+  tel: schemaTel(true),
   // FAX番号
-  fax: z.string().max(16).refine(validTel, validTelMessage).nullish(),
+  fax: schemaTel(),
 })
 
 // 店舗編集スキーマ

@@ -1,11 +1,12 @@
 import { z } from 'zod'
 import { paginationQuerySchema } from '@/types/schema/pagination'
-import { validPostalCode, validPostalCodeMessage } from '@/core/validators/validPostalCode'
-import { validTel, validTelMessage } from '@/core/validators/validTel'
-import { validInvoiceNo, validInvoiceNoMessage } from '@/core/validators/validInvoiceNo'
-import { validFixedLength, validFixedLengthMessage } from '@/core/validators/validFixedLength'
+import { schemaPostalCode } from '@/core/validators/schemaPostalCode'
+import { schemaTel } from '@/core/validators/schemaTel'
+import { schemaInvoiceNo } from '@/core/validators/schemaInvoiceNo'
+import { schemaFixedLength } from '@/core/validators/schemaFixedLength'
 import createUnionSchema from '@/core/utils/zodUtil'
 import { ACCOUNT_TYPE_KEY_LIST } from '@/shared/items/accountType'
+import { schemaString, schemaStringSelectMessage } from '@/core/validators/schemaString'
 
 // 企業検索クエリスキーマ
 export const CompanyQuerySchema = z
@@ -21,43 +22,37 @@ export const CompanyQuerySchema = z
 // 会社作成スキーマ
 export const CompanyCreationSchema = z.object({
   // 企業名
-  name: z.string().max(64).nonempty(),
+  name: schemaString(64, true),
   // 企業名フリガナ
-  nameKana: z.string().max(128).nonempty(),
+  nameKana: schemaString(128, true),
   // 郵便番号
-  postalCode: z.string().nonempty().refine(validPostalCode, validPostalCodeMessage),
+  postalCode: schemaPostalCode(true),
   // 住所1
-  address1: z.string().max(128).nonempty(),
+  address1: schemaString(128, true),
   // 住所2
-  address2: z.string().max(128).nullish(),
+  address2: schemaString(128),
   // 電話番号
-  tel: z.string().max(16).nonempty().refine(validTel, validTelMessage),
+  tel: schemaTel(true),
   // FAX番号
-  fax: z.string().max(16).refine(validTel, validTelMessage).nullish(),
+  fax: schemaTel(),
   // インボイス番号
-  invoiceNo: z.string().max(14).refine(validInvoiceNo, validInvoiceNoMessage).nullish(),
+  invoiceNo: schemaInvoiceNo(),
   // 金融機関コード
-  financialCode: z
-    .string()
-    .nullish()
-    .refine((val) => validFixedLength(val, 4), validFixedLengthMessage(4)),
+  financialCode: schemaFixedLength(4),
   // 金融機関名
-  financialName: z.string().max(128).nullish(),
+  financialName: schemaString(128),
   // 支店コード
-  branchCode: z
-    .string()
-    .nullish()
-    .refine((val) => validFixedLength(val, 3), validFixedLengthMessage(3)),
+  branchCode: schemaFixedLength(3),
   // 支店名
-  branchName: z.string().max(128).nullish(),
+  branchName: schemaString(128),
   // 口座種別
   accountType: createUnionSchema(ACCOUNT_TYPE_KEY_LIST).nullish(),
   // 口座番号
-  accountNo: z.string().max(7).nullish(),
+  accountNo: schemaString(7),
   // 口座名義
-  accountName: z.string().max(128).nullish(),
+  accountName: schemaString(128),
   // 施設コードグループID
-  healthFacilityCodeGroupId: z.string().max(64).nonempty(),
+  healthFacilityCodeGroupId: schemaString(64, true, schemaStringSelectMessage),
 })
 
 // 会社編集スキーマ

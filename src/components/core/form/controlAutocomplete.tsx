@@ -7,6 +7,8 @@ import { TextField, Autocomplete } from '@mui/material'
  * ControlAutocompleteプロパティ（※汎用的なコンポーネントにするため、部分的にanyを利用）
  */
 type Props = {
+  /** 必須項目 */
+  required?: boolean
   /** リソース名 */
   resource: string
   /** 表示名 */
@@ -57,7 +59,7 @@ type Props = {
  */
 
 export const ControlAutocomplete = (props: Props) => {
-  const { resource, label, name, control, error, helperText, defaultId, onSearchField, optionLabel } = props
+  const { required, resource, label, name, control, error, helperText, defaultId, onSearchField, optionLabel } = props
 
   const { autocompleteProps } = useAutocomplete({
     resource: resource,
@@ -97,7 +99,9 @@ export const ControlAutocomplete = (props: Props) => {
               </li>
             )
           }}
-          renderInput={(params) => <TextField {...params} label={label} error={error} helperText={helperText} />}
+          renderInput={(params) => (
+            <TextField {...params} required={required} label={label} error={error} helperText={helperText} />
+          )}
         />
       )}
     />

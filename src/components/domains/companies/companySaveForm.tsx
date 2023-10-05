@@ -30,6 +30,7 @@ export const CompanySaveForm = (props: Props) => {
   return (
     <Box component='form' sx={{ display: 'flex', flexDirection: 'column' }} autoComplete='off'>
       <TextField
+        required
         {...register('name')}
         label='名称'
         placeholder='XXX株式会社'
@@ -37,6 +38,7 @@ export const CompanySaveForm = (props: Props) => {
         helperText={errors.name?.message}
       />
       <TextField
+        required
         {...register('nameKana')}
         label='カナ名称'
         placeholder='XXXカブシキガイシャ'
@@ -44,6 +46,7 @@ export const CompanySaveForm = (props: Props) => {
         helperText={errors.nameKana?.message}
       />
       <TextField
+        required
         {...register('postalCode')}
         label='郵便番号'
         placeholder='103-0027'
@@ -51,6 +54,7 @@ export const CompanySaveForm = (props: Props) => {
         helperText={'ハイフン付きで入力 ' + (errors.postalCode?.message || '')}
       />
       <TextField
+        required
         {...register('address1')}
         label='住所1'
         placeholder='東京都中央区日本橋浜町2-6-1'
@@ -65,6 +69,7 @@ export const CompanySaveForm = (props: Props) => {
         helperText={'住所1に収まらない場合に入力 ' + (errors.address2?.message || '')}
       />
       <TextField
+        required
         {...register('tel')}
         label='電話番号'
         placeholder='03-6206-2657'
@@ -136,6 +141,7 @@ export const CompanySaveForm = (props: Props) => {
         helperText={errors.accountName?.message}
       />
       <ControlAutocomplete
+        required
         resource='healthFacilityCodeGroups'
         label='施設コードグループ'
         name='healthFacilityCodeGroupId'

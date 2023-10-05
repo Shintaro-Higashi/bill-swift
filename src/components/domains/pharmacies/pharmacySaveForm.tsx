@@ -28,6 +28,7 @@ export const PharmacySaveForm = (props: Props) => {
   return (
     <Box component='form' sx={{ display: 'flex', flexDirection: 'column' }} autoComplete='off'>
       <ControlAutocomplete
+        required
         resource='companies'
         label='会社名'
         name='companyId'
@@ -37,6 +38,7 @@ export const PharmacySaveForm = (props: Props) => {
         helperText={errors.companyId?.message}
       />
       <ControlAutocomplete
+        required
         resource='pharmacyGroups'
         label='薬局名'
         name='pharmacyGroupId'
@@ -46,6 +48,7 @@ export const PharmacySaveForm = (props: Props) => {
         helperText={errors.pharmacyGroupId?.message}
       />
       <TextField
+        required
         {...register('name')}
         label='店舗名称'
         placeholder=''
@@ -53,6 +56,7 @@ export const PharmacySaveForm = (props: Props) => {
         helperText={errors.name?.message}
       />
       <TextField
+        required
         {...register('nameKana')}
         label='店舗カナ名称'
         placeholder=''
@@ -67,6 +71,7 @@ export const PharmacySaveForm = (props: Props) => {
         helperText={errors.medicalInstitutionCode?.message}
       />
       <TextField
+        required
         {...register('postalCode')}
         label='郵便番号'
         placeholder='103-0027'
@@ -74,6 +79,7 @@ export const PharmacySaveForm = (props: Props) => {
         helperText={'ハイフン付きで入力 ' + (errors.postalCode?.message || '')}
       />
       <TextField
+        required
         {...register('address1')}
         label='住所1'
         placeholder='東京都中央区日本橋浜町2-6-1'
@@ -88,6 +94,7 @@ export const PharmacySaveForm = (props: Props) => {
         helperText={'住所1に収まらない場合に入力 ' + (errors.address2?.message || '')}
       />
       <TextField
+        required
         {...register('tel')}
         label='電話番号'
         placeholder='03-6206-2657'
