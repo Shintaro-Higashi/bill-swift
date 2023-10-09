@@ -6,7 +6,7 @@ import { stringify } from 'query-string'
 type MethodTypes = 'get' | 'delete' | 'head' | 'options'
 
 // デフォルトで利用するHTTPClient (現在これ以外の利用予定はない)
-const axiosInstance = axios.create()
+export const axiosInstance = axios.create()
 axiosInstance.interceptors.response.use(
   (response) => {
     return response

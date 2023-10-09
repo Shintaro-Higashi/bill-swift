@@ -495,6 +495,22 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "pharmacyGroupUpdatedUser",
                 type: "PharmacyGroup",
                 relationName: "pharmacy_group_updated_byTouser"
+            }, {
+                name: "createdUser",
+                type: "User",
+                relationName: "user_created_byTouser"
+            }, {
+                name: "otherUserUserCreatedByTouser",
+                type: "User",
+                relationName: "user_created_byTouser"
+            }, {
+                name: "updatedUser",
+                type: "User",
+                relationName: "user_updated_byTouser"
+            }, {
+                name: "otherUserUserUpdatedByTouser",
+                type: "User",
+                relationName: "user_updated_byTouser"
             }]
     }];
 
@@ -3216,22 +3232,30 @@ export function definePharmacyGroupFactory<TOptions extends PharmacyGroupFactory
 type UserScalarOrEnumFields = {
     id: string;
     userType: UserUserType;
-    mail: string;
     name: string;
+    userId: string;
+};
+
+type UsercreatedUserFactory = {
+    _factoryFor: "User";
+    build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutOtherUserUserCreatedByTouserInput["create"]>;
+};
+
+type UserupdatedUserFactory = {
+    _factoryFor: "User";
+    build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutOtherUserUserUpdatedByTouserInput["create"]>;
 };
 
 type UserFactoryDefineInput = {
     id?: string;
     userType?: UserUserType;
-    mail?: string;
     name?: string;
+    userId?: string;
     password?: string | null;
     pharmacyId?: string | null;
     patientId?: string | null;
     createdAt?: Date | null;
-    createdBy?: string | null;
     updatedAt?: Date | null;
-    updatedBy?: string | null;
     deletedAt?: Date | null;
     existence?: boolean | null;
     companyCreatedUser?: Prisma.CompanyCreateNestedManyWithoutCreatedUserInput;
@@ -3268,6 +3292,10 @@ type UserFactoryDefineInput = {
     pharmacyBaseCompoundingSettingUpdatedUser?: Prisma.PharmacyBaseCompoundingSettingCreateNestedManyWithoutUpdatedUserInput;
     pharmacyGroupCreatedUser?: Prisma.PharmacyGroupCreateNestedManyWithoutCreatedUserInput;
     pharmacyGroupUpdatedUser?: Prisma.PharmacyGroupCreateNestedManyWithoutUpdatedUserInput;
+    createdUser?: UsercreatedUserFactory | Prisma.UserCreateNestedOneWithoutOtherUserUserCreatedByTouserInput;
+    otherUserUserCreatedByTouser?: Prisma.UserCreateNestedManyWithoutCreatedUserInput;
+    updatedUser?: UserupdatedUserFactory | Prisma.UserCreateNestedOneWithoutOtherUserUserUpdatedByTouserInput;
+    otherUserUserUpdatedByTouser?: Prisma.UserCreateNestedManyWithoutUpdatedUserInput;
 };
 
 type UserFactoryDefineOptions = {
@@ -3278,6 +3306,14 @@ type UserFactoryDefineOptions = {
         };
     };
 };
+
+function isUsercreatedUserFactory(x: UsercreatedUserFactory | Prisma.UserCreateNestedOneWithoutOtherUserUserCreatedByTouserInput | undefined): x is UsercreatedUserFactory {
+    return (x as any)?._factoryFor === "User";
+}
+
+function isUserupdatedUserFactory(x: UserupdatedUserFactory | Prisma.UserCreateNestedOneWithoutOtherUserUserUpdatedByTouserInput | undefined): x is UserupdatedUserFactory {
+    return (x as any)?._factoryFor === "User";
+}
 
 type UserTraitKeys<TOptions extends UserFactoryDefineOptions> = keyof TOptions["traits"];
 
@@ -3302,8 +3338,8 @@ function autoGenerateUserScalarsOrEnums({ seq }: {
     return {
         id: getScalarFieldValueGenerator().String({ modelName: "User", fieldName: "id", isId: true, isUnique: false, seq }),
         userType: "ADMIN",
-        mail: getScalarFieldValueGenerator().String({ modelName: "User", fieldName: "mail", isId: false, isUnique: false, seq }),
-        name: getScalarFieldValueGenerator().String({ modelName: "User", fieldName: "name", isId: false, isUnique: false, seq })
+        name: getScalarFieldValueGenerator().String({ modelName: "User", fieldName: "name", isId: false, isUnique: false, seq }),
+        userId: getScalarFieldValueGenerator().String({ modelName: "User", fieldName: "userId", isId: false, isUnique: true, seq })
     };
 }
 
@@ -3325,7 +3361,14 @@ function defineUserFactoryInternal<TOptions extends UserFactoryDefineOptions>({ 
                     ...traitData,
                 };
             }, resolveValue({ seq }));
-            const defaultAssociations = {};
+            const defaultAssociations = {
+                createdUser: isUsercreatedUserFactory(defaultData.createdUser) ? {
+                    create: await defaultData.createdUser.build()
+                } : defaultData.createdUser,
+                updatedUser: isUserupdatedUserFactory(defaultData.updatedUser) ? {
+                    create: await defaultData.updatedUser.build()
+                } : defaultData.updatedUser
+            };
             const data: Prisma.UserCreateInput = { ...requiredScalarData, ...defaultData, ...defaultAssociations, ...inputData };
             return data;
         };

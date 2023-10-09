@@ -5,7 +5,7 @@ import { NavigateToResource } from '@refinedev/nextjs-router/app'
 
 export default function IndexPage() {
   return (
-    <Authenticated redirectOnFail='/login' appendCurrentPathToQuery={false}>
+    <Authenticated redirectOnFail='/login' appendCurrentPathToQuery={false} v3LegacyAuthProviderCompatible>
       <NavigateToResource />
     </Authenticated>
   )

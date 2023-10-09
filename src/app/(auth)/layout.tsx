@@ -2,22 +2,31 @@
 
 import { authProvider } from '@/core/providers/authProvider'
 import { redirect } from 'next/navigation'
-import React from 'react'
-
-async function checkAuth(authCookie?: string) {
-  return await authProvider.check(authCookie)
-}
+import React, { useEffect, useState } from 'react'
 
 /**
  * ログイン認証前の画面用レイアウトです。
  * @param children
  */
-// @ts-ignore
-export default async function UnProtectedLayout({ children }: { children: React.ReactNode }) {
-  const { authenticated } = await checkAuth()
+export default function UnProtectedLayout({ children }: { children: React.ReactNode }) {
+  const [authenticated, setAuthenticated] = useState(false)
+  useEffect(() => {
+    const fetchAuth = async () => {
+      const auth = await authProvider.check()
+      setAuthenticated(auth.authenticated)
+    }
+    fetchAuth().then()
+  }, [])
+
+  useEffect(() => {
+    if (authenticated) {
+      redirect('/')
+    }
+  }, [authenticated])
+
   if (authenticated) {
-    redirect('/')
+    return null
   } else {
-    return children
+    return <>{children}</>
   }
 }

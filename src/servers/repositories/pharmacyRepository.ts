@@ -5,6 +5,7 @@ import { getCurrentDate } from '@/core/utils/dateUtil'
 import { createId } from '@paralleldrive/cuid2'
 import depend from '@/core/utils/velona'
 import SortOrder = Prisma.SortOrder
+import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 
 /**
  * 店舗のページング検索を実施します。
@@ -28,7 +29,9 @@ export const fetchPagedPharmacies = async (params: PharmacyQueryDto): Promise<Pa
 
   const entities = await prisma.pharmacy.paginate({
     where: {
+      // @ts-ignore
       company: { id: params.companyId },
+      // @ts-ignore
       pharmacyGroup: { id: params.pharmacyGroupId },
       name: { contains: params.name },
       deletedAt: null,
@@ -60,12 +63,14 @@ export const fetchPharmacy = async (id: string) => {
  */
 export const createPharmacy = depend({ client: prisma }, async ({ client }, params: PharmacyCreationDto) => {
   const now = getCurrentDate()
+  const userId = getAuthorizedUserId()
   return await client.pharmacy.create({
+    // @ts-ignore
     data: {
       id: createId(),
       ...params,
-      createdBy: '0000000000000000000U0001',
-      updatedBy: '0000000000000000000U0001',
+      createdBy: userId,
+      updatedBy: userId,
       createdAt: now,
       updatedAt: now,
     },
@@ -80,9 +85,10 @@ export const createPharmacy = depend({ client: prisma }, async ({ client }, para
 export const updatePharmacy = depend({ client: prisma }, async ({ client }, id: string, params: PharmacyEditingDto) => {
   const now = getCurrentDate()
   return await client.pharmacy.update({
+    // @ts-ignore
     data: {
       ...params,
-      updatedBy: '0000000000000000000U0001',
+      updatedBy: getAuthorizedUserId(),
       updatedAt: now,
     },
     where: { id: id, existence: true },
@@ -97,7 +103,7 @@ export const archivePharmacy = depend({ client: prisma }, async ({ client }, id:
   const now = getCurrentDate()
   return await client.pharmacy.update({
     data: {
-      updatedBy: '0000000000000000000U0001',
+      updatedBy: getAuthorizedUserId(),
       deletedAt: now,
     },
     where: { id: id, deletedAt: null },

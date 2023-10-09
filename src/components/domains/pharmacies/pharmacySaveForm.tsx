@@ -2,9 +2,10 @@ import { FieldErrors, UseFormRegister, Control } from 'react-hook-form'
 import { PharmacyCreationForm, PharmacyEditingForm, PharmacyModel } from '@/types'
 import { Box, TextField } from '@mui/material'
 import React from 'react'
-import { GetOneResponse } from '@refinedev/core/src/interfaces'
-import { QueryObserverResult } from '@tanstack/query-core/build/lib/types'
+
 import { ControlAutocomplete } from '@/components/core/form/controlAutocomplete'
+import { QueryObserverResult } from '@tanstack/query-core'
+import { GetOneResponse } from '@refinedev/core'
 
 // 店舗作成、編集フォームプロパティ
 type Props = {

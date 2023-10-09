@@ -43,6 +43,14 @@ export class QueryFormErrorNotification<TFieldValues extends FieldValues> {
 
   public notification = (data: HttpError | undefined): OpenNotificationParams => {
     // ※アロー関数の理由: メソッドを参照だけして呼び出しが後なのでthis消失問題を回避するため
+
+    if (data?.statusCode === HTTP_STATUS.UNAUTHORIZED) {
+      return {
+        message: `再度ログイン後に検索を実施してください`,
+        description: 'ログイン有効期限切れ',
+        type: 'error',
+      }
+    }
     if (data?.statusCode === HTTP_STATUS.BAD_REQUEST && this.setError) {
       for (const error of data.response?.data.error) {
         this.setError(error.path[0], { type: 'server', message: error.message })

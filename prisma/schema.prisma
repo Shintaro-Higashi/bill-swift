@@ -412,7 +412,7 @@ model Pharmacy {
   @@index([pharmacyGroupId], map: "pharmacy_FK1")
   @@index([companyId], map: "pharmacy_FK2")
   @@index([createdBy], map: "pharmacy_FK3")
-  @@index([updatedBy], map: "pharmacy_FK4")
+  @@index([updatedBy], map: "user_updated_by")
   @@map("pharmacy")
 }
 
@@ -464,8 +464,8 @@ model PharmacyGroup {
 model User {
   id                                                                          String                           @id @db.VarChar(64)
   userType                                                                    UserUserType                     @map("user_type")
-  mail                                                                        String                           @db.VarChar(128)
   name                                                                        String                           @db.VarChar(128)
+  userId                                                                      String                           @map("user_id") @db.VarChar(128)
   password                                                                    String?                          @db.VarChar(255)
   pharmacyId                                                                  String?                          @map("pharmacy_id") @db.VarChar(64)
   patientId                                                                   String?                          @map("patient_id") @db.VarChar(64)
@@ -509,7 +509,14 @@ model User {
   pharmacyBaseCompoundingSettingUpdatedUser PharmacyBaseCompoundingSetting[] @relation("pharmacy_base_compounding_setting_updated_byTouser")
   pharmacyGroupCreatedUser                                   PharmacyGroup[]                  @relation("pharmacy_group_created_byTouser")
   pharmacyGroupUpdatedUser                                   PharmacyGroup[]                  @relation("pharmacy_group_updated_byTouser")
+  createdUser                                                     User?                            @relation("user_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_fk_created_by")
+  otherUserUserCreatedByTouser                                                User[]                           @relation("user_created_byTouser")
+  updatedUser                                                     User?                            @relation("user_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_fk_updated_by")
+  otherUserUserUpdatedByTouser                                                User[]                           @relation("user_updated_byTouser")
 
+  @@unique([userId, existence], map: "user_id_unique_idx")
+  @@index([createdBy], map: "user_fk_created_by")
+  @@index([updatedBy], map: "user_fk_updated_by")
   @@map("user")
 }
 

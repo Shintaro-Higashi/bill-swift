@@ -23,7 +23,7 @@
     "test:e2e-codegen": "playwright codegen http://localhost:3000"
   },
   "prisma": {
-    "seed": "dotenv -e .env.test -- ts-node -r tsconfig-paths/register --project tsconfig.local.json prisma/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register --project tsconfig.local.json prisma/seed.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.8.2",
@@ -35,17 +35,18 @@
     "@mui/x-data-grid": "^6.11.1",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^5.1.1",
-    "@refinedev/cli": "^2.9.0",
-    "@refinedev/core": "^4.38.4",
-    "@refinedev/kbar": "^1.3.2",
-    "@refinedev/mui": "^5.13.8",
-    "@refinedev/nextjs-router": "^5.5.0",
-    "@refinedev/react-hook-form": "^4.8.4",
-    "@refinedev/simple-rest": "^4.5.0",
-    "bcrypt": "^5.1.1",
+    "@refinedev/cli": "^2.16.4",
+    "@refinedev/core": "^4.44.3",
+    "@refinedev/kbar": "^1.3.4",
+    "@refinedev/mui": "^5.13.15",
+    "@refinedev/nextjs-router": "^5.5.2",
+    "@refinedev/react-hook-form": "^4.8.10",
+    "@refinedev/simple-rest": "^4.5.4",
+    "bcryptjs": "^2.4.3",
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.0",
     "i18next": "^23.2.3",
+    "jose": "^4.15.2",
     "lodash": "^4.17.21",
     "next": "^13.4.16",
     "next-i18next": "^14.0.0",
@@ -56,7 +57,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^13.0.1",
-    "zod": "^3.21.4"
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.2",
@@ -65,7 +66,8 @@
     "@testing-library/jest-dom": "^6.1.3",
     "@testing-library/react": "^14.0.0",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
-    "@types/bcrypt": "^5.0.0",
+    "@types/bcryptjs": "^2.4.4",
+    "@types/jsonwebtoken": "^9.0.3",
     "@types/lodash": "^4.14.197",
     "@types/node": "^18.16.2",
     "@types/react": "^18.2.20",

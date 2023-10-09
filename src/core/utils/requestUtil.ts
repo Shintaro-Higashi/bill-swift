@@ -3,9 +3,11 @@
  */
 
 import { z, ZodError } from 'zod'
-import { badRequestErrorResponse, notFoundResponse } from '@/core/utils/responseUtil'
+import { badRequestErrorResponse, notFoundResponse, unauthorizedErrorResponse } from '@/core/utils/responseUtil'
 import { Prisma } from '.prisma/client'
 import zodErrorMapJp from '@/core/configs/i18n/zodErrorMapJp'
+import UnauthorizedError from '@/servers/core/errors/unauthorizedError'
+import { headers } from 'next/headers'
 
 let isSetErrorMap = false
 
@@ -27,7 +29,8 @@ let isSetErrorMap = false
  */
 export const performRequest = async (cb: Function) => {
   try {
-    // console.log('isSetErrorMap', isSetErrorMap)
+    // TODO /api/companies/0000000000000000000C0001　等の値。アクセス権限判定を組込む
+    const pathname = headers().get('x-pathname')
     // instrumentation上ではsetしても翻訳されないため都度設定
     if (!isSetErrorMap) {
       z.setErrorMap(zodErrorMapJp)
@@ -46,7 +49,9 @@ export const performRequest = async (cb: Function) => {
         return notFoundResponse()
       }
     }
-
+    if (e instanceof UnauthorizedError) {
+      return unauthorizedErrorResponse()
+    }
     // 予期せぬエラー
     throw e
   }
@@ -62,4 +67,15 @@ export function objectToQueryString(obj: Record<string, any>): string {
   }
 
   return keyValuePairs.join('&')
+}
+
+/**
+ * 認証中のユーザIDを取得します。
+ */
+export function getAuthorizedUserId() {
+  const userId = headers().get('x-user-id')
+  if (!userId) {
+    throw new Error('カスタムHTTPヘッダよりユーザID取得に失敗')
+  }
+  return userId
 }

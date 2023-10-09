@@ -17,7 +17,7 @@ const createUnion = <T extends Readonly<[Primitive, Primitive, ...Primitive[]]>>
 
 /**
  * z.union([z.literal('xxx').. に設定可能なスキーマ定義を作成します。
- * @param values リテラル入れ悦
+ * @param values リテラルList
  * @return Unionスキーマ
  */
 function createUnionSchema<T extends readonly Primitive[]>(values: T) {

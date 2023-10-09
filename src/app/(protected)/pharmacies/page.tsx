@@ -117,6 +117,7 @@ const ListPage: React.FC = () => {
         minWidth: 80,
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
 

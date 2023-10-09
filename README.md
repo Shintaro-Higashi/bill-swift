@@ -29,9 +29,13 @@
 ## アプリケーションの実行準備
 
 - `npm install` を実施してnode_modulesをinstall
+- .env.local を.env の階層に作成する
+  - 内容は.envの`下記は機密情報のため .env.local , .env.*.local 系に定義すること` 配下のコメント化された変数のみを定義する
 - `npm run migrate:local` を実施してテーブルを作成
 - `npm run prisma-generate` を実施してnode_modules配下に@prisma/client を生成
+- `dotenv -e .env.local -- npx prisma db seed` を実施してログイン管理アカウントを作成
 - `npx playwright install-deps` を実地してPlaywrightの関連モジュールを全てインストールする
+
 
 ## アプリケーションの実行法
 
@@ -39,13 +43,10 @@
 npm run dev
 ```
 
-設定/会社のメニューのみ程度動作します
+- ログインは bill-admin / green@8-bill-system で可能です
 
 ---
 
----
-
----
 
 ※以降の情報は基盤開発中のメモ情報です。内容は参考程度に見てください
 

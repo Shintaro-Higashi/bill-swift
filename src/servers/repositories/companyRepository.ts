@@ -5,6 +5,7 @@ import { getCurrentDate } from '@/core/utils/dateUtil'
 import { createId } from '@paralleldrive/cuid2'
 import depend from '@/core/utils/velona'
 import SortOrder = Prisma.SortOrder
+import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 
 /**
  * 会社のページング検索を実施します。
@@ -45,14 +46,16 @@ export const fetchCompany = async (id: string) => {
  */
 export const createCompany = depend({ client: prisma }, async ({ client }, params: CompanyCreationDto) => {
   const now = getCurrentDate()
+  const userId = getAuthorizedUserId()
   return await client.company.create({
+    // @ts-ignore
     data: {
       id: createId(),
       ...params,
       // TODO: accountTypeのデータ型が定まり次第修正
       accountType: params.accountType?.toString(),
-      createdBy: '0000000000000000000U0001',
-      updatedBy: '0000000000000000000U0001',
+      createdBy: userId,
+      updatedBy: userId,
       createdAt: now,
       updatedAt: now,
     },
@@ -67,11 +70,12 @@ export const createCompany = depend({ client: prisma }, async ({ client }, param
 export const updateCompany = depend({ client: prisma }, async ({ client }, id: string, params: CompanyEditingDto) => {
   const now = getCurrentDate()
   return await client.company.update({
+    // @ts-ignore
     data: {
       ...params,
       // TODO: accountTypeのデータ型が定まり次第修正
       accountType: params.accountType?.toString(),
-      updatedBy: '0000000000000000000U0001',
+      updatedBy: getAuthorizedUserId(),
       updatedAt: now,
     },
     where: { id: id, existence: true },
@@ -86,7 +90,7 @@ export const archiveCompany = depend({ client: prisma }, async ({ client }, id: 
   const now = getCurrentDate()
   return await client.company.update({
     data: {
-      updatedBy: '0000000000000000000U0001',
+      updatedBy: getAuthorizedUserId(),
       deletedAt: now,
     },
     where: { id: id, deletedAt: null },

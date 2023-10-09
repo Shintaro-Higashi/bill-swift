@@ -1,99 +1,40 @@
 import { AuthBindings } from '@refinedev/core'
 import nookies from 'nookies'
-
-/**
- * 認証状態を制御するためのProvider定義情報です。
- */
-
-// モックユーザ
-const mockUsers = [
-  {
-    email: 'demo555@upstream-j.co.jp',
-    roles: ['admin'],
-  },
-  {
-    email: 'editor@refine.dev',
-    roles: ['editor'],
-  },
-  {
-    email: 'demo@refine.dev',
-    roles: ['user'],
-  },
-]
-
+import { axiosInstance } from '@/core/providers/restDataProvider'
+import { HTTP_STATUS } from '@/core/configs/constants'
+import axios from 'axios'
+import { LoginModel } from '@/types/models/authModel'
 /**
  * 認証状態を制御するためのProvider定義です。
  */
 export const authProvider: AuthBindings = {
   /**
    * 認証処理です。
-   * @param email
+   * @param userId ユーザID
+   * @param password パスワード
    */
-  login: async ({ email }) => {
-    // Suppose we actually send a request to the back end here.
-    const user = mockUsers.find((item) => item.email === email)
-
-    if (user) {
-      nookies.set(null, 'auth', JSON.stringify(user), {
-        maxAge: 30 * 24 * 60 * 60,
+  login: async ({ userId, password }) => {
+    try {
+      const { data }: { data: LoginModel } = await axiosInstance.post('/api/auth/login', { userId, password })
+      nookies.set(null, 'token', data.token, {
+        maxAge: process.env.JWT_TOKEN_EXPIRATION_SECONDS,
         path: '/',
       })
       return {
         success: true,
         redirectTo: '/',
       }
-    }
-
-    return {
-      success: false,
-      error: {
-        message: 'Login failed',
-        name: 'Invalid email or password',
-      },
-    }
-  },
-  register: async (params) => {
-    // Suppose we actually send a request to the back end here.
-    const user = mockUsers.find((item) => item.email === params.email)
-
-    if (user) {
-      nookies.set(null, 'auth', JSON.stringify(user), {
-        maxAge: 30 * 24 * 60 * 60,
-        path: '/',
-      })
-      return {
-        success: true,
-        redirectTo: '/',
+    } catch (e) {
+      if (axios.isAxiosError(e) && e.response?.status === HTTP_STATUS.UNAUTHORIZED) {
+        return {
+          success: false,
+          error: {
+            message: 'ログインできませんでした',
+            name: 'ユーザIDまたはパスワードを確認してください',
+          },
+        }
       }
-    }
-    return {
-      success: false,
-      error: {
-        message: 'Register failed',
-        name: 'Invalid email or password',
-      },
-    }
-  },
-  /**
-   * パスワード再設定処理です。
-   * @param params
-   */
-  forgotPassword: async (params) => {
-    // Suppose we actually send a request to the back end here.
-    const user = mockUsers.find((item) => item.email === params.email)
-
-    if (user) {
-      return {
-        success: true,
-        redirectTo: '/login',
-      }
-    }
-    return {
-      success: false,
-      error: {
-        message: 'パスワードの再設定ができませんでした',
-        name: '未登録のメールアドレスです',
-      },
+      throw e
     }
   },
   /**
@@ -122,10 +63,41 @@ export const authProvider: AuthBindings = {
    * ログアウト時の処理です。
    */
   logout: async () => {
-    nookies.destroy(null, 'auth')
+    nookies.destroy(null, 'token')
     return {
       success: true,
       redirectTo: '/login',
+    }
+  },
+  register: async (params) => {
+    // // Suppose we actually send a request to the back end here.
+    // const user = mockUsers.find((item) => item.email === params.email)
+    //
+    // if (user) {
+    //   nookies.set(null, 'auth', JSON.stringify(user), {
+    //     maxAge: 30 * 24 * 60 * 60,
+    //     path: '/',
+    //   })
+    //   return {
+    //     success: true,
+    //     redirectTo: '/',
+    //   }
+    // }
+    return {
+      success: false,
+      error: {
+        message: 'Register failed',
+        name: 'Invalid email or password',
+      },
+    }
+  },
+  forgotPassword: async (params) => {
+    return {
+      success: false,
+      error: {
+        message: 'Register failed',
+        name: 'Invalid email or password',
+      },
     }
   },
   /**
@@ -133,9 +105,10 @@ export const authProvider: AuthBindings = {
    * @param error
    */
   onError: async (error) => {
+    console.log('認証エラー発生', error)
     if (error && error.statusCode === 401) {
       return {
-        error: new Error('Unauthorized'),
+        error: new Error('認証が必要です'),
         logout: true,
         redirectTo: '/login',
       }
@@ -144,33 +117,25 @@ export const authProvider: AuthBindings = {
     return {}
   },
   /**
-   * 正常な認証済の状態か判定します。
-   * <pre>
-   *  ・初回のURLからのアクセスの時のみ呼ばれます
-   *  ・画面遷移の都度はcallされません
-   * </pre>
-   * @param authCookie
+   * 認証済の状態か判定します。
    */
-  check: async (authCookie) => {
-    if (authCookie) {
+  check: async () => {
+    const cookies = nookies.get(null)
+    if (cookies.token) {
+      const { data }: { data: LoginModel } = await axiosInstance.get('/api/auth')
+      nookies.set(null, 'token', data.token, {
+        maxAge: process.env.JWT_TOKEN_EXPIRATION_SECONDS,
+        path: '/',
+      })
       return {
         authenticated: true,
       }
-    } else {
-      const cookies = nookies.get(null)
-
-      if (cookies.auth) {
-        return {
-          authenticated: true,
-        }
-      }
     }
-
     return {
       authenticated: false,
       error: {
-        message: 'Check failed',
-        name: 'Unauthorized',
+        message: '認証が必要です',
+        name: 'ログインしてください',
       },
       logout: true,
       redirectTo: '/login',

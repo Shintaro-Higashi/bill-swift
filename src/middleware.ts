@@ -1,33 +1,42 @@
-import { authProvider } from '@/core/providers/authProvider'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { unauthorizedErrorResponse } from '@/core/utils/responseUtil'
+import { verifyJWTToken } from '@/servers/services/tokenService'
 
-/**
- * ルーティングに対する認証検証処理です。
- * <pre>
- *  現在は api のみ検証対象としています。
- *  画面UIはlayout.tsx を利用して検証しているためです。
- * </pre>
- */
 export const config = {
   // 認証を実地するURLパターン
   matcher: '/api/:path*',
 }
 
-async function checkAuth(authCookie: string | undefined) {
-  return await authProvider.check(authCookie)
+// matcherから除外するURL
+const skipUrls: { [key: string]: boolean } = {
+  '/api/auth/login': true,
 }
 
-// noinspection JSUnusedGlobalSymbols
+/**
+ * ルーティングに対する認証検証処理(サーバサイド側でのみ有効)です。
+ * <pre>
+ *  現在は api のみ検証対象としています。
+ *  画面UIはlayout.tsx を利用して検証しているためです。
+ *  ※[仕様注意事項]
+ *  middlewareはEdgeRuntimeで動作するため一部のAPIが利用できません。
+ *  具体的にはORM prisma は利用できません。
+ * </pre>
+ */
 export async function middleware(request: NextRequest) {
-  const auth = request.cookies.get('auth')
-  const { authenticated } = await checkAuth(auth?.value)
-  if (authenticated) {
+  // 特定のAPIは認証スキップ
+  if (skipUrls[request.nextUrl.pathname]) {
     return NextResponse.next()
-  } else {
-    return new NextResponse(JSON.stringify({ success: false, message: 'authentication failed' }), {
-      status: 401,
-      headers: { 'content-type': 'application/json' },
-    })
   }
+
+  const token = request.cookies.get('token')
+  if (!token) return unauthorizedErrorResponse()
+  // カスタムリクエストヘッダを利用して認証後のユーザIDをどこからでも取得可能な状態にする
+  const userId = await verifyJWTToken(token.value)
+  if (!userId) return unauthorizedErrorResponse()
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-user-id', userId)
+  // ロールの検証用にpathnameも引き回す
+  requestHeaders.set('x-pathname', request.nextUrl.pathname)
+  return NextResponse.next({ request: { headers: requestHeaders } })
 }

@@ -1,6 +1,5 @@
 'use client'
 
-import { ErrorComponent, ThemedLayoutV2 } from '@refinedev/mui'
 import { useEffect } from 'react'
 
 /**
