@@ -121,8 +121,8 @@ resource "aws_apprunner_service" "main" {
             NEXT_PUBLIC_API_BASE_URL = "${var.environment.url}/api"
           }
           runtime_environment_secrets = {
-            NEXTAUTH_SECRET = var.environment.next_auth_secret_ssm
             DATABASE_URL = var.environment.database_url_ssm
+            JWT_TOKEN_SECRET = var.environment.jwt_token_secret
           }
         }
         configuration_source = "API"
@@ -135,7 +135,9 @@ resource "aws_apprunner_service" "main" {
     }
   }
 
-#  health_check_configuration {}
+#  health_check_configuration {
+#    path = "/api/health/check"
+#  }
 
   network_configuration {
     egress_configuration {

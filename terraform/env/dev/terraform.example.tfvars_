@@ -20,6 +20,9 @@ source_branch = "releases/xxxx" // releases/dev , releases/stage , releases/prod
 # apprunner ビルド、起動command
 build_command = "npm install && npm run build:dev"
 start_command = "npm run start"
+
+# apprunner アクセス許可IPアドレス
+webacl_allow_ip = ["xxx/32"]
 ##
 # app.env
 # *_ssm に関してはサンプル通りのパラメータパス値どおりに AWS Systems Manager > パラメータストア

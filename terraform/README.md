@@ -9,6 +9,7 @@ terraform を利用してAWSアプリケーション実行環境を自動作成�
   - RDBおよび必要なSecurityGroupを作成します。
 - App Runner
   - アプリケーション実行環境です。必要なIAM RoleやSecurityGroupも作成します。
+    - 現在検証環境はACLでIPアドレスアクセス制限をかけています。
 
 ## 必要な環境
 
@@ -29,7 +30,10 @@ terraform
     │      mainf.tf
     │      outputs.tf
     │      variables.tf
-    │
+    ├─app_runner_acl
+    │      mainf.tf
+    │      outputs.tf
+    │      variables.tf
     ├─rds
     │      mainf.tf
     │      outputs.tf

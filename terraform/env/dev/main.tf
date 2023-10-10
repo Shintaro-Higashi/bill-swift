@@ -10,19 +10,20 @@ variable "db_password" { type = string }
 variable "source_url" { type = string }
 variable "source_branch" { type = string }
 variable "app_env_url" { type = string }
-variable "app_env_next_auth_secret_ssm" { type = string }
+variable "app_env_jwt_token_secret" { type = string }
 variable "app_env_database_url_ssm" { type = string }
 variable "build_command" { type = string }
 variable "start_command" { type = string }
+variable "webacl_allow_ip" { type = list(string) }
 
 terraform {
   required_version = ">=1.5.7"
   # ※backendブロックは 一度指定のs3を作成後に有効化すること
   # ※変数は利用できない
   backend "s3" {
-    bucket = "terraform-state-bill-swift-develop"
-    region = "ap-northeast-1"
-    key = "terraform.tfstate"
+    bucket  = "terraform-state-bill-swift-develop"
+    region  = "ap-northeast-1"
+    key     = "terraform.tfstate"
     profile = "bill-swift-develop" # profile を利用している場合は指定
     encrypt = true
   }
@@ -155,8 +156,17 @@ module "app_runner" {
     start_command = var.start_command
   }
   environment = {
-    url                  = var.app_env_url
-    next_auth_secret_ssm = var.app_env_next_auth_secret_ssm
-    database_url_ssm     = var.app_env_database_url_ssm
+    url              = var.app_env_url
+    jwt_token_secret = var.app_env_jwt_token_secret
+    database_url_ssm = var.app_env_database_url_ssm
   }
+}
+
+module "app_runner_acl" {
+  source           = "../../modules/app_runner_acl"
+  system           = var.service
+  env              = var.environment
+  region           = var.region
+  apprunner_arn    = module.app_runner.service_arn
+  allow_ip_address = var.webacl_allow_ip
 }

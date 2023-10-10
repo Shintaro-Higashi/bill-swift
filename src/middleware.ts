@@ -11,6 +11,7 @@ export const config = {
 // matcherから除外するURL
 const skipUrls: { [key: string]: boolean } = {
   '/api/auth/login': true,
+  '/api/health/check': true,
 }
 
 /**

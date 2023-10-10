@@ -50,7 +50,7 @@ variable "service" {
 variable "environment" {
   type = object({
     url                  = string
-    next_auth_secret_ssm = string
     database_url_ssm     = string
+    jwt_token_secret     = string
   })
 }
