@@ -4,8 +4,8 @@ CREATE UNIQUE INDEX user_id_unique_idx ON user(user_id,existence);
 -- カラム位置も調整
 ALTER TABLE user MODIFY name varchar(128) NOT NULL AFTER user_type;
 
-- 共通カラムへの自己参照キー
+-- 共通カラムへの自己参照キー
 ALTER TABLE user
     ADD CONSTRAINT user_fk_created_by FOREIGN KEY (created_by) REFERENCES user(id);
-ALTER TABLE pharmacy
+ALTER TABLE user
     ADD CONSTRAINT user_fk_updated_by FOREIGN KEY (updated_by) REFERENCES user(id);

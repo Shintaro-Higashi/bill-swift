@@ -64,6 +64,10 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 type: "User",
                 relationName: "health_facility_updated_byTouser"
             }, {
+                name: "pharmacy",
+                type: "Pharmacy",
+                relationName: "HealthFacilityToPharmacy"
+            }, {
                 name: "healthFacilityCodeManage",
                 type: "HealthFacilityCodeManage",
                 relationName: "HealthFacilityToHealthFacilityCodeManage"
@@ -303,6 +307,10 @@ const modelFieldDefinitions: ModelWithFields[] = [{
     }, {
         name: "Pharmacy",
         fields: [{
+                name: "healthFacility",
+                type: "HealthFacility",
+                relationName: "HealthFacilityToPharmacy"
+            }, {
                 name: "healthFacilityRelatePharmacy",
                 type: "HealthFacilityRelatePharmacy",
                 relationName: "HealthFacilityRelatePharmacyToPharmacy"
@@ -707,6 +715,11 @@ type HealthFacilityupdatedUserFactory = {
     build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutHealthFacilityUpdatedUserInput["create"]>;
 };
 
+type HealthFacilitypharmacyFactory = {
+    _factoryFor: "Pharmacy";
+    build: () => PromiseLike<Prisma.PharmacyCreateNestedOneWithoutHealthFacilityInput["create"]>;
+};
+
 type HealthFacilityFactoryDefineInput = {
     id?: string;
     code?: string;
@@ -728,13 +741,14 @@ type HealthFacilityFactoryDefineInput = {
     existence?: boolean | null;
     createdUser?: HealthFacilitycreatedUserFactory | Prisma.UserCreateNestedOneWithoutHealthFacilityCreatedUserInput;
     updatedUser?: HealthFacilityupdatedUserFactory | Prisma.UserCreateNestedOneWithoutHealthFacilityUpdatedUserInput;
+    pharmacy: HealthFacilitypharmacyFactory | Prisma.PharmacyCreateNestedOneWithoutHealthFacilityInput;
     healthFacilityCodeManage?: Prisma.HealthFacilityCodeManageCreateNestedManyWithoutHealthFacilityInput;
     healthFacilityRelatePharmacy?: Prisma.HealthFacilityRelatePharmacyCreateNestedManyWithoutHealthFacilityInput;
     patientRelateHealthFacility?: Prisma.PatientRelateHealthFacilityCreateNestedManyWithoutHealthFacilityInput;
 };
 
 type HealthFacilityFactoryDefineOptions = {
-    defaultData?: Resolver<HealthFacilityFactoryDefineInput, BuildDataOptions>;
+    defaultData: Resolver<HealthFacilityFactoryDefineInput, BuildDataOptions>;
     traits?: {
         [traitName: string | symbol]: {
             data: Resolver<Partial<HealthFacilityFactoryDefineInput>, BuildDataOptions>;
@@ -748,6 +762,10 @@ function isHealthFacilitycreatedUserFactory(x: HealthFacilitycreatedUserFactory 
 
 function isHealthFacilityupdatedUserFactory(x: HealthFacilityupdatedUserFactory | Prisma.UserCreateNestedOneWithoutHealthFacilityUpdatedUserInput | undefined): x is HealthFacilityupdatedUserFactory {
     return (x as any)?._factoryFor === "User";
+}
+
+function isHealthFacilitypharmacyFactory(x: HealthFacilitypharmacyFactory | Prisma.PharmacyCreateNestedOneWithoutHealthFacilityInput | undefined): x is HealthFacilitypharmacyFactory {
+    return (x as any)?._factoryFor === "Pharmacy";
 }
 
 type HealthFacilityTraitKeys<TOptions extends HealthFacilityFactoryDefineOptions> = keyof TOptions["traits"];
@@ -805,7 +823,10 @@ function defineHealthFacilityFactoryInternal<TOptions extends HealthFacilityFact
                 } : defaultData.createdUser,
                 updatedUser: isHealthFacilityupdatedUserFactory(defaultData.updatedUser) ? {
                     create: await defaultData.updatedUser.build()
-                } : defaultData.updatedUser
+                } : defaultData.updatedUser,
+                pharmacy: isHealthFacilitypharmacyFactory(defaultData.pharmacy) ? {
+                    create: await defaultData.pharmacy.build()
+                } : defaultData.pharmacy
             };
             const data: Prisma.HealthFacilityCreateInput = { ...requiredScalarData, ...defaultData, ...defaultAssociations, ...inputData };
             return data;
@@ -847,8 +868,8 @@ function defineHealthFacilityFactoryInternal<TOptions extends HealthFacilityFact
  * @param options
  * @returns factory {@link HealthFacilityFactoryInterface}
  */
-export function defineHealthFacilityFactory<TOptions extends HealthFacilityFactoryDefineOptions>(options?: TOptions): HealthFacilityFactoryInterface<TOptions> {
-    return defineHealthFacilityFactoryInternal(options ?? {});
+export function defineHealthFacilityFactory<TOptions extends HealthFacilityFactoryDefineOptions>(options: TOptions): HealthFacilityFactoryInterface<TOptions> {
+    return defineHealthFacilityFactoryInternal(options);
 }
 
 type HealthFacilityCodeGroupScalarOrEnumFields = {
@@ -2786,6 +2807,7 @@ type PharmacyFactoryDefineInput = {
     updatedAt?: Date | null;
     deletedAt?: Date | null;
     existence?: boolean | null;
+    healthFacility?: Prisma.HealthFacilityCreateNestedManyWithoutPharmacyInput;
     healthFacilityRelatePharmacy?: Prisma.HealthFacilityRelatePharmacyCreateNestedManyWithoutPharmacyInput;
     pharmacyGroup: PharmacypharmacyGroupFactory | Prisma.PharmacyGroupCreateNestedOneWithoutPharmacyInput;
     company: PharmacycompanyFactory | Prisma.CompanyCreateNestedOneWithoutPharmacyInput;

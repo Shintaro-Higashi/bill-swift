@@ -53,6 +53,7 @@ model Company {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model HealthFacility {
   id                                String                         @id @db.VarChar(64)
+  pharmacyId                        String                         @map("pharmacy_id") @db.VarChar(64)
   code                              String                         @db.VarChar(4)
   name                              String                         @db.VarChar(64)
   nameKana                          String                         @map("name_kana") @db.VarChar(128)
@@ -74,12 +75,14 @@ model HealthFacility {
   existence                         Boolean?
   createdUser User?                          @relation("health_facility_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK1")
   updatedUser User?                          @relation("health_facility_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK2")
+  pharmacy                          Pharmacy                       @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_fk_pharmacy_id")
   healthFacilityCodeManage          HealthFacilityCodeManage[]
   healthFacilityRelatePharmacy      HealthFacilityRelatePharmacy[]
   patientRelateHealthFacility       PatientRelateHealthFacility[]
 
   @@index([createdBy], map: "health_facility_FK1")
   @@index([updatedBy], map: "health_facility_FK2")
+  @@index([pharmacyId], map: "health_facility_fk_pharmacy_id")
   @@map("health_facility")
 }
 
@@ -402,6 +405,7 @@ model Pharmacy {
   updatedBy                      String?                          @map("updated_by") @db.VarChar(64)
   deletedAt                      DateTime?                        @map("deleted_at") @db.Timestamp(0)
   existence                      Boolean?
+  healthFacility                 HealthFacility[]
   healthFacilityRelatePharmacy   HealthFacilityRelatePharmacy[]
   pharmacyGroup                  PharmacyGroup                    @relation(fields: [pharmacyGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK1")
   company                        Company                          @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK2")
@@ -412,7 +416,7 @@ model Pharmacy {
   @@index([pharmacyGroupId], map: "pharmacy_FK1")
   @@index([companyId], map: "pharmacy_FK2")
   @@index([createdBy], map: "pharmacy_FK3")
-  @@index([updatedBy], map: "user_updated_by")
+  @@index([updatedBy], map: "pharmacy_FK4")
   @@map("pharmacy")
 }
 

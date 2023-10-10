@@ -1,7 +1,7 @@
 ﻿# A5:ER FORMAT:17
 # A5:ER ENCODING:UTF8
 # A5:ER Mk-1 Copyright © 2007 m.matsubara
-# A5:SQL Mk-2 Version 2.18.2 Copyright © 1997 - 2023 m.matsubara
+# A5:SQL Mk-2 Version 2.18.4 Copyright © 1997 - 2023 m.matsubara
 #  https://a5m2.mmatsubara.com
 
 [Manager]
@@ -262,6 +262,7 @@ Page=薬局・施設・患者
 Left=950
 Top=1400
 Field="ID","id","*UUID","NOT NULL",0,"","",$FFFFFFFF,""
+Field="薬局ID","pharmacy_id","VARCHAR(64)","NOT NULL",,"","現在所属している薬局IDを定義",$FFFFFFFF,""
 Field="コード","code","VARCHAR(4)","NOT NULL",,"","現在有効な施設コード（担当する店舗が別会社に替わるタイミングでコードが切り替わる可能性がある）",$FFFFFFFF,""
 Field="名称","name","VARCHAR(64)","NOT NULL",,"","",$FFFFFFFF,""
 Field="カナ名称","name_kana","VARCHAR(128)","NOT NULL",,"","",$FFFFFFFF,""
@@ -278,7 +279,7 @@ Field="備考","note","TEXT",,,"","",$FFFFFFFF,""
 EffectMode=None
 Color=$000000
 BkColor=$99FFFF
-ModifiedDateTime=20230919161408
+ModifiedDateTime=20231010133513
 Position="薬局・施設・患者",950,1400,911,495
 Position="MAIN",700,900,302,95
 ZOrder=9
@@ -2142,3 +2143,25 @@ Top=1906
 ZOrder=145
 Width=1267
 Height=235
+
+[Relation]
+Entity1=pharmacy
+Entity2=health_facility
+RelationType1=2
+RelationType2=3
+Fields1=id
+Fields2=pharmacy_id
+Cardinarity1=
+Cardinarity2=
+Position="MAIN",0,7961,6609,3484,R,R,""
+Dependence=0
+Caption=
+PName=
+ModifiedDateTime=20231010133547
+LineMode=0
+Bar1=796
+Bar2=661
+Bar3=348
+TermPos1=R
+TermPos2=R
+ZOrder=146
