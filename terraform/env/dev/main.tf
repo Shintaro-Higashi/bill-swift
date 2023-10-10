@@ -15,6 +15,7 @@ variable "app_env_database_url_ssm" { type = string }
 variable "build_command" { type = string }
 variable "start_command" { type = string }
 variable "webacl_allow_ip" { type = list(string) }
+variable "rds_allow_ip" {type = list(string)}
 
 terraform {
   required_version = ">=1.5.7"
@@ -88,6 +89,13 @@ module "security_group_rds" {
       source_security_group_id = module.security_group_app_runner.security_group_id
       description              = "allow RDS"
     }
+    # グローバルアクセスを許可 1/3
+    rds_public = {
+      from_port                = 3306
+      to_port                  = 3306
+      cidr_blocks = var.rds_allow_ip
+      description              = "allow RDS ip address"
+    }
   }
   egress_rule_map = {
     rds = {
@@ -105,6 +113,7 @@ module "rds" {
   vpc_id                 = module.network.vpc_id
   vpc_security_group_ids = [module.security_group_rds.security_group_id]
   private_subnet_ids     = module.network.private_subnet_ids
+  public_subnet_ids      = module.network.public_subnet_ids
   db_identifier          = var.db_identifier
   db_name                = var.db_name
   db_username            = var.db_username

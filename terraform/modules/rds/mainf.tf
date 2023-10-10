@@ -2,7 +2,9 @@
 resource "aws_db_subnet_group" "db_subnet_group" {
   name        = var.db_identifier
   description = "db subent group of ${var.db_identifier}"
-  subnet_ids  = var.private_subnet_ids
+#  subnet_ids  = var.private_subnet_ids
+  # グローバルアクセスを許可 2/3
+  subnet_ids  = var.public_subnet_ids
 }
 
 resource "aws_db_instance" "db" {
@@ -18,4 +20,6 @@ resource "aws_db_instance" "db" {
   skip_final_snapshot = true
   vpc_security_group_ids = var.vpc_security_group_ids
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
+  # グローバルアクセスを許可 3/3
+  publicly_accessible = true
 }
