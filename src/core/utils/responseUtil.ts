@@ -41,7 +41,18 @@ export const badRequestErrorResponse = (zodError: ZodError) => {
 }
 
 /**
- * 該当データが見つからい場合のHTTPレスポンス情報です。
+ * 指定リソースを参照整合性制約違反のため削除できない場合のHTTPレスポンス情報です。
+ * @return HTTPレスポンス
+ */
+export const unprocessableEntityResponse = () => {
+  return new NextResponse(JSON.stringify({ success: false, message: '関連情報が利用中のため削除できません' }), {
+    status: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+    headers,
+  })
+}
+
+/**
+ * 該当データが見つからない場合のHTTPレスポンス情報です。
  * @return HTTPレスポンス
  */
 export const notFoundResponse = () => {

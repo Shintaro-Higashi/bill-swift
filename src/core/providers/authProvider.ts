@@ -101,11 +101,14 @@ export const authProvider: AuthBindings = {
     }
   },
   /**
-   * 認証エラー時の処理です。
+   * エラー発生時の処理です。
+   * <pre>
+   *  認証以外のエラーもcallされます。
+   * </pre>
    * @param error
    */
   onError: async (error) => {
-    console.log('認証エラー発生', error)
+    console.log('エラー発生', error)
     if (error && error.statusCode === 401) {
       return {
         error: new Error('認証が必要です'),

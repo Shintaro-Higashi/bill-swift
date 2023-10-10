@@ -6,6 +6,7 @@ import { createId } from '@paralleldrive/cuid2'
 import depend from '@/core/utils/velona'
 import SortOrder = Prisma.SortOrder
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
+import IntegrityDeletedError from '@/servers/core/errors/integrityDeletedError'
 
 /**
  * 会社のページング検索を実施します。
@@ -85,14 +86,18 @@ export const updateCompany = depend({ client: prisma }, async ({ client }, id: s
 /**
  * 指定の会社情報を論理削除します。
  * @param id 会社ID
+ * @throws IntegrityDeletedError 使用中の所属薬局が存在する場合
  */
 export const archiveCompany = depend({ client: prisma }, async ({ client }, id: string) => {
   const now = getCurrentDate()
-  return await client.company.update({
+  const archiveData = await client.company.update({
     data: {
       updatedBy: getAuthorizedUserId(),
       deletedAt: now,
     },
     where: { id: id, deletedAt: null },
   })
+  const existsPharmacy = await client.pharmacy.findFirst({ where: { companyId: id, existence: true } })
+  if (existsPharmacy) throw new IntegrityDeletedError()
+  return archiveData
 })

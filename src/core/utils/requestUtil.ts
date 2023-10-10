@@ -3,11 +3,17 @@
  */
 
 import { z, ZodError } from 'zod'
-import { badRequestErrorResponse, notFoundResponse, unauthorizedErrorResponse } from '@/core/utils/responseUtil'
+import {
+  badRequestErrorResponse,
+  notFoundResponse,
+  unauthorizedErrorResponse,
+  unprocessableEntityResponse,
+} from '@/core/utils/responseUtil'
 import { Prisma } from '.prisma/client'
 import zodErrorMapJp from '@/core/configs/i18n/zodErrorMapJp'
 import UnauthorizedError from '@/servers/core/errors/unauthorizedError'
 import { headers } from 'next/headers'
+import IntegrityDeletedError from '@/servers/core/errors/integrityDeletedError'
 
 let isSetErrorMap = false
 
@@ -49,6 +55,11 @@ export const performRequest = async (cb: Function) => {
         return notFoundResponse()
       }
     }
+    // 削除エラー
+    if (e instanceof IntegrityDeletedError) {
+      return unprocessableEntityResponse()
+    }
+    // 認証エラー
     if (e instanceof UnauthorizedError) {
       return unauthorizedErrorResponse()
     }

@@ -10,10 +10,13 @@ export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
   NO_CONTENT: 204,
+  // バリデーションエラーで使用
+  BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
-  BAD_REQUEST: 400,
+  // 削除APIで参照整合性制約違反のため削除できない時に使用
+  UNPROCESSABLE_ENTITY: 422,
   INTERNAL_SERVER_ERROR: 500,
 }
 

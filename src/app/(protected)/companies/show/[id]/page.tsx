@@ -50,7 +50,7 @@ const ShowPage: React.FC = () => {
         <FieldItem label='施設コードグループ名' value={record?.healthFacilityCodeGroup?.name} />
         <FieldItem label='作成日時' value={formatDateTime(record?.createdAt)} />
         <FieldItem label='作成者' value={record?.createdUser?.name} />
-        <FieldItem label='更新日時' value={formatDateTime(record?.createdAt)} />
+        <FieldItem label='更新日時' value={formatDateTime(record?.updatedAt)} />
         <FieldItem label='更新者' value={record?.updatedUser?.name} />
       </Stack>
     </Show>

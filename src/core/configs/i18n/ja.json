@@ -69,7 +69,7 @@
     "list": "一覧",
     "create": "作成",
     "edit": "編集",
-    "show": "表示"
+    "show": "詳細表示"
   },
   "buttons": {
     "create": "作成",
@@ -82,7 +82,7 @@
     "filter": "フィルタ",
     "clear": "クリア",
     "refresh": "最新に更新",
-    "show": "表示",
+    "show": "詳細表示",
     "undo": "戻す",
     "import": "インポート",
     "clone": "複製",

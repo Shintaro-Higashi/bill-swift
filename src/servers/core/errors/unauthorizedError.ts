@@ -1,4 +1,4 @@
 /**
- * 認証エラー発生時にthrowするエラー情報です。
+ * 認証エラー時にthrowするエラー情報です。
  */
 export default class UnauthorizedError extends Error {}
