@@ -11,7 +11,6 @@ import { RefineKbar, RefineKbarProvider } from '@refinedev/kbar'
 import { notificationProvider, RefineSnackbarProvider } from '@refinedev/mui'
 import routerProvider from '@refinedev/nextjs-router/app'
 import dataProvider from '@refinedev/simple-rest'
-import { useTranslation } from 'next-i18next'
 import React from 'react'
 import i18nProviderInstance from '@/core/providers/i18nProvider'
 import { z } from 'zod'
@@ -28,8 +27,7 @@ import { accessControlProvider } from '@/core/providers/accessControlProvider'
  * @constructor
  */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const { i18n } = useTranslation()
-  const i18nProvider = i18nProviderInstance(i18n)
+  const i18nProvider = i18nProviderInstance()
   z.setErrorMap(zodErrorMapJp)
   return (
     <>

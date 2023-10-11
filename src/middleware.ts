@@ -32,11 +32,12 @@ export async function middleware(request: NextRequest) {
 
   const token = request.cookies.get('token')
   if (!token) return unauthorizedErrorResponse()
-  // カスタムリクエストヘッダを利用して認証後のユーザIDをどこからでも取得可能な状態にする
-  const userId = await verifyJWTToken(token.value)
-  if (!userId) return unauthorizedErrorResponse()
+  // カスタムリクエストヘッダを利用して認証後のユーザ情報をどこからでも取得可能な状態にする
+  const payLoad = await verifyJWTToken(token.value)
+  if (!payLoad) return unauthorizedErrorResponse()
   const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-user-id', userId)
+  requestHeaders.set('x-user-id', payLoad.id)
+  requestHeaders.set('x-user-type', payLoad.userType)
   // ロールの検証用にpathnameも引き回す
   requestHeaders.set('x-pathname', request.nextUrl.pathname)
   return NextResponse.next({ request: { headers: requestHeaders } })

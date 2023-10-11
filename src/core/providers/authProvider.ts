@@ -4,6 +4,10 @@ import { axiosInstance } from '@/core/providers/restDataProvider'
 import { HTTP_STATUS } from '@/core/configs/constants'
 import axios from 'axios'
 import { LoginModel } from '@/types/models/authModel'
+
+// getIdentityをcache
+let userIdentity: LoginModel | null = null
+
 /**
  * 認証状態を制御するためのProvider定義です。
  */
@@ -16,10 +20,15 @@ export const authProvider: AuthBindings = {
   login: async ({ userId, password }) => {
     try {
       const { data }: { data: LoginModel } = await axiosInstance.post('/api/auth/login', { userId, password })
+      userIdentity = data
       nookies.set(null, 'token', data.token, {
         maxAge: process.env.JWT_TOKEN_EXPIRATION_SECONDS,
         path: '/',
       })
+      // ヘッダ認証に切り替える場合に必要
+      // axiosInstance.defaults.headers.common = {
+      //   Authorization: `Bearer ${data.token}`,
+      // };
       return {
         success: true,
         redirectTo: '/',
@@ -63,6 +72,7 @@ export const authProvider: AuthBindings = {
    * ログアウト時の処理です。
    */
   logout: async () => {
+    userIdentity = null
     nookies.destroy(null, 'token')
     return {
       success: true,
@@ -125,11 +135,14 @@ export const authProvider: AuthBindings = {
   check: async () => {
     const cookies = nookies.get(null)
     if (cookies.token) {
-      const { data }: { data: LoginModel } = await axiosInstance.get('/api/auth')
-      nookies.set(null, 'token', data.token, {
+      const { data: tokenData }: { data: { token: string } } = await axiosInstance.get('/api/auth/token')
+      const { data: loginData }: { data: LoginModel } = await axiosInstance.get('/api/auth')
+      userIdentity = loginData
+      nookies.set(null, 'token', tokenData.token, {
         maxAge: process.env.JWT_TOKEN_EXPIRATION_SECONDS,
         path: '/',
       })
+
       return {
         authenticated: true,
       }
@@ -159,12 +172,8 @@ export const authProvider: AuthBindings = {
    * ログイン中のユーザ情報を取得します。
    */
   getIdentity: async () => {
-    const cookies = nookies.get(null)
-    if (!cookies.auth) return null
-    return {
-      id: 1,
-      name: '薬剤 歴史',
-      avatar: 'https://unsplash.com/photos/IWLOvomUmWU/download?force=true&w=640',
-    }
+    // ここでAPIを実地すると画面リロード時など大量に実行されるため(accessControlProviderから利用しているため)キャッシュのみを参照する
+    // APIからの取得はログイン後と最初のtokenチェック時に行う
+    return userIdentity
   },
 }

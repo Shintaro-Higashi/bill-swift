@@ -21,7 +21,7 @@ export const unauthorizedErrorResponse = (message: string = 'Unauthorized') => {
  * @param message エラーメッセージ
  * @return HTTPレスポンス
  */
-export const forbiddenErrorResponse = (message: string = 'forbidden') => {
+export const forbiddenErrorResponse = (message: string = 'アクセス権限がありません') => {
   return new NextResponse(JSON.stringify({ success: false, message }), {
     status: HTTP_STATUS.FORBIDDEN,
     headers,

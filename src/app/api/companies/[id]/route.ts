@@ -19,20 +19,26 @@ export async function GET(_req: NextRequest, { params: { id } }: { params: ByIdR
  * @param params パスパラメータ
  */
 export async function PATCH(req: NextRequest, { params }: { params: ByIdRequest }) {
-  return await performRequest(async () => {
-    const editData = await req.json()
-    const parsedEditData = CompanyEditingSchema.parse(editData)
-    const response = await updateCompany(params.id, parsedEditData)
-    return NextResponse.json(response)
-  })
+  return await performRequest(
+    async () => {
+      const editData = await req.json()
+      const parsedEditData = CompanyEditingSchema.parse(editData)
+      const response = await updateCompany(params.id, parsedEditData)
+      return NextResponse.json(response)
+    },
+    { action: 'edit' },
+  )
 }
 
 /**
  * 会社詳細情報を削除するAPIです。
  */
 export async function DELETE(_req: NextRequest, { params: { id } }: { params: ByIdRequest }) {
-  return await performRequest(async () => {
-    const entity = await archiveCompany(id)
-    return NextResponse.json({ id: entity.id })
-  })
+  return await performRequest(
+    async () => {
+      const entity = await archiveCompany(id)
+      return NextResponse.json({ id: entity.id })
+    },
+    { action: 'archive' },
+  )
 }

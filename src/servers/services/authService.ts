@@ -24,7 +24,7 @@ export const login = depend({ fetchUserByUserId }, async ({ fetchUserByUserId },
   const loginUser: LoginModel = {
     id: user.id,
     name: user.name,
-    token: await createJWTToken(user.id),
+    token: await createJWTToken(user.id, user.userType),
     userType: user.userType,
   }
   return loginUser
@@ -35,7 +35,7 @@ export const createLoginUser = depend({ fetch }, async ({ fetch }, id: string) =
   return {
     id: user.id,
     name: user.name,
-    token: await createJWTToken(user.id),
+    token: await createJWTToken(user.id, user.userType),
     userType: user.userType,
   } as LoginModel
 })

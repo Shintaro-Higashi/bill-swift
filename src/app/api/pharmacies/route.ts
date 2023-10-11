@@ -22,10 +22,13 @@ export async function GET(req: NextRequest) {
  * @param req リクエスト情報
  */
 export async function POST(req: NextRequest) {
-  return await performRequest(async () => {
-    const createData = await req.json()
-    const parsedCreateData = PharmacyCreationSchema.parse(createData)
-    const response = await createPharmacy(parsedCreateData)
-    return NextResponse.json(response)
-  })
+  return await performRequest(
+    async () => {
+      const createData = await req.json()
+      const parsedCreateData = PharmacyCreationSchema.parse(createData)
+      const response = await createPharmacy(parsedCreateData)
+      return NextResponse.json(response)
+    },
+    { action: 'create' },
+  )
 }

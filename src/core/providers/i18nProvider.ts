@@ -1,5 +1,4 @@
 import { I18nProvider } from '@refinedev/core'
-import type { i18n } from 'i18next'
 import * as TRANSLATE_JA from '@/core/configs/i18n/ja.json'
 import { getPropertyByFlatKey } from '@/core/utils/commonUtil'
 
@@ -7,10 +6,9 @@ let i18nProvider: I18nProvider
 
 /**
  * 翻訳Providerを取得します。
- * @param i18n
  * @return 翻訳Provider
  */
-const i18nProviderInstance = (i18n: i18n) => {
+const i18nProviderInstance = () => {
   if (i18nProvider) {
     return i18nProvider
   }
@@ -24,8 +22,8 @@ const i18nProviderInstance = (i18n: i18n) => {
       }
       return translatedContent || params?.toString() || key
     },
-    changeLocale: (lang: string) => i18n.changeLanguage(lang),
-    getLocale: () => i18n.language,
+    changeLocale: (lang: string) => Promise.resolve(lang),
+    getLocale: () => 'ja',
   }
   return i18nProvider
 }

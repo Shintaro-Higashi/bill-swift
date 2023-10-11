@@ -1,10 +1,12 @@
 import { SignJWT, jwtVerify } from 'jose'
+import { UserTypeKey } from '@/shared/items/userType'
 
 /**
  * JWTトークンのPayload
  */
 export type TokenPayload = {
   id: string
+  userType: UserTypeKey
 }
 
 // JWTトークン生成に利用するアルゴリズム
@@ -14,9 +16,10 @@ const TOKEN_ALGORITHM = 'HS256'
  * 認証用JTWTokenを作成します。
  * @param id payloadに含めるユーザのID
  */
-export const createJWTToken = (id: string) => {
+export const createJWTToken = (id: string, userType: UserTypeKey) => {
   const payload: TokenPayload = {
     id,
+    userType,
   }
 
   return new SignJWT(payload)
@@ -34,7 +37,7 @@ export const createJWTToken = (id: string) => {
 export const verifyJWTToken = async (token: string) => {
   try {
     const { payload } = await jwtVerify(token, new TextEncoder().encode(process.env.JWT_TOKEN_SECRET))
-    return payload.id as string
+    return payload as TokenPayload
   } catch (e) {
     return null
   }

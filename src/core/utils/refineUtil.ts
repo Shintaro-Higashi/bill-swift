@@ -51,6 +51,13 @@ export class QueryFormErrorNotification<TFieldValues extends FieldValues> {
         type: 'error',
       }
     }
+    if (data?.statusCode === HTTP_STATUS.FORBIDDEN) {
+      return {
+        message: `ユーザ種別を確認して必要な権限があるかをご確認ください`,
+        description: 'アクセス権限がありません',
+        type: 'error',
+      }
+    }
     if (data?.statusCode === HTTP_STATUS.BAD_REQUEST && this.setError) {
       for (const error of data.response?.data.error) {
         this.setError(error.path[0], { type: 'server', message: error.message })
