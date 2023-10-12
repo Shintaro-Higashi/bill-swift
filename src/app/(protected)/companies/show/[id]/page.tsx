@@ -40,13 +40,6 @@ const ShowPage: React.FC = () => {
         <FieldItem label='電話番号' value={record?.tel} />
         <FieldItem label='FAX番号' value={record?.fax} />
         <FieldItem label='インボイス登録番号' value={record?.invoiceNo} />
-        <FieldItem label='金融機関コード' value={record?.financialCode} />
-        <FieldItem label='金融機関名' value={record?.financialName} />
-        <FieldItem label='支店コード' value={record?.branchCode} />
-        <FieldItem label='支店名称' value={record?.branchName} />
-        <FieldItem label='口座種別' value={getAccountTypeValue(record?.accountType)} />
-        <FieldItem label='口座番号' value={record?.accountNo} />
-        <FieldItem label='口座名義' value={record?.accountName} />
         <FieldItem label='施設コードグループ名' value={record?.healthFacilityCodeGroup?.name} />
         <FieldItem label='作成日時' value={formatDateTime(record?.createdAt)} />
         <FieldItem label='作成者' value={record?.createdUser?.name} />

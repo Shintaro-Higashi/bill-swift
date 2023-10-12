@@ -37,20 +37,6 @@ export const CompanyCreationSchema = z.object({
   fax: schemaTel(),
   // インボイス番号
   invoiceNo: schemaInvoiceNo(),
-  // 金融機関コード
-  financialCode: schemaFixedLength(4),
-  // 金融機関名
-  financialName: schemaString(128),
-  // 支店コード
-  branchCode: schemaFixedLength(3),
-  // 支店名
-  branchName: schemaString(128),
-  // 口座種別
-  accountType: createUnionSchema(ACCOUNT_TYPE_KEY_LIST).nullish(),
-  // 口座番号
-  accountNo: schemaString(7),
-  // 口座名義
-  accountName: schemaString(128),
   // 施設コードグループID
   healthFacilityCodeGroupId: schemaString(64, true, schemaStringSelectMessage),
 })

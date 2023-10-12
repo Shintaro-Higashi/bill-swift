@@ -90,56 +90,6 @@ export const CompanySaveForm = (props: Props) => {
         error={!!errors.invoiceNo}
         helperText={errors.invoiceNo?.message}
       />
-      <TextField
-        {...register('financialCode')}
-        label='金融機関コード'
-        placeholder='0000'
-        error={!!errors.financialCode}
-        helperText={errors.financialCode?.message}
-      />
-      <TextField
-        {...register('financialName')}
-        label='金融機関名'
-        placeholder='XXX銀行'
-        error={!!errors.financialName}
-        helperText={errors.financialName?.message}
-      />
-      <TextField
-        {...register('branchCode')}
-        label='支店コード'
-        placeholder='000'
-        error={!!errors.branchCode}
-        helperText={errors.branchCode?.message}
-      />
-      <TextField
-        {...register('branchName')}
-        label='支店名称'
-        placeholder='XXX支店'
-        error={!!errors.branchName}
-        helperText={errors.branchName?.message}
-      />
-      <ControlItemAutocomplete
-        label='口座種別'
-        name='accountType'
-        options={ACCOUNT_TYPE_LIST}
-        control={control}
-        error={!!errors.accountType}
-        helperText={errors.accountType?.message}
-      />
-      <TextField
-        {...register('accountNo')}
-        label='口座番号'
-        placeholder='0000000'
-        error={!!errors.accountNo}
-        helperText={errors.accountNo?.message}
-      />
-      <TextField
-        {...register('accountName')}
-        label='口座名義'
-        placeholder=''
-        error={!!errors.accountName}
-        helperText={errors.accountName?.message}
-      />
       <ControlAutocomplete
         required
         resource='healthFacilityCodeGroups'

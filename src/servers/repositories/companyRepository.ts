@@ -53,8 +53,6 @@ export const createCompany = depend({ client: prisma }, async ({ client }, param
     data: {
       id: createId(),
       ...params,
-      // TODO: accountTypeのデータ型が定まり次第修正
-      accountType: params.accountType?.toString(),
       createdBy: userId,
       updatedBy: userId,
       createdAt: now,
@@ -74,8 +72,6 @@ export const updateCompany = depend({ client: prisma }, async ({ client }, id: s
     // @ts-ignore
     data: {
       ...params,
-      // TODO: accountTypeのデータ型が定まり次第修正
-      accountType: params.accountType?.toString(),
       updatedBy: getAuthorizedUserId(),
       updatedAt: now,
     },

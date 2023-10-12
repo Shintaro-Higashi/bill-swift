@@ -15,6 +15,34 @@ datasource db {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model AccountManage {
+  id                                                       String                    @id @db.VarChar(64)
+  name                                                     String                    @db.VarChar(64)
+  transferDate                                             Int?                      @map("transfer_date") @db.SmallInt
+  financialCode                                            String?                   @map("financial_code") @db.Char(4)
+  financialName                                            String?                   @map("financial_name") @db.VarChar(64)
+  branchCode                                               String?                   @map("branch_code") @db.Char(3)
+  branchName                                               String?                   @map("branch_name") @db.VarChar(64)
+  accountType                                              AccountManageAccountType? @map("account_type")
+  accountNo                                                String?                   @map("account_no") @db.VarChar(7)
+  accountName                                              String?                   @map("account_name") @db.VarChar(64)
+  createdAt                                                DateTime?                 @map("created_at") @db.Timestamp(0)
+  createdBy                                                String?                   @map("created_by") @db.VarChar(64)
+  updatedAt                                                DateTime?                 @map("updated_at") @db.Timestamp(0)
+  updatedBy                                                String?                   @map("updated_by") @db.VarChar(64)
+  deletedAt                                                DateTime?                 @map("deleted_at") @db.Timestamp(0)
+  existence                                                Boolean?
+  createdUser                         User?                     @relation("account_manage_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK1")
+  updatedUser                         User?                     @relation("account_manage_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK2")
+  pharmacyTransfer   Pharmacy[]                @relation("pharmacy_transfer_account_manage_idToaccount_manage")
+  pharmacyWithdrawal Pharmacy[]                @relation("pharmacy_withdrawal_account_manage_idToaccount_manage")
+
+  @@index([createdBy], map: "account_manage_FK1")
+  @@index([updatedBy], map: "account_manage_FK2")
+  @@map("account_manage")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Company {
   id                         String                  @id @db.VarChar(64)
   name                       String                  @db.VarChar(64)
@@ -25,13 +53,6 @@ model Company {
   tel                        String?                 @db.VarChar(16)
   fax                        String?                 @db.VarChar(16)
   invoiceNo                  String?                 @map("invoice_no") @db.Char(14)
-  financialCode              String?                 @map("financial_code") @db.VarChar(16)
-  financialName              String?                 @map("financial_name") @db.VarChar(128)
-  branchCode                 String?                 @map("branch_code") @db.VarChar(128)
-  branchName                 String?                 @map("branch_name") @db.VarChar(128)
-  accountType                String?                 @map("account_type") @db.Char(1)
-  accountNo                  String?                 @map("account_no") @db.VarChar(32)
-  accountName                String?                 @map("account_name") @db.VarChar(128)
   healthFacilityCodeGroupId  String                  @map("health_facility_code_group_id") @db.VarChar(64)
   createdAt                  DateTime?               @map("created_at") @db.Timestamp(0)
   createdBy                  String?                 @map("created_by") @db.VarChar(64)
@@ -65,6 +86,9 @@ model HealthFacility {
   fax                               String?                        @db.VarChar(16)
   mail                              String?                        @db.VarChar(128)
   url                               String?                        @db.VarChar(255)
+  billingType                       HealthFacilityBillingType?     @map("billing_type")
+  paymentType                       HealthFacilityPaymentType?     @map("payment_type")
+  transferGuide                     HealthFacilityTransferGuide?   @map("transfer_guide")
   patientSortType                   HealthFacilityPatientSortType  @default(NAME) @map("patient_sort_type")
   note                              String?                        @db.Text
   createdAt                         DateTime?                      @map("created_at") @db.Timestamp(0)
@@ -138,7 +162,7 @@ model HealthFacilityRelatePharmacy {
   healthFacilityId                                String         @map("health_facility_id") @db.VarChar(64)
   pharmacyId                                      String         @map("pharmacy_id") @db.VarChar(64)
   startDate                                       DateTime       @map("start_date") @db.Date
-  endDate                                         DateTime       @default(dbgenerated("'2100-01-01'")) @map("end_date") @db.Date
+  endDate                                         DateTime       @default(dbgenerated("'2100-12-31'")) @map("end_date") @db.Date
   note                                            String?        @db.Text
   createdAt                                       DateTime?      @map("created_at") @db.Timestamp(0)
   createdBy                                       String?        @map("created_by") @db.VarChar(64)
@@ -236,20 +260,26 @@ model Patient {
   searchName                  String                        @map("search_name") @db.VarChar(255)
   gender                      PatientGender                 @default(UNCERTAIN) @map("gender")
   birthday                    DateTime?                     @db.Date
-  medicalConfirmDate          DateTime?                     @map("medical_confirm_date") @db.Date
-  nursingConfirmDate          DateTime?                     @map("nursing_confirm_date") @db.Date
+  medicalInsuranceStatus      PatientMedicalInsuranceStatus @default(UNCONFIRMED) @map("medical_insurance_status")
+  medicalInsuranceStartDate   DateTime?                     @map("medical_insurance_start_date") @db.Date
+  medicalInsuranceEndDate     DateTime?                     @map("medical_insurance_end_date") @db.Date
+  nursingInsuranceStatus      PatientNursingInsuranceStatus @default(UNCONFIRMED) @map("nursing_insurance_status")
+  nursingInsuranceStartDate   DateTime?                     @map("nursing_insurance_start_date") @db.Date
+  nursingInsuranceEndDate     DateTime?                     @map("nursing_insurance_end_date") @db.Date
   shareConfirmDate            DateTime?                     @map("share_confirm_date") @db.Date
+  consentStatus               PatientConsentStatus          @default(UNSIGNED) @map("consent_status")
   consentConfirmDate          DateTime?                     @map("consent_confirm_date") @db.Date
-  accountConfirmDate          DateTime?                     @map("account_confirm_date") @db.Date
-  receptSyncFlag              Boolean                       @default(false) @map("recept_sync_flag")
-  billingName                 String?                       @map("billing_name") @db.VarChar(64)
-  billingPostalCode           String?                       @map("billing_postal_code") @db.Char(8)
-  billingAddress1             String?                       @map("billing_address1") @db.VarChar(128)
-  billingAddress2             String?                       @map("billing_address2") @db.VarChar(128)
-  billingTel                  String?                       @map("billing_tel") @db.VarChar(16)
   paymentType                 PatientPaymentType            @default(UNDEFINED) @map("payment_type")
   accountConfirmStatus        PatientAccountConfirmStatus?  @map("account_confirm_status")
-  withdrawalType              PatientWithdrawalType?        @map("withdrawal_type")
+  accountManageId             String?                       @map("account_manage_id") @db.VarChar(64)
+  publicExpense               Boolean                       @default(false) @map("public_expense")
+  receptSyncFlag              Boolean                       @default(false) @map("recept_sync_flag")
+  deliveryName                String?                       @map("delivery_name") @db.VarChar(64)
+  deliveryPostalCode          String?                       @map("delivery_postal_code") @db.Char(8)
+  deliveryAddress1            String?                       @map("delivery_address1") @db.VarChar(128)
+  deliveryAddress2            String?                       @map("delivery_address2") @db.VarChar(128)
+  deliveryTel                 String?                       @map("delivery_tel") @db.VarChar(16)
+  healthFacilityInfo          String?                       @map("health_facility_info") @db.VarChar(255)
   note                        String?                       @db.Text
   createdAt                   DateTime?                     @map("created_at") @db.Timestamp(0)
   createdBy                   String?                       @map("created_by") @db.VarChar(64)
@@ -364,7 +394,7 @@ model PatientRelateHealthFacility {
   patientId                                      String                             @map("patient_id") @db.VarChar(64)
   healthFacilityId                               String                             @map("health_facility_id") @db.VarChar(64)
   startDate                                      DateTime                           @map("start_date") @db.Date
-  endDate                                        DateTime                           @default(dbgenerated("'2100-01-01'")) @map("end_date") @db.Date
+  endDate                                        DateTime                           @default(dbgenerated("'2100-12-31'")) @map("end_date") @db.Date
   reason                                         PatientRelateHealthFacilityReason? @map("reason")
   billSort                                       Int?                               @map("bill_sort")
   note                                           String?                            @db.Text
@@ -388,35 +418,41 @@ model PatientRelateHealthFacility {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Pharmacy {
-  id                             String                           @id @db.VarChar(64)
-  companyId                      String                           @map("company_id") @db.VarChar(64)
-  pharmacyGroupId                String                           @map("pharmacy_group_id") @db.VarChar(64)
-  name                           String                           @db.VarChar(64)
-  nameKana                       String                           @map("name_kana") @db.VarChar(128)
-  medicalInstitutionCode         String?                          @map("medical_institution_code") @db.VarChar(16)
-  postalCode                     String                           @map("postal_code") @db.Char(8)
-  address1                       String                           @db.VarChar(128)
-  address2                       String?                          @db.VarChar(128)
-  tel                            String                           @db.VarChar(16)
-  fax                            String?                          @db.VarChar(16)
-  createdAt                      DateTime?                        @map("created_at") @db.Timestamp(0)
-  createdBy                      String?                          @map("created_by") @db.VarChar(64)
-  updatedAt                      DateTime?                        @map("updated_at") @db.Timestamp(0)
-  updatedBy                      String?                          @map("updated_by") @db.VarChar(64)
-  deletedAt                      DateTime?                        @map("deleted_at") @db.Timestamp(0)
-  existence                      Boolean?
-  healthFacility                 HealthFacility[]
-  healthFacilityRelatePharmacy   HealthFacilityRelatePharmacy[]
-  pharmacyGroup                  PharmacyGroup                    @relation(fields: [pharmacyGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK1")
-  company                        Company                          @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK2")
-  createdUser    User?                            @relation("pharmacy_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK3")
-  updatedUser    User?                            @relation("pharmacy_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK4")
-  pharmacyBaseCompoundingSetting PharmacyBaseCompoundingSetting[]
+  id                                                            String                           @id @db.VarChar(64)
+  companyId                                                     String                           @map("company_id") @db.VarChar(64)
+  pharmacyGroupId                                               String                           @map("pharmacy_group_id") @db.VarChar(64)
+  name                                                          String                           @db.VarChar(64)
+  nameKana                                                      String                           @map("name_kana") @db.VarChar(128)
+  medicalInstitutionCode                                        String?                          @map("medical_institution_code") @db.VarChar(16)
+  postalCode                                                    String                           @map("postal_code") @db.Char(8)
+  address1                                                      String                           @db.VarChar(128)
+  address2                                                      String?                          @db.VarChar(128)
+  tel                                                           String                           @db.VarChar(16)
+  fax                                                           String?                          @db.VarChar(16)
+  withdrawalAccountManageId                                     String                           @map("withdrawal_account_manage_id") @db.VarChar(64)
+  transferAccountManageId                                       String                           @map("transfer_account_manage_id") @db.VarChar(64)
+  createdAt                                                     DateTime?                        @map("created_at") @db.Timestamp(0)
+  createdBy                                                     String?                          @map("created_by") @db.VarChar(64)
+  updatedAt                                                     DateTime?                        @map("updated_at") @db.Timestamp(0)
+  updatedBy                                                     String?                          @map("updated_by") @db.VarChar(64)
+  deletedAt                                                     DateTime?                        @map("deleted_at") @db.Timestamp(0)
+  existence                                                     Boolean?
+  healthFacility                                                HealthFacility[]
+  healthFacilityRelatePharmacy                                  HealthFacilityRelatePharmacy[]
+  pharmacyGroup                                                 PharmacyGroup                    @relation(fields: [pharmacyGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK1")
+  company                                                       Company                          @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK2")
+  createdUser                                   User?                            @relation("pharmacy_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK3")
+  updatedUser                                   User?                            @relation("pharmacy_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK4")
+  transferAccountManage   AccountManage                    @relation("pharmacy_transfer_account_manage_idToaccount_manage", fields: [transferAccountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK5")
+  withdrawalAccountManage AccountManage                    @relation("pharmacy_withdrawal_account_manage_idToaccount_manage", fields: [withdrawalAccountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK6")
+  pharmacyBaseCompoundingSetting                                PharmacyBaseCompoundingSetting[]
 
   @@index([pharmacyGroupId], map: "pharmacy_FK1")
   @@index([companyId], map: "pharmacy_FK2")
   @@index([createdBy], map: "pharmacy_FK3")
   @@index([updatedBy], map: "pharmacy_FK4")
+  @@index([transferAccountManageId], map: "pharmacy_FK5")
+  @@index([withdrawalAccountManageId], map: "pharmacy_FK6")
   @@map("pharmacy")
 }
 
@@ -479,6 +515,8 @@ model User {
   updatedBy                                                                   String?                          @map("updated_by") @db.VarChar(64)
   deletedAt                                                                   DateTime?                        @map("deleted_at") @db.Timestamp(0)
   existence                                                                   Boolean?
+  accountManageAccountManageCreatedByTouser                                   AccountManage[]                  @relation("account_manage_created_byTouser")
+  accountManageAccountManageUpdatedByTouser                                   AccountManage[]                  @relation("account_manage_updated_byTouser")
   companyCreatedUser                                               Company[]                        @relation("company_created_byTouser")
   companyUpdatedUser                                               Company[]                        @relation("company_updated_byTouser")
   healthFacilityCreatedUser                                 HealthFacility[]                 @relation("health_facility_created_byTouser")
@@ -564,6 +602,64 @@ enum PatientRelateHealthFacilityReason {
   @@map("patient_relate_health_facility_reason")
 }
 
+enum AccountManageAccountType {
+  SAVINGS
+  CURRENT
+
+  @@map("account_manage_account_type")
+}
+
+enum PatientMedicalInsuranceStatus {
+  UNCONFIRMED
+  CONFIRMED
+  UPDATING
+
+  @@map("patient_medical_insurance_status")
+}
+
+enum PatientNursingInsuranceStatus {
+  UNCONFIRMED
+  CONFIRMED
+  UPDATING
+
+  @@map("patient_nursing_insurance_status")
+}
+
+enum HealthFacilityBillingType {
+  BATCH
+  INDIVISUAL
+  OTHER
+
+  @@map("health_facility_billing_type")
+}
+
+enum HealthFacilityPaymentType {
+  CASH
+  WITHDRAWAL
+  TRANSFER
+  OTHER
+
+  @@map("health_facility_payment_type")
+}
+
+enum PatientConsentStatus {
+  UNSIGNED
+  UNCOLLECTED
+  COLLECTED
+  OTHER
+
+  @@map("patient_consent_status")
+}
+
+enum HealthFacilityTransferGuide {
+  MIZUHO
+  RISONA
+  JA
+  OTHER
+
+  @@map("health_facility_transfer_guide")
+}
+
 enum HealthFacilityPatientSortType {
   NAME
   CODE
@@ -576,6 +672,8 @@ enum PatientPaymentType {
   UNDEFINED
   CASH
   WITHDRAWAL
+  WITHDRAWAL_STOP
+  WITHDRAWAL_CONTINUE
   TRANSFER
   CONVENIENCE
   LATER
@@ -589,13 +687,4 @@ enum PatientAccountConfirmStatus {
   INVALID
 
   @@map("patient_account_confirm_status")
-}
-
-enum PatientWithdrawalType {
-  MIZUHO
-  RISONA
-  LATER
-  ELSE
-
-  @@map("patient_withdrawal_type")
 }

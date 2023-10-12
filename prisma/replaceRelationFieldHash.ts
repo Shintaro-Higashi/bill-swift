@@ -5,6 +5,17 @@ const replacements: { search: string; replace: string }[] = [
   // 施設コードグループ
   { search: 'userHealthFacilityCodeGroupCreatedByTouser', replace: 'createdUser' },
   { search: 'userHealthFacilityCodeGroupUpdatedByTouser', replace: 'updatedUser' },
+  // 口座管理
+  { search: 'userAccountManageCreatedByTouser', replace: 'createdUser' },
+  { search: 'userAccountManageUpdatedByTouser', replace: 'updatedUser' },
+  {
+    search: 'pharmacyPharmacyTransferAccountManageIdToaccountManage',
+    replace: 'pharmacyTransfer',
+  },
+  {
+    search: 'pharmacyPharmacyWithdrawalAccountManageIdToaccountManage',
+    replace: 'pharmacyWithdrawal',
+  },
   // 会社
   { search: 'userCompanyCreatedByTouser', replace: 'createdUser' },
   { search: 'userCompanyUpdatedByTouser', replace: 'updatedUser' },
@@ -14,6 +25,14 @@ const replacements: { search: string; replace: string }[] = [
   // 薬局
   { search: 'userPharmacyCreatedByTouser', replace: 'createdUser' },
   { search: 'userPharmacyUpdatedByTouser', replace: 'updatedUser' },
+  {
+    search: 'accountManagePharmacyTransferAccountManageIdToaccountManage',
+    replace: 'transferAccountManage',
+  },
+  {
+    search: 'accountManagePharmacyWithdrawalAccountManageIdToaccountManage',
+    replace: 'withdrawalAccountManage',
+  },
   // 薬局基本調剤設定
   { search: 'userPharmacyBaseCompoundingSettingCreatedByTouser', replace: 'createdUser' },
   { search: 'userPharmacyBaseCompoundingSettingUpdatedByTouser', replace: 'updatedUser' },
