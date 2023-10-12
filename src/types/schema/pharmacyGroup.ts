@@ -1,13 +1,14 @@
 import { z } from 'zod'
 import { paginationQuerySchema } from '@/types/schema/pagination'
+import { zOptionalString } from '@/types/schema/base/zSchemaString'
 
 // 薬局検索クエリスキーマ
 export const PharmacyGroupQuerySchema = z
   .object({
     // ID
-    id: z.string(),
+    id: zOptionalString(64),
     // 薬局名
-    name: z.string().max(64),
+    name: zOptionalString(64),
     ...paginationQuerySchema,
   })
   .partial()

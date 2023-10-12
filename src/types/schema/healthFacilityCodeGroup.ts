@@ -1,13 +1,14 @@
 import { z } from 'zod'
 import { paginationQuerySchema } from '@/types/schema/pagination'
+import { zOptionalString } from '@/types/schema/base/zSchemaString'
 
 // 施設コードグループ検索クエリスキーマ
 export const HealthFacilityCodeGroupQuerySchema = z
   .object({
     // ID
-    id: z.string(),
+    id: zOptionalString(64),
     // 施設コードグループ名
-    name: z.string().max(64),
+    name: zOptionalString(64),
     ...paginationQuerySchema,
   })
   .partial()

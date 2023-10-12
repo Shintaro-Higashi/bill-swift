@@ -68,3 +68,17 @@ export const deepCompareJSON = (original: any, updated: any) => {
 
   return changes
 }
+
+/**
+ * 半角スペース以外に全角スペース、タブ、改行も対象に文字列をtrimします。
+ *
+ * @param value 文字列
+ * @param replaceEmptyValue trim後値がない(空文字,null,undefined)場合に変換する値
+ * @return trim後の文字列
+ */
+export const trimUnicode = (value: string | null | undefined, replaceEmptyValue: string | null | undefined) => {
+  if (value == null || value === '') return replaceEmptyValue
+  const trimValue = value.replace(/^\s+|\s+$/g, '')
+  if (value === '') return replaceEmptyValue
+  return trimValue
+}

@@ -1,10 +1,11 @@
 import { z } from 'zod'
-import { schemaString } from '@/core/validators/schemaString'
+
+import { zRequiredString } from '@/types/schema/base/zSchemaString'
 
 // ログインパラメータ
 export const LoginSchema = z.object({
   // 名前
-  userId: schemaString(128, true),
+  userId: zRequiredString(128),
   // パスワード
-  password: schemaString(128, true),
+  password: zRequiredString(64),
 })

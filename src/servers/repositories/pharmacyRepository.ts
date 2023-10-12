@@ -30,9 +30,7 @@ export const fetchPagedPharmacies = async (params: PharmacyQueryDto): Promise<Pa
 
   const entities = await prisma.pharmacy.paginate({
     where: {
-      // @ts-ignore
       company: { id: params.companyId },
-      // @ts-ignore
       pharmacyGroup: { id: params.pharmacyGroupId },
       name: { contains: params.name },
       deletedAt: null,
@@ -66,7 +64,6 @@ export const createPharmacy = depend({ client: prisma }, async ({ client }, para
   const now = getCurrentDate()
   const userId = getAuthorizedUserId()
   return await client.pharmacy.create({
-    // @ts-ignore
     data: {
       id: createId(),
       ...params,
@@ -86,7 +83,6 @@ export const createPharmacy = depend({ client: prisma }, async ({ client }, para
 export const updatePharmacy = depend({ client: prisma }, async ({ client }, id: string, params: PharmacyEditingDto) => {
   const now = getCurrentDate()
   return await client.pharmacy.update({
-    // @ts-ignore
     data: {
       ...params,
       updatedBy: getAuthorizedUserId(),

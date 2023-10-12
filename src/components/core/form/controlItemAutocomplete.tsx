@@ -71,7 +71,14 @@ export const ControlItemAutocomplete = (props: Props) => {
             )
           }}
           renderInput={(params) => (
-            <TextField {...params} required={required} label={label} error={error} helperText={helperText} />
+            <TextField
+              {...params}
+              required={required}
+              label={label}
+              error={error}
+              helperText={helperText}
+              InputLabelProps={{ shrink: true }}
+            />
           )}
         />
       )}

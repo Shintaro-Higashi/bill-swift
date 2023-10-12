@@ -63,7 +63,6 @@ export const createUser = depend({ client: prisma }, async ({ client }, params: 
   const now = getCurrentDate()
   const userId = getAuthorizedUserId()
   return await client.user.create({
-    // @ts-ignore
     data: {
       id: createId(),
       ...params,
@@ -84,7 +83,6 @@ export const createUser = depend({ client: prisma }, async ({ client }, params: 
 export const updateUser = depend({ client: prisma }, async ({ client }, id: string, params: UserEditingDto) => {
   const now = getCurrentDate()
   return await client.user.update({
-    // @ts-ignore
     data: {
       ...params,
       userType: params.userType?.toString() as UserUserType,

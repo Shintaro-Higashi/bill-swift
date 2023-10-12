@@ -49,7 +49,6 @@ export const createCompany = depend({ client: prisma }, async ({ client }, param
   const now = getCurrentDate()
   const userId = getAuthorizedUserId()
   return await client.company.create({
-    // @ts-ignore
     data: {
       id: createId(),
       ...params,
@@ -69,7 +68,6 @@ export const createCompany = depend({ client: prisma }, async ({ client }, param
 export const updateCompany = depend({ client: prisma }, async ({ client }, id: string, params: CompanyEditingDto) => {
   const now = getCurrentDate()
   return await client.company.update({
-    // @ts-ignore
     data: {
       ...params,
       updatedBy: getAuthorizedUserId(),
