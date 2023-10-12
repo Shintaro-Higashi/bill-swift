@@ -263,10 +263,13 @@ model Patient {
   medicalInsuranceStatus      PatientMedicalInsuranceStatus @default(UNCONFIRMED) @map("medical_insurance_status")
   medicalInsuranceStartDate   DateTime?                     @map("medical_insurance_start_date") @db.Date
   medicalInsuranceEndDate     DateTime?                     @map("medical_insurance_end_date") @db.Date
+  medicalShareConfirmDate     DateTime?                     @map("medical_share_confirm_date") @db.Date
+  medicalShare                PatientMedicalShare?          @map("medical_share")
   nursingInsuranceStatus      PatientNursingInsuranceStatus @default(UNCONFIRMED) @map("nursing_insurance_status")
   nursingInsuranceStartDate   DateTime?                     @map("nursing_insurance_start_date") @db.Date
   nursingInsuranceEndDate     DateTime?                     @map("nursing_insurance_end_date") @db.Date
-  shareConfirmDate            DateTime?                     @map("share_confirm_date") @db.Date
+  nursingShareConfirmDate     DateTime?                     @map("nursing_share_confirm_date") @db.Date
+  nursingShare                PatientNursingShare?          @map("nursing_share")
   consentStatus               PatientConsentStatus          @default(UNSIGNED) @map("consent_status")
   consentConfirmDate          DateTime?                     @map("consent_confirm_date") @db.Date
   paymentType                 PatientPaymentType            @default(UNDEFINED) @map("payment_type")
@@ -617,6 +620,15 @@ enum PatientMedicalInsuranceStatus {
   @@map("patient_medical_insurance_status")
 }
 
+enum PatientMedicalShare {
+  ONE
+  TWO
+  THREE
+  NONE
+
+  @@map("patient_medical_share")
+}
+
 enum PatientNursingInsuranceStatus {
   UNCONFIRMED
   CONFIRMED
@@ -642,15 +654,6 @@ enum HealthFacilityPaymentType {
   @@map("health_facility_payment_type")
 }
 
-enum PatientConsentStatus {
-  UNSIGNED
-  UNCOLLECTED
-  COLLECTED
-  OTHER
-
-  @@map("patient_consent_status")
-}
-
 enum HealthFacilityTransferGuide {
   MIZUHO
   RISONA
@@ -666,6 +669,24 @@ enum HealthFacilityPatientSortType {
   OTHER
 
   @@map("health_facility_patient_sort_type")
+}
+
+enum PatientNursingShare {
+  ONE
+  TWO
+  THREE
+  NONE
+
+  @@map("patient_nursing_share")
+}
+
+enum PatientConsentStatus {
+  UNSIGNED
+  UNCOLLECTED
+  COLLECTED
+  OTHER
+
+  @@map("patient_consent_status")
 }
 
 enum PatientPaymentType {
