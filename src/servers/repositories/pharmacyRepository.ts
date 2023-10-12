@@ -36,7 +36,13 @@ export const fetchPagedPharmacies = async (params: PharmacyQueryDto): Promise<Pa
       deletedAt: null,
       existence: true,
     },
-    include: { pharmacyGroup: true, createdUser: true, updatedUser: true },
+    include: {
+      pharmacyGroup: true,
+      transferAccountManage: true,
+      withdrawalAccountManage: true,
+      createdUser: true,
+      updatedUser: true,
+    },
     orderBy: orderBy,
     pageNo: params.pageNo,
     pageSize: params.pageSize,
@@ -52,7 +58,14 @@ export const fetchPagedPharmacies = async (params: PharmacyQueryDto): Promise<Pa
 export const fetchPharmacy = async (id: string) => {
   return await prisma.pharmacy.findUnique({
     where: { id: id, existence: true },
-    include: { company: true, pharmacyGroup: true, createdUser: true, updatedUser: true },
+    include: {
+      company: true,
+      pharmacyGroup: true,
+      transferAccountManage: true,
+      withdrawalAccountManage: true,
+      createdUser: true,
+      updatedUser: true,
+    },
   })
 }
 

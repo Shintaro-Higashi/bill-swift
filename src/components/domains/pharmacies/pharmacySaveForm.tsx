@@ -64,6 +64,26 @@ export const PharmacySaveForm = (props: Props) => {
         error={!!errors.nameKana}
         helperText={errors.nameKana?.message}
       />
+      <ControlAutocomplete
+        required
+        resource='accountManages'
+        label='振替口座'
+        name='withdrawalAccountManageId'
+        defaultId={postsData?.withdrawalAccountManageId}
+        control={control}
+        error={!!errors.withdrawalAccountManageId}
+        helperText={'個人の患者様向けの請求口座情報を設定します ' + (errors.withdrawalAccountManageId?.message || '')}
+      />
+      <ControlAutocomplete
+        required
+        resource='accountManages'
+        label='振込口座'
+        name='transferAccountManageId'
+        defaultId={postsData?.transferAccountManageId}
+        control={control}
+        error={!!errors.transferAccountManageId}
+        helperText={'施設向けの請求口座情報を設定します ' + (errors.transferAccountManageId?.message || '')}
+      />
       <TextField
         {...register('medicalInstitutionCode')}
         label='医療機関コード'

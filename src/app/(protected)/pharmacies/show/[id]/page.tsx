@@ -1,7 +1,7 @@
 'use client'
 
 import { Stack, Button } from '@mui/material'
-import { useShow } from '@refinedev/core'
+import { useLink, useShow } from '@refinedev/core'
 import { CloneButton, Show } from '@refinedev/mui'
 import React from 'react'
 import { notFound } from 'next/navigation'
@@ -14,6 +14,7 @@ import SearchIcon from '@mui/icons-material/Search'
 
 const ShowPage: React.FC = () => {
   setTitle()
+  const Link = useLink()
   const { queryResult } = useShow<PharmacyModel>({ errorNotification: false })
   const { data, isLoading, error } = queryResult
   const record = data?.data
@@ -29,33 +30,35 @@ const ShowPage: React.FC = () => {
           <CloneButton disabled={isLoading} />
         </>
       )}
-      // footerButtonProps={{
-      //   sx: {
-      //     display: 'flex',
-      //     justifyContent: 'flex-end',
-      //   },
-      // }}
       footerButtons={() => (
-        <>
+        <Stack direction='row' justifyContent='flex-end' sx={{ width: 1, margin: 0, padding: 0 }}>
           <Button
-            // variant='contained'
-            //TODO: 施設API作成後にリンク先をテストする予定
-            href={`../../health_facilities?filters[0][field]=pharmacy.id&filters[0][operator]=eq&filters[0][value]=${record?.id}`}
+            component={Link}
+            to={`/healthFacilities?filters[0][field]=pharmacyId&filters[0][operator]=eq&filters[0][value]=${record?.id}`}
             startIcon={<SearchIcon />}
           >
             関連施設を表示
           </Button>
-        </>
+        </Stack>
       )}
     >
       <Stack gap={1}>
-        <FieldItem label='ID' value={record?.id} />
         <FieldItem label='会社名' value={record?.company?.name} />
         <FieldItem label='薬局名' value={record?.pharmacyGroup?.name} />
         <FieldItem label='店舗名' value={record?.name} />
         <FieldItem label='店舗カナ名称' value={record?.nameKana} />
         <FieldItem label='薬局 店舗' value={(record?.pharmacyGroup?.name + ' ' ?? '') + record?.name} />
         <FieldItem label='カナ名称' value={(record?.pharmacyGroup?.nameKana + ' ' ?? '') + record?.nameKana} />
+        <FieldItem
+          label='振替口座'
+          value={record?.withdrawalAccountManage?.name}
+          helperText='個人の患者様向けの請求口座情報を設定します'
+        />
+        <FieldItem
+          label='振込口座'
+          value={record?.transferAccountManage?.name}
+          helperText='施設向けの請求口座情報を設定します'
+        />
         <FieldItem label='医療機関コード' value={record?.medicalInstitutionCode} />
         <FieldItem label='郵便番号' value={record?.postalCode} />
         <FieldItem label='住所' value={(record?.address1 || '') + '\n' + (record?.address2 || '')} multiline />

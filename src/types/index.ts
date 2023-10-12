@@ -56,3 +56,10 @@ export * from './client/user'
 export * from './schema/auth'
 export * from './api/auth'
 export * from './server/auth'
+
+// 口座管理
+export * from './schema/accountManage'
+export * from './models/accountManageModel'
+export * from './api/accountManage'
+export * from './server/accountManage'
+export * from './client/accountManage'
