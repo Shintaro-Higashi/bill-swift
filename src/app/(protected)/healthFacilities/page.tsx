@@ -19,21 +19,32 @@ import SearchIcon from '@mui/icons-material/Search'
 import { zodResolver } from '@hookform/resolvers/zod'
 import StickyTableContent from '@/components/core/grid/stickyTableContent'
 import MuiLink from '@mui/material/Link'
-import { CompanyModel, CompanyQueryForm, CompanyQueryRequest, CompanyQuerySchema } from '@/types'
+import {
+  HealthFacilityModel,
+  HealthFacilityQueryForm,
+  HealthFacilityQueryRequest,
+  HealthFacilityQuerySchema,
+} from '@/types'
+import { ControlAutocomplete } from '@/components/core/form/controlAutocomplete'
 
 /**
- * 会社一覧画面です。
+ * 施設一覧画面です。
  */
 const ListPage: React.FC = () => {
   setTitle()
   const Link = useLink()
   const errorNotification = new QueryFormErrorNotification()
-  const { dataGridProps, filters, search } = useDataGrid<CompanyModel, HttpError, CompanyQueryRequest>({
+  const { dataGridProps, filters, search } = useDataGrid<HealthFacilityModel, HttpError, HealthFacilityQueryRequest>({
     syncWithLocation: true,
     onSearch: (query) => {
-      const { name } = query
+      const { code, searchName, pharmacyId } = query
       const filters: CrudFilters = []
-      filters.push({ field: 'name', operator: 'eq', value: name }, { field: '_uid', operator: 'eq', value: uniqueId() })
+      filters.push(
+        { field: 'code', operator: 'eq', value: code },
+        { field: 'searchName', operator: 'eq', value: searchName },
+        { field: 'pharmacyId', operator: 'eq', value: pharmacyId },
+        { field: '_uid', operator: 'eq', value: uniqueId() },
+      )
       return filters
     },
     errorNotification: errorNotification.notification,
@@ -42,31 +53,55 @@ const ListPage: React.FC = () => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     setError,
-  } = useForm<BaseRecord, HttpError, CompanyQueryForm>({
-    resolver: zodResolver(CompanyQuerySchema),
+  } = useForm<BaseRecord, HttpError, HealthFacilityQueryForm>({
+    resolver: zodResolver(HealthFacilityQuerySchema),
     defaultValues: {
-      name: getDefaultFilter('name', filters, 'eq'),
+      code: getDefaultFilter('code', filters, 'eq'),
+      searchName: getDefaultFilter('searchName', filters, 'eq'),
+      pharmacyId: getDefaultFilter('pharmacyId', filters, 'eq'),
     },
   })
   errorNotification.error = setError
 
-  const columns = React.useMemo<GridColDef<CompanyModel>[]>(
+  const columns = React.useMemo<GridColDef<HealthFacilityModel>[]>(
     () => [
       {
+        field: 'code',
+        headerName: 'コード',
+        flex: 1,
+        filterable: false,
+        hideable: false,
+        renderCell: function render({ row }) {
+          return row.code
+        },
+      },
+      {
         field: 'name',
-        headerName: '会社名',
-        minWidth: 200,
+        headerName: '施設名',
+        minWidth: 150,
         flex: 1,
         filterable: false,
         hideable: false,
         renderCell: function render({ row }) {
           return (
-            <MuiLink component={Link} underline='none' to={`/companies/show/${row.id}`}>
+            <MuiLink component={Link} underline='none' to={`/healthFacilities/show/${row.id}`}>
               {row.name}
             </MuiLink>
           )
+        },
+      },
+      {
+        field: 'pharmacyName',
+        flex: 1,
+        headerName: '担当店舗',
+        minWidth: 150,
+        sortable: false,
+        filterable: false,
+        renderCell: function render({ row }) {
+          return row.pharmacy?.pharmacyGroup?.name + ' ' + row.pharmacy?.name
         },
       },
       {
@@ -123,11 +158,29 @@ const ListPage: React.FC = () => {
               onSubmit={handleSubmit(search)}
             >
               <TextField
-                {...register('name')}
-                label='会社名'
-                placeholder='XX株式会社'
-                error={!!errors.name}
-                helperText={errors.name?.message || QUERY_FORM_HINT.CONTAIN}
+                {...register('code')}
+                label='コード'
+                placeholder='コード'
+                error={!!errors.code}
+                helperText={errors.code?.message || QUERY_FORM_HINT.MATCH}
+              />
+              <TextField
+                {...register('searchName')}
+                label='施設名'
+                placeholder='施設名'
+                error={!!errors.searchName}
+                helperText={errors.searchName?.message || QUERY_FORM_HINT.CONTAIN}
+              />
+              <ControlAutocomplete
+                resource='pharmacies'
+                label='店舗名'
+                name='pharmacyId'
+                control={control}
+                error={!!errors.pharmacyId}
+                helperText={errors.pharmacyId?.message}
+                optionLabel={(option: any) => {
+                  return option?.pharmacyGroup?.name + ' ' + option?.name ?? ''
+                }}
               />
               <Button type='submit' variant='contained' startIcon={<SearchIcon />}>
                 検索

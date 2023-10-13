@@ -20,7 +20,7 @@ const BASE_ROLE = {
     archive: false,
   },
   // 施設
-  healthFacilities: {
+  healthfacilities: {
     read: true,
     create: true,
     edit: true,

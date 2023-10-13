@@ -32,7 +32,7 @@ type Props = {
 /**
  * ※※※　Resourceによりサーバーの情報を取得する場合は、こちらのControlAutocompleteを使用してください。※※※
  *
- * MUIのAutoCompleteをReact Hook Formと組み合わせて利用する場合に利用するWrapperComponentです。
+ * MUIのAutoCompleteをReact Hook Formと組み合わせる場合に利用するWrapperComponentです。
  * 通常のControl + Autocomplete を定義するよりも簡易に記述することが可能です。
  *
  * ※オプションのラベルを変更したい場合は、optionLabelを設定してください。

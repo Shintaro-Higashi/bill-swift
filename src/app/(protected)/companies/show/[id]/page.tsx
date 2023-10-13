@@ -32,11 +32,14 @@ const ShowPage: React.FC = () => {
       )}
     >
       <Stack gap={1}>
-        <FieldItem label='ID' value={record?.id} />
         <FieldItem label='名称' value={record?.name} />
         <FieldItem label='カナ名称' value={record?.nameKana} />
         <FieldItem label='郵便番号' value={record?.postalCode} />
-        <FieldItem label='住所' value={(record?.address1 || '') + '\n' + (record?.address2 || '')} multiline />
+        <FieldItem
+          label='住所'
+          value={(record?.address1 || '') + (record?.address2 ? '\n' + (record?.address2 || '') : '')}
+          multiline
+        />
         <FieldItem label='電話番号' value={record?.tel} />
         <FieldItem label='FAX番号' value={record?.fax} />
         <FieldItem label='インボイス登録番号' value={record?.invoiceNo} />

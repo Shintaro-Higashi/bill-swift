@@ -24,6 +24,13 @@ export * from './api/company'
 export * from './server/company'
 export * from './client/company'
 
+// 施設
+export * from './schema/healthFacility'
+export * from './models/healthFacilityModel'
+export * from './api/healthFacility'
+export * from './server/healthFacility'
+export * from './client/healthFacility'
+
 // 店舗
 export * from './schema/pharmacy'
 export * from './models/pharmacyModel'

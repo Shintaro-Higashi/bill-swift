@@ -159,6 +159,16 @@
       "clone": "店舗複製作成"
     }
   },
+  "healthFacilities": {
+    "healthFacilities": "施設",
+    "titles": {
+      "list": "施設一覧",
+      "show": "施設詳細",
+      "edit": "施設編集",
+      "create": "施設作成",
+      "clone": "施設複製作成"
+    }
+  },
   "users": {
     "users": "ユーザ",
     "titles": {

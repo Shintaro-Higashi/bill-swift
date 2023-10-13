@@ -5,8 +5,8 @@ generator client {
 generator fabbrica {
   provider    = "prisma-fabbrica"
   output      = "../src/tests/__generated__/fabbrica"
-  noTranspile = "true"
   tsconfig    = "../tsconfig.local.json"
+  noTranspile = "true"
 }
 
 datasource db {
@@ -639,7 +639,7 @@ enum PatientNursingInsuranceStatus {
 
 enum HealthFacilityBillingType {
   BATCH
-  INDIVISUAL
+  INDIVIDUAL
   OTHER
 
   @@map("health_facility_billing_type")

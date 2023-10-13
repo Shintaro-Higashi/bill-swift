@@ -45,7 +45,11 @@ export const formatDateTime = (
   datetime: Date | undefined | null,
   options: { fmt?: string; timeZone?: string } = {},
 ) => {
-  if (!datetime) return ''
+  // "2100-12-31" は関連付けテーブルの有効期間の終了日のデフォルト値のため画面上に日付として表示しないようにする
+  const argDate = datetime ? new Date(datetime) : null
+  const defaultEndDate = new Date('2100-12-31T00:00:00.000Z')
+
+  if (!datetime || !argDate || argDate.getTime() === defaultEndDate.getTime()) return ''
   const { fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = 'Asia/Tokyo' } = options
   return formatInTimeZone(datetime, timeZone, fmt)
 }

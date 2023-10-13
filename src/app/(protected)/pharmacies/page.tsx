@@ -33,7 +33,6 @@ const ListPage: React.FC = () => {
     syncWithLocation: true,
     onSearch: (query) => {
       const { companyId, pharmacyGroupId, name } = query
-      // Point: operator値に応じてフィールド名が可変になるので全てeqで統一がよさそう(汎用的なoperatorは対応しないため)
       const filters: CrudFilters = []
       filters.push(
         { field: 'companyId', operator: 'eq', value: companyId },
@@ -60,7 +59,6 @@ const ListPage: React.FC = () => {
       name: getDefaultFilter('name', filters, 'eq'),
     },
   })
-  // Point: useDataGridのfiltersをuseFormでは必要としuseFormのsetErrorをuseDataGridは必要とする矛盾構成を回避するため苦肉の実装方法を取っている
   errorNotification.error = setError
 
   const columns = React.useMemo<GridColDef<PharmacyModel>[]>(

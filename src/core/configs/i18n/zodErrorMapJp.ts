@@ -127,3 +127,6 @@ const errorMap: ZodErrorMap = (issue, _ctx) => {
 }
 
 export default errorMap
+
+export const validateEmailMessage = 'メールアドレスの形式で入力してください'
+export const validateUrlMessage = 'URLの形式で入力してください'

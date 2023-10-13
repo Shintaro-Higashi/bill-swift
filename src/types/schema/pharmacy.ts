@@ -43,9 +43,9 @@ export const PharmacyCreationSchema = z.object({
   // 住所2
   address2: zNullishString(128),
   // 電話番号
-  tel: zRequiredString().refine(validateTel, validateTelMessage),
+  tel: zRequiredString(16).refine(validateTel, validateTelMessage),
   // FAX番号
-  fax: zNullishString().refine(validateTel, validateTelMessage),
+  fax: zNullishString(16).refine(validateTel, validateTelMessage),
   // 振替口座管理ID
   withdrawalAccountManageId: zRequiredString(64, zStringSelectMessage),
   // 振込口座管理ID
