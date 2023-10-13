@@ -103,6 +103,7 @@ model HealthFacility {
   pharmacy                          Pharmacy                       @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_fk_pharmacy_id")
   healthFacilityCodeManage          HealthFacilityCodeManage[]
   healthFacilityRelatePharmacy      HealthFacilityRelatePharmacy[]
+  patient                           Patient[]
   patientCodeHistory                PatientCodeHistory[]
   patientRelateHealthFacility       PatientRelateHealthFacility[]
 
@@ -256,6 +257,7 @@ model InquiryFile {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Patient {
   id                          String                        @id @db.VarChar(64)
+  healthFacilityId            String                        @map("health_facility_id") @db.VarChar(64)
   code                        String                        @db.Char(8)
   name                        String                        @db.VarChar(64)
   nameKana                    String                        @map("name_kana") @db.VarChar(128)
@@ -295,6 +297,7 @@ model Patient {
   inquiry                     Inquiry[]
   createdUser  User?                         @relation("patient_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK1")
   updatedUser  User?                         @relation("patient_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK2")
+  healthFacility              HealthFacility                @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK3")
   patientChangeHistory        PatientChangeHistory[]
   patientCodeHistory          PatientCodeHistory[]
   patientFile                 PatientFile[]
@@ -302,6 +305,7 @@ model Patient {
 
   @@index([createdBy], map: "patient_FK1")
   @@index([updatedBy], map: "patient_FK2")
+  @@index([healthFacilityId], map: "patient_FK3")
   @@map("patient")
 }
 
@@ -351,20 +355,20 @@ model PatientChangeHistory {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model PatientCodeHistory {
-  id                                    String          @id @db.VarChar(64)
-  patientId                             String          @map("patient_id") @db.VarChar(64)
-  healthFacilityId                      String?         @map("health_facility_id") @db.VarChar(64)
-  patientCode                           String          @map("patient_code") @db.VarChar(8)
-  createdAt                             DateTime?       @map("created_at") @db.Timestamp(0)
-  createdBy                             String?         @map("created_by") @db.VarChar(64)
-  updatedAt                             DateTime?       @map("updated_at") @db.Timestamp(0)
-  updatedBy                             String?         @map("updated_by") @db.VarChar(64)
-  deletedAt                             DateTime?       @map("deleted_at") @db.Timestamp(0)
+  id                                    String         @id @db.VarChar(64)
+  patientId                             String         @map("patient_id") @db.VarChar(64)
+  healthFacilityId                      String         @map("health_facility_id") @db.VarChar(64)
+  patientCode                           String         @map("patient_code") @db.VarChar(8)
+  createdAt                             DateTime?      @map("created_at") @db.Timestamp(0)
+  createdBy                             String?        @map("created_by") @db.VarChar(64)
+  updatedAt                             DateTime?      @map("updated_at") @db.Timestamp(0)
+  updatedBy                             String?        @map("updated_by") @db.VarChar(64)
+  deletedAt                             DateTime?      @map("deleted_at") @db.Timestamp(0)
   existence                             Boolean?
-  patient                               Patient         @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK1")
-  createdUser User?           @relation("patient_code_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK2")
-  updatedUser User?           @relation("patient_code_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK3")
-  healthFacility                        HealthFacility? @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK4")
+  patient                               Patient        @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK1")
+  createdUser User?          @relation("patient_code_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK2")
+  updatedUser User?          @relation("patient_code_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK3")
+  healthFacility                        HealthFacility @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK4")
 
   @@index([patientId], map: "patient_code_history_FK1")
   @@index([createdBy], map: "patient_code_history_FK2")
@@ -624,19 +628,19 @@ enum InquiryStatus {
   @@map("inquiry_status")
 }
 
+enum PatientRelateHealthFacilityReason {
+  DECEASE
+  RELOCATION
+
+  @@map("patient_relate_health_facility_reason")
+}
+
 enum PatientGender {
   UNCERTAIN
   MALE
   FEMALE
 
   @@map("patient_gender")
-}
-
-enum PatientRelateHealthFacilityReason {
-  DECEASE
-  RELOCATION
-
-  @@map("patient_relate_health_facility_reason")
 }
 
 enum AccountManageAccountType {
@@ -663,20 +667,20 @@ enum PatientMedicalShare {
   @@map("patient_medical_share")
 }
 
-enum PatientNursingInsuranceStatus {
-  UNCONFIRMED
-  CONFIRMED
-  UPDATING
-
-  @@map("patient_nursing_insurance_status")
-}
-
 enum HealthFacilityBillingType {
   BATCH
   INDIVIDUAL
   OTHER
 
   @@map("health_facility_billing_type")
+}
+
+enum PatientNursingInsuranceStatus {
+  UNCONFIRMED
+  CONFIRMED
+  UPDATING
+
+  @@map("patient_nursing_insurance_status")
 }
 
 enum HealthFacilityPaymentType {
