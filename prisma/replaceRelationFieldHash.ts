@@ -33,6 +33,9 @@ const replacements: { search: string; replace: string }[] = [
     search: 'accountManagePharmacyWithdrawalAccountManageIdToaccountManage',
     replace: 'withdrawalAccountManage',
   },
+  // 薬局関連会社
+  { search: 'userPharmacyRelateCompanyCreatedByTouser', replace: 'createdUser' },
+  { search: 'userPharmacyRelateCompanyUpdatedByTouser', replace: 'updatedUser' },
   // 薬局基本調剤設定
   { search: 'userPharmacyBaseCompoundingSettingCreatedByTouser', replace: 'createdUser' },
   { search: 'userPharmacyBaseCompoundingSettingUpdatedByTouser', replace: 'updatedUser' },
@@ -89,6 +92,9 @@ const replacements: { search: string; replace: string }[] = [
   { search: 'pharmacyGroupPharmacyGroupUpdatedByTouser', replace: 'pharmacyGroupUpdatedUser' },
   { search: 'pharmacyPharmacyCreatedByTouser', replace: 'pharmacyCreatedUser' },
   { search: 'pharmacyPharmacyUpdatedByTouser', replace: 'pharmacyUpdatedUser' },
+
+  { search: 'pharmacyRelateCompanyPharmacyRelateCompanyCreatedByTouser', replace: 'pharmacyRelateCompanyCreatedUser' },
+  { search: 'pharmacyRelateCompanyPharmacyRelateCompanyUpdatedByTouser', replace: 'pharmacyRelateCompanyUpdatedUser' },
   {
     search: 'pharmacyBaseCompoundingSettingPharmacyBaseCompoundingSettingCreatedByTouser',
     replace: 'pharmacyBaseCompoundingSettingCreatedUser',

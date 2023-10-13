@@ -5,8 +5,8 @@ generator client {
 generator fabbrica {
   provider    = "prisma-fabbrica"
   output      = "../src/tests/__generated__/fabbrica"
-  tsconfig    = "../tsconfig.local.json"
   noTranspile = "true"
+  tsconfig    = "../tsconfig.local.json"
 }
 
 datasource db {
@@ -64,6 +64,7 @@ model Company {
   createdUser User?                   @relation("company_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "company_FK2")
   updatedUser User?                   @relation("company_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "company_FK3")
   pharmacy                   Pharmacy[]
+  pharmacyRelateCompany      PharmacyRelateCompany[]
 
   @@index([healthFacilityCodeGroupId], map: "company_FK1")
   @@index([createdBy], map: "company_FK2")
@@ -102,6 +103,7 @@ model HealthFacility {
   pharmacy                          Pharmacy                       @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_fk_pharmacy_id")
   healthFacilityCodeManage          HealthFacilityCodeManage[]
   healthFacilityRelatePharmacy      HealthFacilityRelatePharmacy[]
+  patientCodeHistory                PatientCodeHistory[]
   patientRelateHealthFacility       PatientRelateHealthFacility[]
 
   @@index([createdBy], map: "health_facility_FK1")
@@ -349,22 +351,25 @@ model PatientChangeHistory {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model PatientCodeHistory {
-  id                                    String    @id @db.VarChar(64)
-  patientId                             String    @map("patient_id") @db.VarChar(64)
-  patientCode                           String    @map("patient_code") @db.VarChar(8)
-  createdAt                             DateTime? @map("created_at") @db.Timestamp(0)
-  createdBy                             String?   @map("created_by") @db.VarChar(64)
-  updatedAt                             DateTime? @map("updated_at") @db.Timestamp(0)
-  updatedBy                             String?   @map("updated_by") @db.VarChar(64)
-  deletedAt                             DateTime? @map("deleted_at") @db.Timestamp(0)
+  id                                    String          @id @db.VarChar(64)
+  patientId                             String          @map("patient_id") @db.VarChar(64)
+  healthFacilityId                      String?         @map("health_facility_id") @db.VarChar(64)
+  patientCode                           String          @map("patient_code") @db.VarChar(8)
+  createdAt                             DateTime?       @map("created_at") @db.Timestamp(0)
+  createdBy                             String?         @map("created_by") @db.VarChar(64)
+  updatedAt                             DateTime?       @map("updated_at") @db.Timestamp(0)
+  updatedBy                             String?         @map("updated_by") @db.VarChar(64)
+  deletedAt                             DateTime?       @map("deleted_at") @db.Timestamp(0)
   existence                             Boolean?
-  patient                               Patient   @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK1")
-  createdUser User?     @relation("patient_code_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK2")
-  updatedUser User?     @relation("patient_code_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK3")
+  patient                               Patient         @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK1")
+  createdUser User?           @relation("patient_code_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK2")
+  updatedUser User?           @relation("patient_code_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK3")
+  healthFacility                        HealthFacility? @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK4")
 
   @@index([patientId], map: "patient_code_history_FK1")
   @@index([createdBy], map: "patient_code_history_FK2")
   @@index([updatedBy], map: "patient_code_history_FK3")
+  @@index([healthFacilityId], map: "patient_code_history_FK4")
   @@map("patient_code_history")
 }
 
@@ -449,6 +454,7 @@ model Pharmacy {
   transferAccountManage   AccountManage                    @relation("pharmacy_transfer_account_manage_idToaccount_manage", fields: [transferAccountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK5")
   withdrawalAccountManage AccountManage                    @relation("pharmacy_withdrawal_account_manage_idToaccount_manage", fields: [withdrawalAccountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK6")
   pharmacyBaseCompoundingSetting                                PharmacyBaseCompoundingSetting[]
+  pharmacyRelateCompany                                         PharmacyRelateCompany[]
 
   @@index([pharmacyGroupId], map: "pharmacy_FK1")
   @@index([companyId], map: "pharmacy_FK2")
@@ -504,6 +510,32 @@ model PharmacyGroup {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model PharmacyRelateCompany {
+  id                                       String    @id @db.VarChar(64)
+  companyId                                String    @map("company_id") @db.VarChar(64)
+  pharmacyId                               String    @map("pharmacy_id") @db.VarChar(64)
+  startDate                                DateTime  @map("start_date") @db.Date
+  endDate                                  DateTime  @default(dbgenerated("'2100-12-31'")) @map("end_date") @db.Date
+  note                                     String?   @db.Text
+  createdAt                                DateTime? @map("created_at") @db.Timestamp(0)
+  createdBy                                String?   @map("created_by") @db.VarChar(64)
+  updatedAt                                DateTime? @map("updated_at") @db.Timestamp(0)
+  updatedBy                                String?   @map("updated_by") @db.VarChar(64)
+  deletedAt                                DateTime? @map("deleted_at") @db.Timestamp(0)
+  existence                                Boolean?
+  pharmacy                                 Pharmacy  @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_relate_company_FK1")
+  company                                  Company   @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_relate_company_FK2")
+  createdUser User?     @relation("pharmacy_relate_company_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_relate_company_FK3")
+  updatedUser User?     @relation("pharmacy_relate_company_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_relate_company_FK4")
+
+  @@index([pharmacyId], map: "pharmacy_relate_company_FK1")
+  @@index([companyId], map: "pharmacy_relate_company_FK2")
+  @@index([createdBy], map: "pharmacy_relate_company_FK3")
+  @@index([updatedBy], map: "pharmacy_relate_company_FK4")
+  @@map("pharmacy_relate_company")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model User {
   id                                                                          String                           @id @db.VarChar(64)
   userType                                                                    UserUserType                     @map("user_type")
@@ -554,6 +586,8 @@ model User {
   pharmacyBaseCompoundingSettingUpdatedUser PharmacyBaseCompoundingSetting[] @relation("pharmacy_base_compounding_setting_updated_byTouser")
   pharmacyGroupCreatedUser                                   PharmacyGroup[]                  @relation("pharmacy_group_created_byTouser")
   pharmacyGroupUpdatedUser                                   PharmacyGroup[]                  @relation("pharmacy_group_updated_byTouser")
+  pharmacyRelateCompanyCreatedUser                   PharmacyRelateCompany[]          @relation("pharmacy_relate_company_created_byTouser")
+  pharmacyRelateCompanyUpdatedUser                   PharmacyRelateCompany[]          @relation("pharmacy_relate_company_updated_byTouser")
   createdUser                                                     User?                            @relation("user_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_fk_created_by")
   otherUserUserCreatedByTouser                                                User[]                           @relation("user_created_byTouser")
   updatedUser                                                     User?                            @relation("user_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_fk_updated_by")

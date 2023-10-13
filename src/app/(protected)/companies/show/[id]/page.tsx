@@ -1,23 +1,24 @@
 'use client'
 
-import { Stack } from '@mui/material'
-import { useShow } from '@refinedev/core'
+import { Button, Stack } from '@mui/material'
+import { useLink, useShow } from '@refinedev/core'
 import { CloneButton, Show } from '@refinedev/mui'
 import React from 'react'
 
 import { notFound } from 'next/navigation'
-import { HTTP_STATUS } from '@/core/configs/constants'
+import { HTTP_STATUS, PAGINATE_CONFIG } from '@/core/configs/constants'
 import { setTitle } from '@/core/utils/refineUtil'
 import { CompanyModel } from '@/types'
 import { FieldItem } from '@components/core/content/FieldItem'
 import { formatDateTime } from '@/core/utils/dateUtil'
-import { getAccountTypeValue } from '@/shared/items/accountType'
+import SearchIcon from '@mui/icons-material/Search'
 
 const ShowPage: React.FC = () => {
   setTitle()
   const { queryResult } = useShow<CompanyModel>({ errorNotification: false })
   const { data, isLoading, error } = queryResult
   const record = data?.data
+  const Link = useLink()
   if ((error as any)?.statusCode === HTTP_STATUS.NOT_FOUND) {
     notFound()
   }
@@ -29,6 +30,17 @@ const ShowPage: React.FC = () => {
           {defaultButtons}
           <CloneButton disabled={isLoading} />
         </>
+      )}
+      footerButtons={() => (
+        <Stack direction='row' justifyContent='flex-end' sx={{ width: 1, margin: 0, padding: 0 }}>
+          <Button
+            component={Link}
+            to={`/pharmacies?filters[0][field]=companyId&filters[0][operator]=eq&filters[0][value]=${record?.id}`}
+            startIcon={<SearchIcon />}
+          >
+            関連店舗を表示
+          </Button>
+        </Stack>
       )}
     >
       <Stack gap={1}>

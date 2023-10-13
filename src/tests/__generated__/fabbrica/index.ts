@@ -16,6 +16,7 @@ import type { PatientRelateHealthFacility } from "@prisma/client";
 import type { Pharmacy } from "@prisma/client";
 import type { PharmacyBaseCompoundingSetting } from "@prisma/client";
 import type { PharmacyGroup } from "@prisma/client";
+import type { PharmacyRelateCompany } from "@prisma/client";
 import type { User } from "@prisma/client";
 import type { AccountManageAccountType } from "@prisma/client";
 import type { HealthFacilityBillingType } from "@prisma/client";
@@ -80,6 +81,10 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "pharmacy",
                 type: "Pharmacy",
                 relationName: "CompanyToPharmacy"
+            }, {
+                name: "pharmacyRelateCompany",
+                type: "PharmacyRelateCompany",
+                relationName: "CompanyToPharmacyRelateCompany"
             }]
     }, {
         name: "HealthFacility",
@@ -103,6 +108,10 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "healthFacilityRelatePharmacy",
                 type: "HealthFacilityRelatePharmacy",
                 relationName: "HealthFacilityToHealthFacilityRelatePharmacy"
+            }, {
+                name: "patientCodeHistory",
+                type: "PatientCodeHistory",
+                relationName: "HealthFacilityToPatientCodeHistory"
             }, {
                 name: "patientRelateHealthFacility",
                 type: "PatientRelateHealthFacility",
@@ -297,6 +306,10 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "updatedUser",
                 type: "User",
                 relationName: "patient_code_history_updated_byTouser"
+            }, {
+                name: "healthFacility",
+                type: "HealthFacility",
+                relationName: "HealthFacilityToPatientCodeHistory"
             }]
     }, {
         name: "PatientFile",
@@ -370,6 +383,10 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "pharmacyBaseCompoundingSetting",
                 type: "PharmacyBaseCompoundingSetting",
                 relationName: "PharmacyToPharmacyBaseCompoundingSetting"
+            }, {
+                name: "pharmacyRelateCompany",
+                type: "PharmacyRelateCompany",
+                relationName: "PharmacyToPharmacyRelateCompany"
             }]
     }, {
         name: "PharmacyBaseCompoundingSetting",
@@ -400,6 +417,25 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "updatedUser",
                 type: "User",
                 relationName: "pharmacy_group_updated_byTouser"
+            }]
+    }, {
+        name: "PharmacyRelateCompany",
+        fields: [{
+                name: "pharmacy",
+                type: "Pharmacy",
+                relationName: "PharmacyToPharmacyRelateCompany"
+            }, {
+                name: "company",
+                type: "Company",
+                relationName: "CompanyToPharmacyRelateCompany"
+            }, {
+                name: "createdUser",
+                type: "User",
+                relationName: "pharmacy_relate_company_created_byTouser"
+            }, {
+                name: "updatedUser",
+                type: "User",
+                relationName: "pharmacy_relate_company_updated_byTouser"
             }]
     }, {
         name: "User",
@@ -547,6 +583,14 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "pharmacyGroupUpdatedUser",
                 type: "PharmacyGroup",
                 relationName: "pharmacy_group_updated_byTouser"
+            }, {
+                name: "pharmacyRelateCompanyCreatedUser",
+                type: "PharmacyRelateCompany",
+                relationName: "pharmacy_relate_company_created_byTouser"
+            }, {
+                name: "pharmacyRelateCompanyUpdatedUser",
+                type: "PharmacyRelateCompany",
+                relationName: "pharmacy_relate_company_updated_byTouser"
             }, {
                 name: "createdUser",
                 type: "User",
@@ -756,6 +800,7 @@ type CompanyFactoryDefineInput = {
     createdUser?: CompanycreatedUserFactory | Prisma.UserCreateNestedOneWithoutCompanyCreatedUserInput;
     updatedUser?: CompanyupdatedUserFactory | Prisma.UserCreateNestedOneWithoutCompanyUpdatedUserInput;
     pharmacy?: Prisma.PharmacyCreateNestedManyWithoutCompanyInput;
+    pharmacyRelateCompany?: Prisma.PharmacyRelateCompanyCreateNestedManyWithoutCompanyInput;
 };
 
 type CompanyFactoryDefineOptions = {
@@ -933,6 +978,7 @@ type HealthFacilityFactoryDefineInput = {
     pharmacy: HealthFacilitypharmacyFactory | Prisma.PharmacyCreateNestedOneWithoutHealthFacilityInput;
     healthFacilityCodeManage?: Prisma.HealthFacilityCodeManageCreateNestedManyWithoutHealthFacilityInput;
     healthFacilityRelatePharmacy?: Prisma.HealthFacilityRelatePharmacyCreateNestedManyWithoutHealthFacilityInput;
+    patientCodeHistory?: Prisma.PatientCodeHistoryCreateNestedManyWithoutHealthFacilityInput;
     patientRelateHealthFacility?: Prisma.PatientRelateHealthFacilityCreateNestedManyWithoutHealthFacilityInput;
 };
 
@@ -2505,6 +2551,11 @@ type PatientCodeHistoryupdatedUserFactory = {
     build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutPatientCodeHistoryUpdatedUserInput["create"]>;
 };
 
+type PatientCodeHistoryhealthFacilityFactory = {
+    _factoryFor: "HealthFacility";
+    build: () => PromiseLike<Prisma.HealthFacilityCreateNestedOneWithoutPatientCodeHistoryInput["create"]>;
+};
+
 type PatientCodeHistoryFactoryDefineInput = {
     id?: string;
     patientCode?: string;
@@ -2515,6 +2566,7 @@ type PatientCodeHistoryFactoryDefineInput = {
     patient: PatientCodeHistorypatientFactory | Prisma.PatientCreateNestedOneWithoutPatientCodeHistoryInput;
     createdUser?: PatientCodeHistorycreatedUserFactory | Prisma.UserCreateNestedOneWithoutPatientCodeHistoryCreatedUserInput;
     updatedUser?: PatientCodeHistoryupdatedUserFactory | Prisma.UserCreateNestedOneWithoutPatientCodeHistoryUpdatedUserInput;
+    healthFacility?: PatientCodeHistoryhealthFacilityFactory | Prisma.HealthFacilityCreateNestedOneWithoutPatientCodeHistoryInput;
 };
 
 type PatientCodeHistoryFactoryDefineOptions = {
@@ -2536,6 +2588,10 @@ function isPatientCodeHistorycreatedUserFactory(x: PatientCodeHistorycreatedUser
 
 function isPatientCodeHistoryupdatedUserFactory(x: PatientCodeHistoryupdatedUserFactory | Prisma.UserCreateNestedOneWithoutPatientCodeHistoryUpdatedUserInput | undefined): x is PatientCodeHistoryupdatedUserFactory {
     return (x as any)?._factoryFor === "User";
+}
+
+function isPatientCodeHistoryhealthFacilityFactory(x: PatientCodeHistoryhealthFacilityFactory | Prisma.HealthFacilityCreateNestedOneWithoutPatientCodeHistoryInput | undefined): x is PatientCodeHistoryhealthFacilityFactory {
+    return (x as any)?._factoryFor === "HealthFacility";
 }
 
 type PatientCodeHistoryTraitKeys<TOptions extends PatientCodeHistoryFactoryDefineOptions> = keyof TOptions["traits"];
@@ -2591,7 +2647,10 @@ function definePatientCodeHistoryFactoryInternal<TOptions extends PatientCodeHis
                 } : defaultData.createdUser,
                 updatedUser: isPatientCodeHistoryupdatedUserFactory(defaultData.updatedUser) ? {
                     create: await defaultData.updatedUser.build()
-                } : defaultData.updatedUser
+                } : defaultData.updatedUser,
+                healthFacility: isPatientCodeHistoryhealthFacilityFactory(defaultData.healthFacility) ? {
+                    create: await defaultData.healthFacility.build()
+                } : defaultData.healthFacility
             };
             const data: Prisma.PatientCodeHistoryCreateInput = { ...requiredScalarData, ...defaultData, ...defaultAssociations, ...inputData };
             return data;
@@ -3024,6 +3083,7 @@ type PharmacyFactoryDefineInput = {
     transferAccountManage: PharmacytransferAccountManageFactory | Prisma.AccountManageCreateNestedOneWithoutPharmacyTransferInput;
     withdrawalAccountManage: PharmacywithdrawalAccountManageFactory | Prisma.AccountManageCreateNestedOneWithoutPharmacyWithdrawalInput;
     pharmacyBaseCompoundingSetting?: Prisma.PharmacyBaseCompoundingSettingCreateNestedManyWithoutPharmacyInput;
+    pharmacyRelateCompany?: Prisma.PharmacyRelateCompanyCreateNestedManyWithoutPharmacyInput;
 };
 
 type PharmacyFactoryDefineOptions = {
@@ -3475,6 +3535,173 @@ export function definePharmacyGroupFactory<TOptions extends PharmacyGroupFactory
     return definePharmacyGroupFactoryInternal(options ?? {});
 }
 
+type PharmacyRelateCompanyScalarOrEnumFields = {
+    id: string;
+    startDate: Date;
+};
+
+type PharmacyRelateCompanypharmacyFactory = {
+    _factoryFor: "Pharmacy";
+    build: () => PromiseLike<Prisma.PharmacyCreateNestedOneWithoutPharmacyRelateCompanyInput["create"]>;
+};
+
+type PharmacyRelateCompanycompanyFactory = {
+    _factoryFor: "Company";
+    build: () => PromiseLike<Prisma.CompanyCreateNestedOneWithoutPharmacyRelateCompanyInput["create"]>;
+};
+
+type PharmacyRelateCompanycreatedUserFactory = {
+    _factoryFor: "User";
+    build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutPharmacyRelateCompanyCreatedUserInput["create"]>;
+};
+
+type PharmacyRelateCompanyupdatedUserFactory = {
+    _factoryFor: "User";
+    build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutPharmacyRelateCompanyUpdatedUserInput["create"]>;
+};
+
+type PharmacyRelateCompanyFactoryDefineInput = {
+    id?: string;
+    startDate?: Date;
+    endDate?: Date;
+    note?: string | null;
+    createdAt?: Date | null;
+    updatedAt?: Date | null;
+    deletedAt?: Date | null;
+    existence?: boolean | null;
+    pharmacy: PharmacyRelateCompanypharmacyFactory | Prisma.PharmacyCreateNestedOneWithoutPharmacyRelateCompanyInput;
+    company: PharmacyRelateCompanycompanyFactory | Prisma.CompanyCreateNestedOneWithoutPharmacyRelateCompanyInput;
+    createdUser?: PharmacyRelateCompanycreatedUserFactory | Prisma.UserCreateNestedOneWithoutPharmacyRelateCompanyCreatedUserInput;
+    updatedUser?: PharmacyRelateCompanyupdatedUserFactory | Prisma.UserCreateNestedOneWithoutPharmacyRelateCompanyUpdatedUserInput;
+};
+
+type PharmacyRelateCompanyFactoryDefineOptions = {
+    defaultData: Resolver<PharmacyRelateCompanyFactoryDefineInput, BuildDataOptions>;
+    traits?: {
+        [traitName: string | symbol]: {
+            data: Resolver<Partial<PharmacyRelateCompanyFactoryDefineInput>, BuildDataOptions>;
+        };
+    };
+};
+
+function isPharmacyRelateCompanypharmacyFactory(x: PharmacyRelateCompanypharmacyFactory | Prisma.PharmacyCreateNestedOneWithoutPharmacyRelateCompanyInput | undefined): x is PharmacyRelateCompanypharmacyFactory {
+    return (x as any)?._factoryFor === "Pharmacy";
+}
+
+function isPharmacyRelateCompanycompanyFactory(x: PharmacyRelateCompanycompanyFactory | Prisma.CompanyCreateNestedOneWithoutPharmacyRelateCompanyInput | undefined): x is PharmacyRelateCompanycompanyFactory {
+    return (x as any)?._factoryFor === "Company";
+}
+
+function isPharmacyRelateCompanycreatedUserFactory(x: PharmacyRelateCompanycreatedUserFactory | Prisma.UserCreateNestedOneWithoutPharmacyRelateCompanyCreatedUserInput | undefined): x is PharmacyRelateCompanycreatedUserFactory {
+    return (x as any)?._factoryFor === "User";
+}
+
+function isPharmacyRelateCompanyupdatedUserFactory(x: PharmacyRelateCompanyupdatedUserFactory | Prisma.UserCreateNestedOneWithoutPharmacyRelateCompanyUpdatedUserInput | undefined): x is PharmacyRelateCompanyupdatedUserFactory {
+    return (x as any)?._factoryFor === "User";
+}
+
+type PharmacyRelateCompanyTraitKeys<TOptions extends PharmacyRelateCompanyFactoryDefineOptions> = keyof TOptions["traits"];
+
+export interface PharmacyRelateCompanyFactoryInterfaceWithoutTraits {
+    readonly _factoryFor: "PharmacyRelateCompany";
+    build(inputData?: Partial<Prisma.PharmacyRelateCompanyCreateInput>): PromiseLike<Prisma.PharmacyRelateCompanyCreateInput>;
+    buildCreateInput(inputData?: Partial<Prisma.PharmacyRelateCompanyCreateInput>): PromiseLike<Prisma.PharmacyRelateCompanyCreateInput>;
+    buildList(inputData: number | readonly Partial<Prisma.PharmacyRelateCompanyCreateInput>[]): PromiseLike<Prisma.PharmacyRelateCompanyCreateInput[]>;
+    pickForConnect(inputData: PharmacyRelateCompany): Pick<PharmacyRelateCompany, "id">;
+    create(inputData?: Partial<Prisma.PharmacyRelateCompanyCreateInput>): PromiseLike<PharmacyRelateCompany>;
+    createList(inputData: number | readonly Partial<Prisma.PharmacyRelateCompanyCreateInput>[]): PromiseLike<PharmacyRelateCompany[]>;
+    createForConnect(inputData?: Partial<Prisma.PharmacyRelateCompanyCreateInput>): PromiseLike<Pick<PharmacyRelateCompany, "id">>;
+}
+
+export interface PharmacyRelateCompanyFactoryInterface<TOptions extends PharmacyRelateCompanyFactoryDefineOptions = PharmacyRelateCompanyFactoryDefineOptions> extends PharmacyRelateCompanyFactoryInterfaceWithoutTraits {
+    use(name: PharmacyRelateCompanyTraitKeys<TOptions>, ...names: readonly PharmacyRelateCompanyTraitKeys<TOptions>[]): PharmacyRelateCompanyFactoryInterfaceWithoutTraits;
+}
+
+function autoGeneratePharmacyRelateCompanyScalarsOrEnums({ seq }: {
+    readonly seq: number;
+}): PharmacyRelateCompanyScalarOrEnumFields {
+    return {
+        id: getScalarFieldValueGenerator().String({ modelName: "PharmacyRelateCompany", fieldName: "id", isId: true, isUnique: false, seq }),
+        startDate: getScalarFieldValueGenerator().DateTime({ modelName: "PharmacyRelateCompany", fieldName: "startDate", isId: false, isUnique: false, seq })
+    };
+}
+
+function definePharmacyRelateCompanyFactoryInternal<TOptions extends PharmacyRelateCompanyFactoryDefineOptions>({ defaultData: defaultDataResolver, traits: traitsDefs = {} }: TOptions): PharmacyRelateCompanyFactoryInterface<TOptions> {
+    const getFactoryWithTraits = (traitKeys: readonly PharmacyRelateCompanyTraitKeys<TOptions>[] = []) => {
+        const seqKey = {};
+        const getSeq = () => getSequenceCounter(seqKey);
+        const screen = createScreener("PharmacyRelateCompany", modelFieldDefinitions);
+        const build = async (inputData: Partial<Prisma.PharmacyRelateCompanyCreateInput> = {}) => {
+            const seq = getSeq();
+            const requiredScalarData = autoGeneratePharmacyRelateCompanyScalarsOrEnums({ seq });
+            const resolveValue = normalizeResolver<PharmacyRelateCompanyFactoryDefineInput, BuildDataOptions>(defaultDataResolver ?? {});
+            const defaultData = await traitKeys.reduce(async (queue, traitKey) => {
+                const acc = await queue;
+                const resolveTraitValue = normalizeResolver<Partial<PharmacyRelateCompanyFactoryDefineInput>, BuildDataOptions>(traitsDefs[traitKey]?.data ?? {});
+                const traitData = await resolveTraitValue({ seq });
+                return {
+                    ...acc,
+                    ...traitData,
+                };
+            }, resolveValue({ seq }));
+            const defaultAssociations = {
+                pharmacy: isPharmacyRelateCompanypharmacyFactory(defaultData.pharmacy) ? {
+                    create: await defaultData.pharmacy.build()
+                } : defaultData.pharmacy,
+                company: isPharmacyRelateCompanycompanyFactory(defaultData.company) ? {
+                    create: await defaultData.company.build()
+                } : defaultData.company,
+                createdUser: isPharmacyRelateCompanycreatedUserFactory(defaultData.createdUser) ? {
+                    create: await defaultData.createdUser.build()
+                } : defaultData.createdUser,
+                updatedUser: isPharmacyRelateCompanyupdatedUserFactory(defaultData.updatedUser) ? {
+                    create: await defaultData.updatedUser.build()
+                } : defaultData.updatedUser
+            };
+            const data: Prisma.PharmacyRelateCompanyCreateInput = { ...requiredScalarData, ...defaultData, ...defaultAssociations, ...inputData };
+            return data;
+        };
+        const buildList = (inputData: number | readonly Partial<Prisma.PharmacyRelateCompanyCreateInput>[]) => Promise.all(normalizeList(inputData).map(data => build(data)));
+        const pickForConnect = (inputData: PharmacyRelateCompany) => ({
+            id: inputData.id
+        });
+        const create = async (inputData: Partial<Prisma.PharmacyRelateCompanyCreateInput> = {}) => {
+            const data = await build(inputData).then(screen);
+            return await getClient<PrismaClient>().pharmacyRelateCompany.create({ data });
+        };
+        const createList = (inputData: number | readonly Partial<Prisma.PharmacyRelateCompanyCreateInput>[]) => Promise.all(normalizeList(inputData).map(data => create(data)));
+        const createForConnect = (inputData: Partial<Prisma.PharmacyRelateCompanyCreateInput> = {}) => create(inputData).then(pickForConnect);
+        return {
+            _factoryFor: "PharmacyRelateCompany" as const,
+            build,
+            buildList,
+            buildCreateInput: build,
+            pickForConnect,
+            create,
+            createList,
+            createForConnect,
+        };
+    };
+    const factory = getFactoryWithTraits();
+    const useTraits = (name: PharmacyRelateCompanyTraitKeys<TOptions>, ...names: readonly PharmacyRelateCompanyTraitKeys<TOptions>[]) => {
+        return getFactoryWithTraits([name, ...names]);
+    };
+    return {
+        ...factory,
+        use: useTraits,
+    };
+}
+
+/**
+ * Define factory for {@link PharmacyRelateCompany} model.
+ *
+ * @param options
+ * @returns factory {@link PharmacyRelateCompanyFactoryInterface}
+ */
+export function definePharmacyRelateCompanyFactory<TOptions extends PharmacyRelateCompanyFactoryDefineOptions>(options: TOptions): PharmacyRelateCompanyFactoryInterface<TOptions> {
+    return definePharmacyRelateCompanyFactoryInternal(options);
+}
+
 type UserScalarOrEnumFields = {
     id: string;
     userType: UserUserType;
@@ -3540,6 +3767,8 @@ type UserFactoryDefineInput = {
     pharmacyBaseCompoundingSettingUpdatedUser?: Prisma.PharmacyBaseCompoundingSettingCreateNestedManyWithoutUpdatedUserInput;
     pharmacyGroupCreatedUser?: Prisma.PharmacyGroupCreateNestedManyWithoutCreatedUserInput;
     pharmacyGroupUpdatedUser?: Prisma.PharmacyGroupCreateNestedManyWithoutUpdatedUserInput;
+    pharmacyRelateCompanyCreatedUser?: Prisma.PharmacyRelateCompanyCreateNestedManyWithoutCreatedUserInput;
+    pharmacyRelateCompanyUpdatedUser?: Prisma.PharmacyRelateCompanyCreateNestedManyWithoutUpdatedUserInput;
     createdUser?: UsercreatedUserFactory | Prisma.UserCreateNestedOneWithoutOtherUserUserCreatedByTouserInput;
     otherUserUserCreatedByTouser?: Prisma.UserCreateNestedManyWithoutCreatedUserInput;
     updatedUser?: UserupdatedUserFactory | Prisma.UserCreateNestedOneWithoutOtherUserUserUpdatedByTouserInput;

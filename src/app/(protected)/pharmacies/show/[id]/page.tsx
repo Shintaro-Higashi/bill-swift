@@ -31,16 +31,11 @@ const ShowPage: React.FC = () => {
           <CloneButton disabled={isLoading} />
         </>
       )}
-      footerButtonProps={{
-        sx: {
-          display: 'flex',
-          justifyContent: 'flex-end',
-        },
-      }}
       footerButtons={() => (
         <Stack direction='row' justifyContent='flex-end' sx={{ width: 1, margin: 0, padding: 0 }}>
           <Button
-            href={`../../healthFacilities?pageSize=${PAGINATE_CONFIG.DEFAULT_PAGE_SIZE}&current=1&filters[0][field]=pharmacyId&filters[0][operator]=eq&filters[0][value]=${record?.id}&filters[1][field]=_uid&filters[1][operator]=eq&filters[1][value]=1`}
+            component={Link}
+            to={`/healthFacilities?filters[0][field]=pharmacyId&filters[0][operator]=eq&filters[0][value]=${record?.id}`}
             startIcon={<SearchIcon />}
           >
             関連施設を表示
