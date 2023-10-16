@@ -14,7 +14,7 @@ const upsertUser = async () => {
       password: hashedPassword,
     },
     create: {
-      id: '00001',
+      id: '0000000000000000000U0001',
       userType: 'ADMIN',
       name: '請求マスター',
       userId: 'bill-admin',

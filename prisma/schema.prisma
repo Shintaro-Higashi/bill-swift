@@ -5,8 +5,8 @@ generator client {
 generator fabbrica {
   provider    = "prisma-fabbrica"
   output      = "../src/tests/__generated__/fabbrica"
-  noTranspile = "true"
   tsconfig    = "../tsconfig.local.json"
+  noTranspile = "true"
 }
 
 datasource db {
@@ -32,13 +32,14 @@ model AccountManage {
   updatedBy                                                String?                   @map("updated_by") @db.VarChar(64)
   deletedAt                                                DateTime?                 @map("deleted_at") @db.Timestamp(0)
   existence                                                Boolean?
-  createdUser                         User?                     @relation("account_manage_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK1")
-  updatedUser                         User?                     @relation("account_manage_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK2")
+  createdUser                         User?                     @relation("account_manage_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK_created_by")
+  updatedUser                         User?                     @relation("account_manage_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK_updated_by")
+  patient                                                  Patient[]
   pharmacyTransfer   Pharmacy[]                @relation("pharmacy_transfer_account_manage_idToaccount_manage")
   pharmacyWithdrawal Pharmacy[]                @relation("pharmacy_withdrawal_account_manage_idToaccount_manage")
 
-  @@index([createdBy], map: "account_manage_FK1")
-  @@index([updatedBy], map: "account_manage_FK2")
+  @@index([createdBy], map: "account_manage_FK_created_by")
+  @@index([updatedBy], map: "account_manage_FK_updated_by")
   @@map("account_manage")
 }
 
@@ -61,14 +62,13 @@ model Company {
   deletedAt                  DateTime?               @map("deleted_at") @db.Timestamp(0)
   existence                  Boolean?
   healthFacilityCodeGroup    HealthFacilityCodeGroup @relation(fields: [healthFacilityCodeGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "company_FK1")
-  createdUser User?                   @relation("company_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "company_FK2")
-  updatedUser User?                   @relation("company_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "company_FK3")
+  createdUser User?                   @relation("company_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "company_FK_created_by")
+  updatedUser User?                   @relation("company_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "company_FK_updated_by")
   pharmacy                   Pharmacy[]
-  pharmacyRelateCompany      PharmacyRelateCompany[]
 
   @@index([healthFacilityCodeGroupId], map: "company_FK1")
-  @@index([createdBy], map: "company_FK2")
-  @@index([updatedBy], map: "company_FK3")
+  @@index([createdBy], map: "company_FK_created_by")
+  @@index([updatedBy], map: "company_FK_updated_by")
   @@map("company")
 }
 
@@ -98,18 +98,18 @@ model HealthFacility {
   updatedBy                         String?                        @map("updated_by") @db.VarChar(64)
   deletedAt                         DateTime?                      @map("deleted_at") @db.Timestamp(0)
   existence                         Boolean?
-  createdUser User?                          @relation("health_facility_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK1")
-  updatedUser User?                          @relation("health_facility_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK2")
-  pharmacy                          Pharmacy                       @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_fk_pharmacy_id")
+  pharmacy                          Pharmacy                       @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK1")
+  createdUser User?                          @relation("health_facility_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK_created_by")
+  updatedUser User?                          @relation("health_facility_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK_updated_by")
   healthFacilityCodeManage          HealthFacilityCodeManage[]
   healthFacilityRelatePharmacy      HealthFacilityRelatePharmacy[]
   patient                           Patient[]
   patientCodeHistory                PatientCodeHistory[]
   patientRelateHealthFacility       PatientRelateHealthFacility[]
 
-  @@index([createdBy], map: "health_facility_FK1")
-  @@index([updatedBy], map: "health_facility_FK2")
-  @@index([pharmacyId], map: "health_facility_fk_pharmacy_id")
+  @@index([pharmacyId], map: "health_facility_FK1")
+  @@index([createdBy], map: "health_facility_FK_created_by")
+  @@index([updatedBy], map: "health_facility_FK_updated_by")
   @@map("health_facility")
 }
 
@@ -125,12 +125,12 @@ model HealthFacilityCodeGroup {
   deletedAt                                  DateTime?                         @map("deleted_at") @db.Timestamp(0)
   existence                                  Boolean?
   company                                    Company[]
-  createdUser User?                             @relation("health_facility_code_group_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_code_group_FK1")
-  updatedUser User?                             @relation("health_facility_code_group_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_code_group_FK2")
+  createdUser User?                             @relation("health_facility_code_group_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_code_group_FK_created_by")
+  updatedUser User?                             @relation("health_facility_code_group_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_code_group_FK_updated_by")
   healthFacilityCodeManage                   HealthFacilityCodeManage[]
 
-  @@index([createdBy], map: "health_facility_code_group_FK1")
-  @@index([updatedBy], map: "health_facility_code_group_FK2")
+  @@index([createdBy], map: "health_facility_code_group_FK_created_by")
+  @@index([updatedBy], map: "health_facility_code_group_FK_updated_by")
   @@map("health_facility_code_group")
 }
 
@@ -149,13 +149,13 @@ model HealthFacilityCodeManage {
   existence                                   Boolean?
   healthFacility                              HealthFacility          @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_code_manage_FK1")
   healthFacilityCodeGroup                     HealthFacilityCodeGroup @relation(fields: [healthFacilityCodeGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_code_manage_FK2")
-  createdUser User?                   @relation("health_facility_code_manage_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_code_manage_FK3")
-  updatedUser User?                   @relation("health_facility_code_manage_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_code_manage_FK4")
+  createdUser User?                   @relation("health_facility_code_manage_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_code_manage_FK_created_by")
+  updatedUser User?                   @relation("health_facility_code_manage_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_code_manage_FK_updated_by")
 
   @@unique([healthFacilityId, healthFacilityCodeGroupId], map: "health_facility_code_manage_IX1")
   @@index([healthFacilityCodeGroupId], map: "health_facility_code_manage_FK2")
-  @@index([createdBy], map: "health_facility_code_manage_FK3")
-  @@index([updatedBy], map: "health_facility_code_manage_FK4")
+  @@index([createdBy], map: "health_facility_code_manage_FK_created_by")
+  @@index([updatedBy], map: "health_facility_code_manage_FK_updated_by")
   @@map("health_facility_code_manage")
 }
 
@@ -175,13 +175,13 @@ model HealthFacilityRelatePharmacy {
   existence                                       Boolean?
   healthFacility                                  HealthFacility @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK1")
   pharmacy                                        Pharmacy       @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK2")
-  createdUser User?          @relation("health_facility_relate_pharmacy_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK3")
-  updatedUser User?          @relation("health_facility_relate_pharmacy_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK4")
+  createdUser User?          @relation("health_facility_relate_pharmacy_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK_created_by")
+  updatedUser User?          @relation("health_facility_relate_pharmacy_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK_updated_by")
 
   @@index([healthFacilityId], map: "health_facility_relate_pharmacy_FK1")
   @@index([pharmacyId], map: "health_facility_relate_pharmacy_FK2")
-  @@index([createdBy], map: "health_facility_relate_pharmacy_FK3")
-  @@index([updatedBy], map: "health_facility_relate_pharmacy_FK4")
+  @@index([createdBy], map: "health_facility_relate_pharmacy_FK_created_by")
+  @@index([updatedBy], map: "health_facility_relate_pharmacy_FK_updated_by")
   @@map("health_facility_relate_pharmacy")
 }
 
@@ -190,7 +190,7 @@ model Inquiry {
   id                         String              @id @db.VarChar(64)
   title                      String              @db.VarChar(64)
   content                    String              @db.Text
-  status                     InquiryStatus       @default(open) @map("status")
+  status                     InquiryStatus       @default(OPEN) @map("status")
   patientId                  String              @map("patient_id") @db.VarChar(64)
   pharrmacyId                String?             @map("pharrmacy_id") @db.VarChar(64)
   createdAt                  DateTime?           @map("created_at") @db.Timestamp(0)
@@ -200,13 +200,13 @@ model Inquiry {
   deletedAt                  DateTime?           @map("deleted_at") @db.Timestamp(0)
   existence                  Boolean?
   patient                    Patient             @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_FK1")
-  createdUser User?               @relation("inquiry_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_FK2")
-  updatedUser User?               @relation("inquiry_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_FK3")
+  createdUser User?               @relation("inquiry_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_FK_created_by")
+  updatedUser User?               @relation("inquiry_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_FK_updated_by")
   inquiryCorrespond          InquiryCorrespond[]
 
   @@index([patientId], map: "inquiry_FK1")
-  @@index([createdBy], map: "inquiry_FK2")
-  @@index([updatedBy], map: "inquiry_FK3")
+  @@index([createdBy], map: "inquiry_FK_created_by")
+  @@index([updatedBy], map: "inquiry_FK_updated_by")
   @@map("inquiry")
 }
 
@@ -223,13 +223,13 @@ model InquiryCorrespond {
   deletedAt                            DateTime?     @map("deleted_at") @db.Timestamp(0)
   existence                            Boolean?
   inquiry                              Inquiry       @relation(fields: [inquiryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_correspond_FK1")
-  createdUser User?         @relation("inquiry_correspond_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_correspond_FK2")
-  updatedUser User?         @relation("inquiry_correspond_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_correspond_FK3")
+  createdUser User?         @relation("inquiry_correspond_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_correspond_FK_created_by")
+  updatedUser User?         @relation("inquiry_correspond_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_correspond_FK_updated_by")
   inquiryFile                          InquiryFile[]
 
   @@index([inquiryId], map: "inquiry_correspond_FK1")
-  @@index([createdBy], map: "inquiry_correspond_FK2")
-  @@index([updatedBy], map: "inquiry_correspond_FK3")
+  @@index([createdBy], map: "inquiry_correspond_FK_created_by")
+  @@index([updatedBy], map: "inquiry_correspond_FK_updated_by")
   @@map("inquiry_correspond")
 }
 
@@ -245,12 +245,12 @@ model InquiryFile {
   deletedAt                      DateTime?         @map("deleted_at") @db.Timestamp(0)
   existence                      Boolean?
   inquiryCorrespond              InquiryCorrespond @relation(fields: [correspondId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_file_FK1")
-  createdUser User?             @relation("inquiry_file_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_file_FK2")
-  updatedUser User?             @relation("inquiry_file_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_file_FK3")
+  createdUser User?             @relation("inquiry_file_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_file_FK_created_by")
+  updatedUser User?             @relation("inquiry_file_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "inquiry_file_FK_updated_by")
 
   @@index([correspondId], map: "inquiry_file_FK1")
-  @@index([createdBy], map: "inquiry_file_FK2")
-  @@index([updatedBy], map: "inquiry_file_FK3")
+  @@index([createdBy], map: "inquiry_file_FK_created_by")
+  @@index([updatedBy], map: "inquiry_file_FK_updated_by")
   @@map("inquiry_file")
 }
 
@@ -264,6 +264,7 @@ model Patient {
   searchName                  String                        @map("search_name") @db.VarChar(255)
   gender                      PatientGender                 @default(UNCERTAIN) @map("gender")
   birthday                    DateTime?                     @db.Date
+  billEnableFlag              Boolean                       @default(false) @map("bill_enable_flag")
   medicalInsuranceStatus      PatientMedicalInsuranceStatus @default(UNCONFIRMED) @map("medical_insurance_status")
   medicalInsuranceStartDate   DateTime?                     @map("medical_insurance_start_date") @db.Date
   medicalInsuranceEndDate     DateTime?                     @map("medical_insurance_end_date") @db.Date
@@ -274,12 +275,12 @@ model Patient {
   nursingInsuranceEndDate     DateTime?                     @map("nursing_insurance_end_date") @db.Date
   nursingShareConfirmDate     DateTime?                     @map("nursing_share_confirm_date") @db.Date
   nursingShare                PatientNursingShare?          @map("nursing_share")
+  publicExpense               Boolean?                      @map("public_expense")
   consentStatus               PatientConsentStatus          @default(UNSIGNED) @map("consent_status")
   consentConfirmDate          DateTime?                     @map("consent_confirm_date") @db.Date
   paymentType                 PatientPaymentType            @default(UNDEFINED) @map("payment_type")
   accountConfirmStatus        PatientAccountConfirmStatus?  @map("account_confirm_status")
   accountManageId             String?                       @map("account_manage_id") @db.VarChar(64)
-  publicExpense               Boolean                       @default(false) @map("public_expense")
   receptSyncFlag              Boolean                       @default(false) @map("recept_sync_flag")
   deliveryName                String?                       @map("delivery_name") @db.VarChar(64)
   deliveryPostalCode          String?                       @map("delivery_postal_code") @db.Char(8)
@@ -295,17 +296,19 @@ model Patient {
   deletedAt                   DateTime?                     @map("deleted_at") @db.Timestamp(0)
   existence                   Boolean?
   inquiry                     Inquiry[]
-  createdUser  User?                         @relation("patient_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK1")
-  updatedUser  User?                         @relation("patient_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK2")
-  healthFacility              HealthFacility                @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK3")
+  healthFacility              HealthFacility                @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK1")
+  accountManage               AccountManage?                @relation(fields: [accountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK2")
+  createdUser  User?                         @relation("patient_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK_created_by")
+  updatedUser  User?                         @relation("patient_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK_updated_by")
   patientChangeHistory        PatientChangeHistory[]
   patientCodeHistory          PatientCodeHistory[]
   patientFile                 PatientFile[]
   patientRelateHealthFacility PatientRelateHealthFacility[]
 
-  @@index([createdBy], map: "patient_FK1")
-  @@index([updatedBy], map: "patient_FK2")
-  @@index([healthFacilityId], map: "patient_FK3")
+  @@index([healthFacilityId], map: "patient_FK1")
+  @@index([accountManageId], map: "patient_FK2")
+  @@index([createdBy], map: "patient_FK_created_by")
+  @@index([updatedBy], map: "patient_FK_updated_by")
   @@map("patient")
 }
 
@@ -323,12 +326,12 @@ model PatientChangeContent {
   deletedAt                               DateTime?            @map("deleted_at") @db.Timestamp(0)
   existence                               Boolean?
   patientChangeHistory                    PatientChangeHistory @relation(fields: [patientChangeHistoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_content_FK1")
-  createdUser User?                @relation("patient_change_content_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_content_FK2")
-  updatedUser User?                @relation("patient_change_content_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_content_FK3")
+  createdUser User?                @relation("patient_change_content_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_content_FK_created_by")
+  updatedUser User?                @relation("patient_change_content_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_content_FK_updated_by")
 
   @@index([patientChangeHistoryId], map: "patient_change_content_FK1")
-  @@index([createdBy], map: "patient_change_content_FK2")
-  @@index([updatedBy], map: "patient_change_content_FK3")
+  @@index([createdBy], map: "patient_change_content_FK_created_by")
+  @@index([updatedBy], map: "patient_change_content_FK_updated_by")
   @@map("patient_change_content")
 }
 
@@ -344,12 +347,12 @@ model PatientChangeHistory {
   existence                               Boolean?
   patientChangeContent                    PatientChangeContent[]
   patient                                 Patient                @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK1")
-  createdUser User?                  @relation("patient_change_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK2")
-  updatedUser User?                  @relation("patient_change_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK3")
+  createdUser User?                  @relation("patient_change_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK_created_by")
+  updatedUser User?                  @relation("patient_change_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK_updated_by")
 
   @@index([patientId], map: "patient_change_history_FK1")
-  @@index([createdBy], map: "patient_change_history_FK2")
-  @@index([updatedBy], map: "patient_change_history_FK3")
+  @@index([createdBy], map: "patient_change_history_FK_created_by")
+  @@index([updatedBy], map: "patient_change_history_FK_updated_by")
   @@map("patient_change_history")
 }
 
@@ -365,15 +368,15 @@ model PatientCodeHistory {
   updatedBy                             String?        @map("updated_by") @db.VarChar(64)
   deletedAt                             DateTime?      @map("deleted_at") @db.Timestamp(0)
   existence                             Boolean?
-  patient                               Patient        @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK1")
-  createdUser User?          @relation("patient_code_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK2")
-  updatedUser User?          @relation("patient_code_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK3")
-  healthFacility                        HealthFacility @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK4")
+  healthFacility                        HealthFacility @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK1")
+  patient                               Patient        @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK2")
+  createdUser User?          @relation("patient_code_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK_created_by")
+  updatedUser User?          @relation("patient_code_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK_updated_by")
 
-  @@index([patientId], map: "patient_code_history_FK1")
-  @@index([createdBy], map: "patient_code_history_FK2")
-  @@index([updatedBy], map: "patient_code_history_FK3")
-  @@index([healthFacilityId], map: "patient_code_history_FK4")
+  @@index([healthFacilityId], map: "patient_code_history_FK1")
+  @@index([patientId], map: "patient_code_history_FK2")
+  @@index([createdBy], map: "patient_code_history_FK_created_by")
+  @@index([updatedBy], map: "patient_code_history_FK_updated_by")
   @@map("patient_code_history")
 }
 
@@ -382,7 +385,7 @@ model PatientFile {
   id                             String    @id @db.VarChar(64)
   patientId                      String    @map("patient_id") @db.VarChar(64)
   title                          String    @db.VarChar(64)
-  filePath                       String    @map("file_path") @db.VarChar(255)
+  attachFilePath                 String    @map("attach_file_path") @db.VarChar(255)
   note                           String?   @db.Text
   createdAt                      DateTime? @map("created_at") @db.Timestamp(0)
   createdBy                      String?   @map("created_by") @db.VarChar(64)
@@ -391,12 +394,12 @@ model PatientFile {
   deletedAt                      DateTime? @map("deleted_at") @db.Timestamp(0)
   existence                      Boolean?
   patient                        Patient   @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_file_FK1")
-  createdUser User?     @relation("patient_file_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_file_FK2")
-  updatedUser User?     @relation("patient_file_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_file_FK3")
+  createdUser User?     @relation("patient_file_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_file_FK_created_by")
+  updatedUser User?     @relation("patient_file_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_file_FK_updated_by")
 
   @@index([patientId], map: "patient_file_FK1")
-  @@index([createdBy], map: "patient_file_FK2")
-  @@index([updatedBy], map: "patient_file_FK3")
+  @@index([createdBy], map: "patient_file_FK_created_by")
+  @@index([updatedBy], map: "patient_file_FK_updated_by")
   @@map("patient_file")
 }
 
@@ -407,8 +410,8 @@ model PatientRelateHealthFacility {
   healthFacilityId                               String                             @map("health_facility_id") @db.VarChar(64)
   startDate                                      DateTime                           @map("start_date") @db.Date
   endDate                                        DateTime                           @default(dbgenerated("'2100-12-31'")) @map("end_date") @db.Date
-  reason                                         PatientRelateHealthFacilityReason? @map("reason")
   billSort                                       Int?                               @map("bill_sort")
+  reason                                         PatientRelateHealthFacilityReason? @map("reason")
   note                                           String?                            @db.Text
   createdAt                                      DateTime?                          @map("created_at") @db.Timestamp(0)
   createdBy                                      String?                            @map("created_by") @db.VarChar(64)
@@ -418,13 +421,13 @@ model PatientRelateHealthFacility {
   existence                                      Boolean?
   healthFacility                                 HealthFacility                     @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_relate_health_facility_FK1")
   patient                                        Patient                            @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_relate_health_facility_FK2")
-  createdUser User?                              @relation("patient_relate_health_facility_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_relate_health_facility_FK3")
-  updatedUser User?                              @relation("patient_relate_health_facility_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_relate_health_facility_FK4")
+  createdUser User?                              @relation("patient_relate_health_facility_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_relate_health_facility_FK_created_by")
+  updatedUser User?                              @relation("patient_relate_health_facility_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_relate_health_facility_FK_updated_by")
 
   @@index([healthFacilityId], map: "patient_relate_health_facility_FK1")
   @@index([patientId], map: "patient_relate_health_facility_FK2")
-  @@index([createdBy], map: "patient_relate_health_facility_FK3")
-  @@index([updatedBy], map: "patient_relate_health_facility_FK4")
+  @@index([createdBy], map: "patient_relate_health_facility_FK_created_by")
+  @@index([updatedBy], map: "patient_relate_health_facility_FK_updated_by")
   @@map("patient_relate_health_facility")
 }
 
@@ -451,21 +454,20 @@ model Pharmacy {
   existence                                                     Boolean?
   healthFacility                                                HealthFacility[]
   healthFacilityRelatePharmacy                                  HealthFacilityRelatePharmacy[]
-  pharmacyGroup                                                 PharmacyGroup                    @relation(fields: [pharmacyGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK1")
-  company                                                       Company                          @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK2")
-  createdUser                                   User?                            @relation("pharmacy_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK3")
-  updatedUser                                   User?                            @relation("pharmacy_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK4")
-  transferAccountManage   AccountManage                    @relation("pharmacy_transfer_account_manage_idToaccount_manage", fields: [transferAccountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK5")
-  withdrawalAccountManage AccountManage                    @relation("pharmacy_withdrawal_account_manage_idToaccount_manage", fields: [withdrawalAccountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK6")
+  transferAccountManage   AccountManage                    @relation("pharmacy_transfer_account_manage_idToaccount_manage", fields: [transferAccountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK1")
+  withdrawalAccountManage AccountManage                    @relation("pharmacy_withdrawal_account_manage_idToaccount_manage", fields: [withdrawalAccountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK2")
+  pharmacyGroup                                                 PharmacyGroup                    @relation(fields: [pharmacyGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK3")
+  company                                                       Company                          @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK4")
+  createdUser                                   User?                            @relation("pharmacy_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK_created_by")
+  updatedUser                                   User?                            @relation("pharmacy_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_FK_updated_by")
   pharmacyBaseCompoundingSetting                                PharmacyBaseCompoundingSetting[]
-  pharmacyRelateCompany                                         PharmacyRelateCompany[]
 
-  @@index([pharmacyGroupId], map: "pharmacy_FK1")
-  @@index([companyId], map: "pharmacy_FK2")
-  @@index([createdBy], map: "pharmacy_FK3")
-  @@index([updatedBy], map: "pharmacy_FK4")
-  @@index([transferAccountManageId], map: "pharmacy_FK5")
-  @@index([withdrawalAccountManageId], map: "pharmacy_FK6")
+  @@index([transferAccountManageId], map: "pharmacy_FK1")
+  @@index([withdrawalAccountManageId], map: "pharmacy_FK2")
+  @@index([pharmacyGroupId], map: "pharmacy_FK3")
+  @@index([companyId], map: "pharmacy_FK4")
+  @@index([createdBy], map: "pharmacy_FK_created_by")
+  @@index([updatedBy], map: "pharmacy_FK_updated_by")
   @@map("pharmacy")
 }
 
@@ -476,7 +478,7 @@ model PharmacyBaseCompoundingSetting {
   name                                              String    @db.VarChar(128)
   score                                             Int
   startDate                                         DateTime  @map("start_date") @db.Date
-  endDate                                           DateTime  @map("end_date") @db.Date
+  endDate                                           DateTime  @default(dbgenerated("'2100-01-01'")) @map("end_date") @db.Date
   createdAt                                         DateTime? @map("created_at") @db.Timestamp(0)
   createdBy                                         String?   @map("created_by") @db.VarChar(64)
   updatedAt                                         DateTime? @map("updated_at") @db.Timestamp(0)
@@ -484,12 +486,12 @@ model PharmacyBaseCompoundingSetting {
   deletedAt                                         DateTime? @map("deleted_at") @db.Timestamp(0)
   existence                                         Boolean?
   pharmacy                                          Pharmacy  @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_base_compounding_setting_FK1")
-  createdUser User?     @relation("pharmacy_base_compounding_setting_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_base_compounding_setting_FK2")
-  updatedUser User?     @relation("pharmacy_base_compounding_setting_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_base_compounding_setting_FK3")
+  createdUser User?     @relation("pharmacy_base_compounding_setting_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_base_compounding_setting_FK_created_by")
+  updatedUser User?     @relation("pharmacy_base_compounding_setting_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_base_compounding_setting_FK_updated_by")
 
   @@index([pharmacyId], map: "pharmacy_base_compounding_setting_FK1")
-  @@index([createdBy], map: "pharmacy_base_compounding_setting_FK2")
-  @@index([updatedBy], map: "pharmacy_base_compounding_setting_FK3")
+  @@index([createdBy], map: "pharmacy_base_compounding_setting_FK_created_by")
+  @@index([updatedBy], map: "pharmacy_base_compounding_setting_FK_updated_by")
   @@map("pharmacy_base_compounding_setting")
 }
 
@@ -505,38 +507,12 @@ model PharmacyGroup {
   deletedAt                        DateTime?  @map("deleted_at") @db.Timestamp(0)
   existence                        Boolean?
   pharmacy                         Pharmacy[]
-  createdUser User?      @relation("pharmacy_group_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_group_FK1")
-  updatedUser User?      @relation("pharmacy_group_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_group_FK2")
+  createdUser User?      @relation("pharmacy_group_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_group_FK_created_by")
+  updatedUser User?      @relation("pharmacy_group_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_group_FK_updated_by")
 
-  @@index([createdBy], map: "pharmacy_group_FK1")
-  @@index([updatedBy], map: "pharmacy_group_FK2")
+  @@index([createdBy], map: "pharmacy_group_FK_created_by")
+  @@index([updatedBy], map: "pharmacy_group_FK_updated_by")
   @@map("pharmacy_group")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model PharmacyRelateCompany {
-  id                                       String    @id @db.VarChar(64)
-  companyId                                String    @map("company_id") @db.VarChar(64)
-  pharmacyId                               String    @map("pharmacy_id") @db.VarChar(64)
-  startDate                                DateTime  @map("start_date") @db.Date
-  endDate                                  DateTime  @default(dbgenerated("'2100-12-31'")) @map("end_date") @db.Date
-  note                                     String?   @db.Text
-  createdAt                                DateTime? @map("created_at") @db.Timestamp(0)
-  createdBy                                String?   @map("created_by") @db.VarChar(64)
-  updatedAt                                DateTime? @map("updated_at") @db.Timestamp(0)
-  updatedBy                                String?   @map("updated_by") @db.VarChar(64)
-  deletedAt                                DateTime? @map("deleted_at") @db.Timestamp(0)
-  existence                                Boolean?
-  pharmacy                                 Pharmacy  @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_relate_company_FK1")
-  company                                  Company   @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_relate_company_FK2")
-  createdUser User?     @relation("pharmacy_relate_company_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_relate_company_FK3")
-  updatedUser User?     @relation("pharmacy_relate_company_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_relate_company_FK4")
-
-  @@index([pharmacyId], map: "pharmacy_relate_company_FK1")
-  @@index([companyId], map: "pharmacy_relate_company_FK2")
-  @@index([createdBy], map: "pharmacy_relate_company_FK3")
-  @@index([updatedBy], map: "pharmacy_relate_company_FK4")
-  @@map("pharmacy_relate_company")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -590,16 +566,14 @@ model User {
   pharmacyBaseCompoundingSettingUpdatedUser PharmacyBaseCompoundingSetting[] @relation("pharmacy_base_compounding_setting_updated_byTouser")
   pharmacyGroupCreatedUser                                   PharmacyGroup[]                  @relation("pharmacy_group_created_byTouser")
   pharmacyGroupUpdatedUser                                   PharmacyGroup[]                  @relation("pharmacy_group_updated_byTouser")
-  pharmacyRelateCompanyCreatedUser                   PharmacyRelateCompany[]          @relation("pharmacy_relate_company_created_byTouser")
-  pharmacyRelateCompanyUpdatedUser                   PharmacyRelateCompany[]          @relation("pharmacy_relate_company_updated_byTouser")
-  createdUser                                                     User?                            @relation("user_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_fk_created_by")
+  createdUser                                                     User?                            @relation("user_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_FK_created_by")
   otherUserUserCreatedByTouser                                                User[]                           @relation("user_created_byTouser")
-  updatedUser                                                     User?                            @relation("user_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_fk_updated_by")
+  updatedUser                                                     User?                            @relation("user_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_FK_updated_by")
   otherUserUserUpdatedByTouser                                                User[]                           @relation("user_updated_byTouser")
 
   @@unique([userId, existence], map: "user_id_unique_idx")
-  @@index([createdBy], map: "user_fk_created_by")
-  @@index([updatedBy], map: "user_fk_updated_by")
+  @@index([createdBy], map: "user_FK_created_by")
+  @@index([updatedBy], map: "user_FK_updated_by")
   @@map("user")
 }
 
@@ -620,19 +594,12 @@ enum HealthFacilityCodeGroupFormatType {
 }
 
 enum InquiryStatus {
-  open
-  operation
-  reject
-  close
+  OPEN
+  OPERATION
+  REJECT
+  CLOSE
 
   @@map("inquiry_status")
-}
-
-enum PatientRelateHealthFacilityReason {
-  DECEASE
-  RELOCATION
-
-  @@map("patient_relate_health_facility_reason")
 }
 
 enum PatientGender {
@@ -641,6 +608,13 @@ enum PatientGender {
   FEMALE
 
   @@map("patient_gender")
+}
+
+enum PatientRelateHealthFacilityReason {
+  DECEASE
+  RELOCATION
+
+  @@map("patient_relate_health_facility_reason")
 }
 
 enum AccountManageAccountType {
@@ -658,6 +632,14 @@ enum PatientMedicalInsuranceStatus {
   @@map("patient_medical_insurance_status")
 }
 
+enum HealthFacilityBillingType {
+  BATCH
+  INDIVIDUAL
+  OTHER
+
+  @@map("health_facility_billing_type")
+}
+
 enum PatientMedicalShare {
   ONE
   TWO
@@ -667,12 +649,13 @@ enum PatientMedicalShare {
   @@map("patient_medical_share")
 }
 
-enum HealthFacilityBillingType {
-  BATCH
-  INDIVIDUAL
+enum HealthFacilityPaymentType {
+  CASH
+  WITHDRAWAL
+  TRANSFER
   OTHER
 
-  @@map("health_facility_billing_type")
+  @@map("health_facility_payment_type")
 }
 
 enum PatientNursingInsuranceStatus {
@@ -681,15 +664,6 @@ enum PatientNursingInsuranceStatus {
   UPDATING
 
   @@map("patient_nursing_insurance_status")
-}
-
-enum HealthFacilityPaymentType {
-  CASH
-  WITHDRAWAL
-  TRANSFER
-  OTHER
-
-  @@map("health_facility_payment_type")
 }
 
 enum HealthFacilityTransferGuide {
