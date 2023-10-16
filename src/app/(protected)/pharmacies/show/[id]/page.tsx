@@ -1,6 +1,6 @@
 'use client'
 
-import { Stack, Button } from '@mui/material'
+import { Button, Stack } from '@mui/material'
 import { useLink, useShow } from '@refinedev/core'
 import { CloneButton, Show } from '@refinedev/mui'
 import React from 'react'
@@ -11,7 +11,8 @@ import { PharmacyModel } from '@/types'
 import { FieldItem } from '@components/core/content/FieldItem'
 import { formatDateTime } from '@/core/utils/dateUtil'
 import SearchIcon from '@mui/icons-material/Search'
-import { PAGINATE_CONFIG } from '@/core/configs/constants'
+import { RubyItem } from '@components/core/content/rubyItem'
+import { joinString } from '@/core/utils/commonUtil'
 
 const ShowPage: React.FC = () => {
   setTitle()
@@ -44,29 +45,17 @@ const ShowPage: React.FC = () => {
       )}
     >
       <Stack gap={1}>
-        <FieldItem label='会社名' value={record?.company?.name} />
+        <FieldItem label='会社名' value={<RubyItem value={record?.company?.name} ruby={record?.company?.nameKana} />} />
         <FieldItem label='薬局名' value={record?.pharmacyGroup?.name} />
-        <FieldItem label='店舗名' value={record?.name} />
-        <FieldItem label='店舗カナ名称' value={record?.nameKana} />
-        <FieldItem label='薬局 店舗' value={(record?.pharmacyGroup?.name + ' ' ?? '') + record?.name} />
-        <FieldItem label='カナ名称' value={(record?.pharmacyGroup?.nameKana + ' ' ?? '') + record?.nameKana} />
+        <FieldItem label='店舗名' value={<RubyItem value={record?.name} ruby={record?.nameKana} />} />
         <FieldItem
           label='振替口座'
           value={record?.withdrawalAccountManage?.name}
-          helperText='個人の患者様向けの請求口座情報を設定します'
+          helperText='個人の患者様向けの請求口座情報'
         />
-        <FieldItem
-          label='振込口座'
-          value={record?.transferAccountManage?.name}
-          helperText='施設向けの請求口座情報を設定します'
-        />
+        <FieldItem label='振込口座' value={record?.transferAccountManage?.name} helperText='施設向けの請求口座情報' />
         <FieldItem label='医療機関コード' value={record?.medicalInstitutionCode} />
-        <FieldItem label='郵便番号' value={record?.postalCode} />
-        <FieldItem
-          label='住所'
-          value={(record?.address1 || '') + (record?.address2 ? '\n' + (record?.address2 || '') : '')}
-          multiline
-        />
+        <FieldItem label='住所' value={joinString([record?.postalCode, record?.address1, record?.address2])} />
         <FieldItem label='電話番号' value={record?.tel} />
         <FieldItem label='FAX番号' value={record?.fax} />
         <FieldItem label='作成日時' value={formatDateTime(record?.createdAt)} />

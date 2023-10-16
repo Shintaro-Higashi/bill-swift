@@ -28,7 +28,8 @@ export const TRANSFER_GUIDE_LIST = TRANSFER_GUIDE_KEY_LIST.map((key) => ({
  * @param defaultValue 該当キーがない場合のデフォルト値
  * @return 振込案内値
  */
-export const getTransferGuideValue = (key: TransferGuideKey, defaultValue: string = '') => {
+export const getTransferGuideValue = (key: TransferGuideKey | null | undefined, defaultValue: string = '') => {
+  if (!key) return defaultValue
   if (key in TRANSFER_GUIDE) {
     return TRANSFER_GUIDE[key as TransferGuideKey]
   }

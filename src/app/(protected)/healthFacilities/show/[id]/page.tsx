@@ -1,6 +1,6 @@
 'use client'
 
-import { Stack } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import { useShow } from '@refinedev/core'
 import { CloneButton, Show } from '@refinedev/mui'
 import React from 'react'
@@ -16,6 +16,8 @@ import HistoryIcon from '@mui/icons-material/History'
 import { getBillingTypeValue } from '@/shared/items/billingType'
 import { getHealthFacilityPaymentTypeValue } from '@/shared/items/healthFacilityPaymentType'
 import { getTransferGuideValue } from '@/shared/items/transferGuide'
+import { joinString } from '@/core/utils/commonUtil'
+import { RubyItem } from '@components/core/content/rubyItem'
 
 const ShowPage: React.FC = () => {
   setTitle()
@@ -66,32 +68,25 @@ const ShowPage: React.FC = () => {
       <Stack gap={1} sx={{ mb: 2 }}>
         <FieldItem
           label='担当店舗'
-          value={record?.pharmacy ? record?.pharmacy?.pharmacyGroup?.name + ' ' + record?.pharmacy?.name : ''}
+          value={
+            <Box>
+              {record?.pharmacy?.pharmacyGroup?.name + ' ' ?? ''}
+              <RubyItem value={record?.pharmacy?.name} ruby={record?.pharmacy?.nameKana} />
+            </Box>
+          }
         />
         <FieldItem label='コード' value={record?.code} />
-        <FieldItem label='名称' value={record?.name} />
-        <FieldItem label='カナ名称' value={record?.nameKana} />
-        <FieldItem label='郵便番号' value={record?.postalCode} />
-        <FieldItem
-          label='住所'
-          value={(record?.address1 || '') + (record?.address2 ? '\n' + (record?.address2 || '') : '')}
-          multiline
-        />
+        <FieldItem label='名称' value={<RubyItem value={record?.name} ruby={record?.nameKana} />} />
+        <FieldItem label='住所' value={joinString([record?.postalCode, record?.address1, record?.address2])} />
         <FieldItem label='電話番号' value={record?.tel} />
         <FieldItem label='FAX番号' value={record?.fax} />
         <FieldItem label='メールアドレス' value={record?.mail} />
         <FieldItem label='URL' value={record?.url} />
-        <FieldItem label='請求種別' value={record?.billingType ? getBillingTypeValue(record?.billingType) : ''} />
-        <FieldItem
-          label='支払い種別'
-          value={record?.paymentType ? getHealthFacilityPaymentTypeValue(record?.paymentType) : ''}
-        />
-        <FieldItem label='振込案内' value={record?.transferGuide ? getTransferGuideValue(record?.transferGuide) : ''} />
-        <FieldItem
-          label='患者ソート種別'
-          value={record?.patientSortType ? getPatientSortTypeValue(record?.patientSortType) : ''}
-        />
-        <FieldItem label='備考' value={record?.note} multiline />
+        <FieldItem label='請求種別' value={getBillingTypeValue(record?.billingType, ' ')} />
+        <FieldItem label='支払い種別' value={getHealthFacilityPaymentTypeValue(record?.paymentType, ' ')} />
+        <FieldItem label='振込案内' value={getTransferGuideValue(record?.transferGuide, ' ')} />
+        <FieldItem label='患者ソート種別' value={getPatientSortTypeValue(record?.patientSortType, ' ')} />
+        <FieldItem label='備考' value={record?.note} />
         <FieldItem label='作成日時' value={formatDateTime(record?.createdAt)} />
         <FieldItem label='作成者' value={record?.createdUser?.name} />
         <FieldItem label='更新日時' value={formatDateTime(record?.createdAt)} />

@@ -27,7 +27,8 @@ export const BILLING_TYPE_LIST = BILLING_TYPE_KEY_LIST.map((key) => ({
  * @param defaultValue 該当キーがない場合のデフォルト値
  * @return 請求種別値
  */
-export const getBillingTypeValue = (key: BillingTypeKey, defaultValue: string = '') => {
+export const getBillingTypeValue = (key: BillingTypeKey | null | undefined, defaultValue: string = '') => {
+  if (!key) return defaultValue
   if (key in BILLING_TYPE) {
     return BILLING_TYPE[key as BillingTypeKey]
   }

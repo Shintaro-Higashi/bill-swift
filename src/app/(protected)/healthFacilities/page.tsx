@@ -26,6 +26,7 @@ import {
   HealthFacilityQuerySchema,
 } from '@/types'
 import { ControlAutocomplete } from '@/components/core/form/controlAutocomplete'
+import { RubyItem } from '@components/core/content/rubyItem'
 
 /**
  * 施設一覧画面です。
@@ -72,6 +73,7 @@ const ListPage: React.FC = () => {
         field: 'code',
         headerName: 'コード',
         flex: 1,
+        maxWidth: 60,
         filterable: false,
         hideable: false,
         renderCell: function render({ row }) {
@@ -88,7 +90,7 @@ const ListPage: React.FC = () => {
         renderCell: function render({ row }) {
           return (
             <MuiLink component={Link} underline='none' to={`/healthFacilities/show/${row.id}`}>
-              {row.name}
+              <RubyItem value={row.name} ruby={row.nameKana} />
             </MuiLink>
           )
         },
@@ -101,7 +103,13 @@ const ListPage: React.FC = () => {
         sortable: false,
         filterable: false,
         renderCell: function render({ row }) {
-          return row.pharmacy?.pharmacyGroup?.name + ' ' + row.pharmacy?.name
+          // return row.pharmacy?.pharmacyGroup?.name + ' ' + row.pharmacy?.name
+          return (
+            <Box>
+              {row.pharmacy?.pharmacyGroup?.name + ' ' ?? ''}
+              <RubyItem value={row.pharmacy?.name} ruby={row.pharmacy?.nameKana} />
+            </Box>
+          )
         },
       },
       {
@@ -138,7 +146,7 @@ const ListPage: React.FC = () => {
         },
         align: 'center',
         headerAlign: 'center',
-        minWidth: 80,
+        maxWidth: 50,
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,9 +156,9 @@ const ListPage: React.FC = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} lg={3}>
-        <Card sx={{ paddingX: { xs: 2, md: 0 } }}>
-          <CardHeader title='検索条件' />
-          <CardContent sx={{ pt: 0 }}>
+        <Card>
+          <CardHeader title='検索条件' sx={{ paddingTop: 1 }} />
+          <CardContent>
             <Box
               component='form'
               sx={{ display: 'flex', flexDirection: 'column' }}

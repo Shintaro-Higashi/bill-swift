@@ -2,11 +2,9 @@ import { Control, FieldErrors, UseFormRegister } from 'react-hook-form'
 import { CompanyCreationForm, CompanyEditingForm, CompanyModel } from '@/types'
 import { Box, TextField } from '@mui/material'
 import React from 'react'
-import { GetOneResponse } from '@refinedev/core'
+import { GetOneResponse, useResource } from '@refinedev/core'
 import { QueryObserverResult } from '@tanstack/query-core'
 import { ControlAutocomplete } from '@/components/core/form/controlAutocomplete'
-import { ControlItemAutocomplete } from '@/components/core/form/controlItemAutocomplete'
-import { ACCOUNT_TYPE_LIST } from '@/shared/items/accountType'
 
 // 会社作成、編集フォームプロパティ
 type Props = {
@@ -26,6 +24,8 @@ type Props = {
 export const CompanySaveForm = (props: Props) => {
   const { register, queryResult, control, errors } = props
   const postsData = queryResult ? queryResult.data?.data : undefined
+
+  const { action } = useResource()
 
   return (
     <Box component='form' sx={{ display: 'flex', flexDirection: 'column' }} autoComplete='off'>
@@ -98,7 +98,8 @@ export const CompanySaveForm = (props: Props) => {
         defaultId={postsData?.healthFacilityCodeGroupId}
         control={control}
         error={!!errors.healthFacilityCodeGroupId}
-        helperText={errors.healthFacilityCodeGroupId?.message}
+        readOnly={action === 'edit'}
+        helperText={'患者番号の体系(会社グループ)を指定※変更不可 ' + (errors.healthFacilityCodeGroupId?.message || '')}
       />
     </Box>
   )

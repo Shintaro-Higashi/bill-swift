@@ -24,6 +24,7 @@ export const HTTP_STATUS = {
 export const QUERY_FORM_HINT = {
   MATCH: '条件:完全一致',
   CONTAIN: '条件:一部を含む',
+  SEARCH_NAME: '条件:一部を含む(フリガナも可)',
 }
 
 // ページネーションに関する設定情報

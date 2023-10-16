@@ -52,6 +52,13 @@ export * from './api/healthFacilityCodeGroup'
 export * from './server/healthFacilityCodeGroup'
 export * from './client/healthFacilityCodeGroup'
 
+// 患者
+export * from './schema/patient'
+export * from './models/patientModel'
+export * from './api/patient'
+export * from './server/patient'
+export * from './client/patient'
+
 // ユーザ
 export * from './schema/user'
 export * from './models/userModel'

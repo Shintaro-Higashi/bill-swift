@@ -27,6 +27,8 @@ type Props = {
   onSearchField?: string
   /** オプションのラベル */
   optionLabel?: (option: any) => string
+  /** 読み取り専用有無 */
+  readOnly?: boolean
 }
 
 /**
@@ -59,7 +61,19 @@ type Props = {
  */
 
 export const ControlAutocomplete = (props: Props) => {
-  const { required, resource, label, name, control, error, helperText, defaultId, onSearchField, optionLabel } = props
+  const {
+    required,
+    resource,
+    label,
+    name,
+    control,
+    error,
+    helperText,
+    defaultId,
+    onSearchField,
+    optionLabel,
+    readOnly = false,
+  } = props
 
   const { autocompleteProps } = useAutocomplete({
     resource: resource,
@@ -80,6 +94,7 @@ export const ControlAutocomplete = (props: Props) => {
       defaultValue={null as any}
       render={({ field }) => (
         <Autocomplete
+          readOnly={readOnly}
           {...autocompleteProps}
           {...field}
           onChange={(_, value) => {

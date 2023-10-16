@@ -36,7 +36,11 @@ export const HEALTH_FACILITY_PAYMENT_TYPE_LIST = HEALTH_FACILITY_PAYMENT_TYPE_KE
  * @param defaultValue 該当キーがない場合のデフォルト値
  * @return 支払い種別値
  */
-export const getHealthFacilityPaymentTypeValue = (key: HealthFacilityPaymentTypeKey, defaultValue: string = '') => {
+export const getHealthFacilityPaymentTypeValue = (
+  key: HealthFacilityPaymentTypeKey | null | undefined,
+  defaultValue: string = '',
+) => {
+  if (!key) return defaultValue
   if (key in HEALTH_FACILITY_PAYMENT_TYPE) {
     return HEALTH_FACILITY_PAYMENT_TYPE[key as HealthFacilityPaymentTypeKey]
   }

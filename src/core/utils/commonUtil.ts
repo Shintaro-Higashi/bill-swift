@@ -82,3 +82,12 @@ export const trimUnicode = (value: string | null | undefined, replaceEmptyValue:
   if (value === '') return replaceEmptyValue
   return trimValue
 }
+
+/**
+ * 値がない(null,undefined,空文字)を無視して配列文字列を連結します。
+ * @param values 配列文字列
+ * @param separate 連結時のセパレータ文字(デフォルト=\n)
+ */
+export const joinString = (values: (string | null | undefined)[], separate = '\n') => {
+  return values.filter((item): item is NonNullable<typeof item> => item != null && item !== '').join(separate)
+}

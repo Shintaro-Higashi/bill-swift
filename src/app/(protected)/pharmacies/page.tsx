@@ -21,6 +21,7 @@ import StickyTableContent from '@/components/core/grid/stickyTableContent'
 import MuiLink from '@mui/material/Link'
 import { PharmacyModel, PharmacyQueryForm, PharmacyQueryRequest, PharmacyQuerySchema } from '@/types'
 import { ControlAutocomplete } from '@/components/core/form/controlAutocomplete'
+import { RubyItem } from '@components/core/content/rubyItem'
 
 /**
  * 店舗一覧画面です。
@@ -67,13 +68,14 @@ const ListPage: React.FC = () => {
         field: 'name',
         headerName: '店舗名',
         minWidth: 250,
-        flex: 1,
+        flex: 2,
         filterable: false,
         hideable: false,
         renderCell: function render({ row }) {
           return (
             <MuiLink component={Link} underline='none' to={`/pharmacies/show/${row.id}`}>
-              {(row.pharmacyGroup?.name + ' ' ?? '') + row.name}
+              {row.pharmacyGroup?.name + ' ' ?? ''}
+              <RubyItem value={row.name} ruby={row.nameKana} />
             </MuiLink>
           )
         },
@@ -122,9 +124,9 @@ const ListPage: React.FC = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} lg={3}>
-        <Card sx={{ paddingX: { xs: 2, md: 0 } }}>
-          <CardHeader title='検索条件' />
-          <CardContent sx={{ pt: 0 }}>
+        <Card>
+          <CardHeader title='検索条件' sx={{ paddingTop: 1 }} />
+          <CardContent>
             <Box
               component='form'
               sx={{ display: 'flex', flexDirection: 'column' }}

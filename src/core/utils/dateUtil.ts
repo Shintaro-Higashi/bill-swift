@@ -53,3 +53,7 @@ export const formatDateTime = (
   const { fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = 'Asia/Tokyo' } = options
   return formatInTimeZone(datetime, timeZone, fmt)
 }
+
+export const formatDate = (datetime: Date | undefined | null, options: { fmt?: string; timeZone?: string } = {}) => {
+  return formatDateTime(datetime, { fmt: 'yyyy-MM-dd' })
+}

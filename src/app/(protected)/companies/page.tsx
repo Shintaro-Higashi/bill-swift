@@ -20,6 +20,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import StickyTableContent from '@/components/core/grid/stickyTableContent'
 import MuiLink from '@mui/material/Link'
 import { CompanyModel, CompanyQueryForm, CompanyQueryRequest, CompanyQuerySchema } from '@/types'
+import { RubyItem } from '@components/core/content/rubyItem'
 
 /**
  * 会社一覧画面です。
@@ -58,13 +59,13 @@ const ListPage: React.FC = () => {
         field: 'name',
         headerName: '会社名',
         minWidth: 200,
-        flex: 1,
+        flex: 2,
         filterable: false,
         hideable: false,
         renderCell: function render({ row }) {
           return (
             <MuiLink component={Link} underline='none' to={`/companies/show/${row.id}`}>
-              {row.name}
+              <RubyItem value={row?.name} ruby={row?.nameKana} />
             </MuiLink>
           )
         },
@@ -103,7 +104,7 @@ const ListPage: React.FC = () => {
         },
         align: 'center',
         headerAlign: 'center',
-        minWidth: 80,
+        maxWidth: 50,
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,9 +114,9 @@ const ListPage: React.FC = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} lg={3}>
-        <Card sx={{ paddingX: { xs: 2, md: 0 } }}>
-          <CardHeader title='検索条件' />
-          <CardContent sx={{ pt: 0 }}>
+        <Card>
+          <CardHeader title='検索条件' sx={{ paddingTop: 1 }} />
+          <CardContent>
             <Box
               component='form'
               sx={{ display: 'flex', flexDirection: 'column' }}

@@ -5,7 +5,6 @@ import ROUTE_RESOURCES from '@/core/configs/routeResources'
 import { authProvider } from '@/core/providers/authProvider'
 import restDataProvider from '@/core/providers/restDataProvider'
 import CssBaseline from '@mui/material/CssBaseline'
-import GlobalStyles from '@mui/material/GlobalStyles'
 import { Refine } from '@refinedev/core'
 import { RefineKbar, RefineKbarProvider } from '@refinedev/kbar'
 import { notificationProvider, RefineSnackbarProvider } from '@refinedev/mui'
@@ -16,6 +15,7 @@ import i18nProviderInstance from '@/core/providers/i18nProvider'
 import { z } from 'zod'
 import zodErrorMapJp from '@/core/configs/i18n/zodErrorMapJp'
 import { accessControlProvider } from '@/core/providers/accessControlProvider'
+import AppGlobalStyles from '@styles/globalStyles'
 // app dir modeでは動作しない
 // import { UnsavedChangesNotifier } from '@refinedev/nextjs-router'
 /**
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <CssBaseline />
-          <GlobalStyles styles={{ html: { WebkitFontSmoothing: 'auto' } }} />
+          {AppGlobalStyles}
           <html lang='ja'>
             <body>
               <RefineSnackbarProvider>

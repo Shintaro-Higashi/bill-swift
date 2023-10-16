@@ -13,6 +13,7 @@
     "prisma-generate": "dotenv -e .env.local -- prisma db pull --force && prisma-case-format --file ./prisma/schema.prisma && ts-node --project tsconfig.local.json prisma/replaceRelationField.ts && prisma generate",
     "migrate": "prisma migrate deploy",
     "migrate:local": "dotenv -e .env.local -- npx prisma migrate deploy",
+    "migrate-reset": "npx prisma migrate reset --force",
     "migrate-reset:local": "dotenv -e .env.local -- npx prisma migrate reset --force",
     "migrate-reset:test": "dotenv -e .env.test.local -- npx prisma migrate reset --force",
     "lint": "eslint '**/*.{js,jsx,ts,tsx}'",

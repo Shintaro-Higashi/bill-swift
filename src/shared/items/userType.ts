@@ -28,7 +28,7 @@ export const USER_TYPE_LIST = USER_TYPE_KEY_LIST.map((key) => ({
  * @param defaultValue 該当キーがない場合のデフォルト値
  * @return ユーザアカウント種別値
  */
-export const getPatientSortTypeValue = (key: UserTypeKey, defaultValue: string = '') => {
+export const getUserTypeValue = (key: UserTypeKey, defaultValue: string = '') => {
   if (key in USER_TYPE) {
     return USER_TYPE[key as UserTypeKey]
   }
@@ -40,7 +40,7 @@ export const getPatientSortTypeValue = (key: UserTypeKey, defaultValue: string =
  * @param value ユーザアカウント種別値
  * @return ユーザアカウント種別値。該当key情報がない場合はundefined
  */
-export const getPatientSortTypeKey = (value: UserTypeValue | string): UserTypeKey | undefined => {
+export const getUserTypeKey = (value: UserTypeValue | string): UserTypeKey | undefined => {
   const keys = Object.keys(USER_TYPE) as UserTypeKey[]
   return keys.find((key) => USER_TYPE[key] === value)
 }

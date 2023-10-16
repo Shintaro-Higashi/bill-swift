@@ -1,11 +1,11 @@
 import { ThemeProvider } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { jaJP } from '@mui/x-data-grid'
 import { RefineThemes } from '@refinedev/mui'
 import { parseCookies, setCookie } from 'nookies'
 import React, { createContext, PropsWithChildren, useEffect, useState } from 'react'
-import CustomPagination from '@components/core/pagination/customPagination'
-
+import { Theme } from '@mui/system'
+import theme from '@styles/theme'
+import { createTheme } from '@mui/material/styles'
 /**
  * アプリケーション全体のスタイルテーマを定義するためのContext定義です。
  * <pre>
@@ -24,35 +24,15 @@ type ColorModeContextType = {
  */
 export const ThemeContext = createContext<ColorModeContextType>({} as ColorModeContextType)
 
-// コンポーネントのpropsデフォルト値を変更
-const componentTheme = {
-  // データグリッド(一覧画面系で利用するテーブル)デフォルト定義
-  MuiDataGrid: {
-    defaultProps: {
-      localeText: jaJP.components.MuiDataGrid.defaultProps.localeText,
-      pageSizeOptions: [25, 50, 100],
-      // この定義がないと2回検索が実地されるかつ2回目の検索にフィルタ条件が適用されない(原因は不明) ※共通適用困難なので個別定義中
-      // filterModel: undefined,
-      slots: {
-        pagination: CustomPagination,
-      },
-    },
-  },
-  // テキスト入力デフォルトスタイルを定義
-  MuiTextField: {
-    defaultProps: { margin: 'normal', size: 'small', fullWidth: true, InputLabelProps: { shrink: true } },
-  },
-}
-
-const customTheme = {
+const customTheme = createTheme({
   ...RefineThemes.Green,
-  components: componentTheme,
-}
+  ...theme,
+})
 
-const customDarkTheme = {
+const customDarkTheme: Partial<Theme> = createTheme({
   ...RefineThemes.GreenDark,
-  components: componentTheme,
-}
+  ...theme,
+})
 
 /**
  * MUIのテーマを動的に切り替えるためのProvider定義です。
