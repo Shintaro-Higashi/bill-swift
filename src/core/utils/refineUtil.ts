@@ -29,22 +29,59 @@ export const setTitle = (title?: string) => {
 }
 
 /**
- * 検索条件フォームエラーの通知制御を管理します。
+ * refineが提供するuseFormの通知制御を定義します。
+ * <pre>
+ *  refine標準の通知制御ではできないサーバサイドで発生したバリデーションエラーを各入力項目に反映することができます。
+ * </pre>
  */
-export class QueryFormErrorNotification<TFieldValues extends FieldValues> {
+export class FormSubmitErrorNotification<TFieldValues extends FieldValues> {
+  // react-hook-form のuseForm結果のsetError
   private setError: UseFormSetError<TFieldValues> | undefined
 
-  // constructor(setError?: UseFormSetError<TFieldValues>) {
-  //   this.setError = setError
-  // }
+  // 422バリデーションエラー発生時のエラーメッセージ
+  private static readonly BAD_REQUEST_MESSAGE = {
+    get: {
+      message: `検索条件に入力エラーがあります`,
+      description: '検索条件の不備',
+    },
+    patch: {
+      message: `フォーム項目に入力エラーがあります`,
+      description: '入力内容の不備',
+    },
+    post: {
+      message: `フォーム項目に入力エラーがあります`,
+      description: '入力内容の不備',
+    },
+  }
+
+  // その他エラー発生時のエラーメッセージ
+  private static readonly INTERNAL_SERVER_ERROR_MESSAGE = {
+    get: {
+      message: `検索条件に入力エラーがあります`,
+      description: '検索条件の不備',
+    },
+    post: {
+      message: `フォーム項目に入力エラーがあります`,
+      description: '入力内容の不備',
+    },
+    patch: {
+      message: `フォーム項目に入力エラーがあります`,
+      description: '入力内容の不備',
+    },
+  }
 
   set error(setError: UseFormSetError<TFieldValues>) {
     this.setError = setError
   }
 
+  /**
+   * フォームSubmit結果にエラーが発生した時の通知内容です。
+   *
+   * @param data RestAPI結果
+   */
   public notification = (data: HttpError | undefined): OpenNotificationParams | false => {
-    // ※アロー関数の理由: メソッドを参照だけして呼び出しが後なのでthis消失問題を回避するため
-
+    // ※アロー関数の理由: メソッドを参照だけして呼び出しが後なのでアローにしないとthis消失問題が発生する
+    const method = data?.config?.method as 'get' | 'patch' | 'post'
     // ログイン画面へそのまま遷移するためtoastは表示しない
     if (data?.statusCode === HTTP_STATUS.UNAUTHORIZED) {
       return false
@@ -62,26 +99,22 @@ export class QueryFormErrorNotification<TFieldValues extends FieldValues> {
       }
 
       return {
-        message: `検索条件に入力エラーがあります`,
-        description: '検索条件の不備',
+        ...FormSubmitErrorNotification.BAD_REQUEST_MESSAGE[method || 'get'],
         type: 'error',
       }
     }
 
     return {
-      message: `システム・環境の不備により検索を正常に実行できませんでした`,
-      description: '検索に失敗しました',
+      ...FormSubmitErrorNotification.INTERNAL_SERVER_ERROR_MESSAGE[method || 'get'],
       type: 'error',
     }
   }
 }
 
 /**
- * 各pageコンポーネントから利用するAPI実行結果向けのエラーハンドラです。
- * <pre>
- *  一覧検索以外の
- * <pre>
- * @param error
+ * 詳細画面や更新画面などの詳細情報API取得結果に対して利用するエラーハンドラです。
+ *
+ * @param error APIエラー結果
  */
 export const handleApiError = (error: unknown) => {
   if ((error as any)?.statusCode === HTTP_STATUS.NOT_FOUND) {

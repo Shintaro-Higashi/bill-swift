@@ -3,15 +3,16 @@
 import { Edit } from '@refinedev/mui'
 import { useForm } from '@refinedev/react-hook-form'
 import { HttpError } from '@refinedev/core'
-import { CompanyEditingForm, CompanyEditingSchema, CompanyModel } from '@/types'
+import { CompanyCreationForm, CompanyEditingForm, CompanyEditingSchema, CompanyModel } from '@/types'
 import React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useConfirm from '@/core/hooks/useConfirm'
-import { handleApiError, setTitle } from '@/core/utils/refineUtil'
+import { FormSubmitErrorNotification, handleApiError, setTitle } from '@/core/utils/refineUtil'
 import { CompanySaveForm } from '@components/domains/companies/companySaveForm'
 
 const EditPage: React.FC = () => {
   setTitle()
+  const errorNotification = new FormSubmitErrorNotification<CompanyEditingForm>()
   const {
     saveButtonProps,
     refineCore: { queryResult, formLoading },
@@ -19,6 +20,7 @@ const EditPage: React.FC = () => {
     handleSubmit,
     control,
     formState: { errors },
+    setError,
   } = useForm<CompanyModel, HttpError, CompanyEditingForm>({
     resolver: zodResolver(CompanyEditingSchema),
   })
@@ -27,7 +29,7 @@ const EditPage: React.FC = () => {
     const { error } = queryResult
     handleApiError(error)
   }
-
+  errorNotification.error = setError
   const { $confirm } = useConfirm()
 
   const handleEdit = (e: any) => {

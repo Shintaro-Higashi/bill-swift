@@ -7,11 +7,12 @@ import { AccountManageEditingForm, AccountManageEditingSchema, AccountManageMode
 import React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useConfirm from '@/core/hooks/useConfirm'
-import { handleApiError, setTitle } from '@/core/utils/refineUtil'
+import { FormSubmitErrorNotification, handleApiError, setTitle } from '@/core/utils/refineUtil'
 import { AccountManageSaveForm } from '@/components/domains/accountManages/accountManageSaveForm'
 
 const EditPage: React.FC = () => {
   setTitle()
+  const errorNotification = new FormSubmitErrorNotification<AccountManageEditingForm>()
   const {
     saveButtonProps,
     refineCore: { queryResult, formLoading },
@@ -19,15 +20,19 @@ const EditPage: React.FC = () => {
     handleSubmit,
     control,
     formState: { errors },
+    setError,
   } = useForm<AccountManageModel, HttpError, AccountManageEditingForm>({
     resolver: zodResolver(AccountManageEditingSchema),
+    refineCoreProps: {
+      errorNotification: errorNotification.notification,
+    },
   })
 
   if (queryResult) {
     const { error } = queryResult
     handleApiError(error)
   }
-
+  errorNotification.error = setError
   const { $confirm } = useConfirm()
 
   const handleEdit = (e: any) => {

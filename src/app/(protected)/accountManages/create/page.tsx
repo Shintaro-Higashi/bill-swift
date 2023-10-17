@@ -7,11 +7,12 @@ import { AccountManageCreationForm, AccountManageCreationSchema } from '@/types'
 import React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useConfirm from '@/core/hooks/useConfirm'
-import { setTitle } from '@/core/utils/refineUtil'
+import { FormSubmitErrorNotification, setTitle } from '@/core/utils/refineUtil'
 import { AccountManageSaveForm } from '@/components/domains/accountManages/accountManageSaveForm'
 
 const CreatePage: React.FC = () => {
   setTitle()
+  const errorNotification = new FormSubmitErrorNotification<AccountManageCreationForm>()
   const {
     saveButtonProps,
     refineCore: { formLoading },
@@ -19,10 +20,14 @@ const CreatePage: React.FC = () => {
     handleSubmit,
     control,
     formState: { errors },
+    setError,
   } = useForm<BaseRecord, HttpError, AccountManageCreationForm>({
     resolver: zodResolver(AccountManageCreationSchema),
+    refineCoreProps: {
+      errorNotification: errorNotification.notification,
+    },
   })
-
+  errorNotification.error = setError
   const { $confirm } = useConfirm()
 
   const handleCreate = (e: React.BaseSyntheticEvent | any) => {

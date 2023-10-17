@@ -13,7 +13,7 @@ import { DateField, EditButton, List, useDataGrid } from '@refinedev/mui'
 import { useForm } from '@refinedev/react-hook-form'
 import React from 'react'
 import { DATE_FORMAT, QUERY_FORM_HINT } from '@/core/configs/constants'
-import { QueryFormErrorNotification, setTitle } from '@/core/utils/refineUtil'
+import { FormSubmitErrorNotification, setTitle } from '@/core/utils/refineUtil'
 import { uniqueId } from 'lodash'
 import SearchIcon from '@mui/icons-material/Search'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -28,7 +28,7 @@ import { RubyItem } from '@components/core/content/rubyItem'
 const ListPage: React.FC = () => {
   setTitle()
   const Link = useLink()
-  const errorNotification = new QueryFormErrorNotification()
+  const errorNotification = new FormSubmitErrorNotification()
   const { dataGridProps, filters, search } = useDataGrid<CompanyModel, HttpError, CompanyQueryRequest>({
     syncWithLocation: true,
     onSearch: (query) => {

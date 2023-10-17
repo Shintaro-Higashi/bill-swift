@@ -1,10 +1,10 @@
 import parentAdminRoute from '@/core/configs/routes/settingGroupRoute'
+import healthFacilitiesRoute from '@/core/configs/routes/healthFacilitiesRoute'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { ResourceProps } from '@refinedev/core'
-import pharmacyRoute from '@/core/configs/routes/pharmacyRoute'
 
 const name = 'users'
-const order = pharmacyRoute.meta?.order
+const order = healthFacilitiesRoute.meta?.order + 1
 /**
  * ユーザ管理リソース情報です
  */

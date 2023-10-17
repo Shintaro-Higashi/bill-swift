@@ -7,11 +7,12 @@ import { PharmacyEditingForm, PharmacyEditingSchema, PharmacyModel } from '@/typ
 import React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useConfirm from '@/core/hooks/useConfirm'
-import { handleApiError, setTitle } from '@/core/utils/refineUtil'
+import { handleApiError, FormSubmitErrorNotification, setTitle } from '@/core/utils/refineUtil'
 import { PharmacySaveForm } from '@components/domains/pharmacies/pharmacySaveForm'
 
 const EditPage: React.FC = () => {
   setTitle()
+  const errorNotification = new FormSubmitErrorNotification<PharmacyEditingForm>()
   const {
     saveButtonProps,
     refineCore: { queryResult, formLoading },
@@ -19,9 +20,15 @@ const EditPage: React.FC = () => {
     handleSubmit,
     control,
     formState: { errors },
+    setError,
   } = useForm<PharmacyModel, HttpError, PharmacyEditingForm>({
+    shouldUseNativeValidation: false,
     resolver: zodResolver(PharmacyEditingSchema),
+    refineCoreProps: {
+      errorNotification: errorNotification.notification,
+    },
   })
+  errorNotification.error = setError
 
   if (queryResult) {
     const { error } = queryResult

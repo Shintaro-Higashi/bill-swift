@@ -1,9 +1,10 @@
 import settingGroupRoute from '@/core/configs/routes/settingGroupRoute'
 import StoreIcon from '@mui/icons-material/Store'
 import { ResourceProps } from '@refinedev/core'
+import accountManageRoute from '@/core/configs/routes/accountManageRoute'
 
 const name = 'pharmacies'
-const order = settingGroupRoute.meta?.order + 1
+const order = accountManageRoute.meta?.order + 1
 /**
  * 店舗管理リソース情報です
  */
