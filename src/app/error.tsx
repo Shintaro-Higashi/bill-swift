@@ -1,36 +1,22 @@
 'use client'
 
 import { useEffect } from 'react'
+import { ThemedLayoutV2 } from '@refinedev/mui'
+import Button from '@mui/material/Button'
 
 /**
  * フロント側のグローバルエラーページです。
  */
-
-// export default function Error() {
-//   return (
-//     <ThemedLayoutV2>
-//       <ErrorComponent />
-//     </ThemedLayoutV2>
-//   )
-// }
-
 export default function Error({ error, reset }: { error: Error; reset: () => void }) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error(error)
+    console.error('global-error-page', error)
   }, [error])
 
   return (
-    <div>
-      <h2>Something went wrong!</h2>
-      <button
-        onClick={
-          // Attempt to recover by trying to re-render the segment
-          () => reset()
-        }
-      >
-        Try again
-      </button>
-    </div>
+    <ThemedLayoutV2>
+      <h2>予期せぬエラーが発生しました</h2>
+      <p>問題が解決しない場合はサポートまでご連絡ください</p>
+      <Button onClick={() => reset()}>もう一度処理を続行する</Button>
+    </ThemedLayoutV2>
   )
 }

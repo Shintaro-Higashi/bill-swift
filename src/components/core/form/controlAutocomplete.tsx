@@ -2,6 +2,8 @@ import { Controller, Control } from 'react-hook-form'
 import React from 'react'
 import { useAutocomplete } from '@refinedev/mui'
 import { TextField, Autocomplete } from '@mui/material'
+import { HttpError, OpenNotificationParams } from '@refinedev/core'
+import { HTTP_STATUS } from '@/core/configs/constants'
 
 /**
  * ControlAutocompleteプロパティ（※汎用的なコンポーネントにするため、部分的にanyを利用）
@@ -29,6 +31,28 @@ type Props = {
   optionLabel?: (option: any) => string
   /** 読み取り専用有無 */
   readOnly?: boolean
+}
+
+/**
+ * AutoCompleteで利用するリソース情報の取得に失敗した場合の通知定義です。
+ * <pre>
+ *  エラーメッセージをどの項目で発生したか分かるように通知内容に表示します。
+ * </pre>
+ * @param data
+ * @param resource
+ */
+const resourceAutoCompleteErrorNotification = (
+  data: HttpError | undefined,
+  resource: string,
+): false | OpenNotificationParams => {
+  if (data?.statusCode === HTTP_STATUS.UNAUTHORIZED) {
+    return false
+  }
+  return {
+    message: `サーバから${resource}情報を正常に取得できませんでした`,
+    description: `${resource}リスト取得エラー`,
+    type: 'error',
+  }
 }
 
 /**
@@ -85,6 +109,7 @@ export const ControlAutocomplete = (props: Props) => {
         value,
       },
     ],
+    errorNotification: (data) => resourceAutoCompleteErrorNotification(data, label),
   })
 
   return (

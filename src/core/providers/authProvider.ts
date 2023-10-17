@@ -111,14 +111,14 @@ export const authProvider: AuthBindings = {
     }
   },
   /**
-   * エラー発生時の処理です。
+   * RestAPIエラー発生時の処理です。
    * <pre>
-   *  認証以外のエラーもcallされます。
+   *  本ハンドラでリダイレクト以外のエラー処理(エラーページを表示するなど)を実装することはできないため、
+   *  認証エラー時のログイン画面のみを実装しています。
    * </pre>
    * @param error
    */
   onError: async (error) => {
-    console.log('エラー発生', error)
     if (error && error.statusCode === 401) {
       return {
         error: new Error('認証が必要です'),
@@ -126,7 +126,6 @@ export const authProvider: AuthBindings = {
         redirectTo: '/login',
       }
     }
-
     return {}
   },
   /**

@@ -42,7 +42,7 @@ export const fetchPagedHealthFacilities = async (
  * @return 施設情報
  */
 export const fetchHealthFacility = async (id: string) => {
-  return await prisma.healthFacility.findUnique({
+  return await prisma.healthFacility.findUniqueOrThrow({
     where: { id: id, existence: true },
     include: {
       pharmacy: { include: { pharmacyGroup: { select: { name: true } } } },

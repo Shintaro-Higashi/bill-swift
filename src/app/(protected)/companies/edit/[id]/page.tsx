@@ -7,9 +7,7 @@ import { CompanyEditingForm, CompanyEditingSchema, CompanyModel } from '@/types'
 import React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useConfirm from '@/core/hooks/useConfirm'
-import { notFound } from 'next/navigation'
-import { HTTP_STATUS } from '@/core/configs/constants'
-import { setTitle } from '@/core/utils/refineUtil'
+import { handleApiError, setTitle } from '@/core/utils/refineUtil'
 import { CompanySaveForm } from '@components/domains/companies/companySaveForm'
 
 const EditPage: React.FC = () => {
@@ -27,9 +25,7 @@ const EditPage: React.FC = () => {
 
   if (queryResult) {
     const { error } = queryResult
-    if ((error as any)?.statusCode === HTTP_STATUS.NOT_FOUND) {
-      notFound()
-    }
+    handleApiError(error)
   }
 
   const { $confirm } = useConfirm()

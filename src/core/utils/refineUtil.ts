@@ -1,6 +1,7 @@
 import { HTTP_STATUS } from '@/core/configs/constants'
 import { HttpError, OpenNotificationParams } from '@refinedev/core'
 import { FieldValues, UseFormSetError } from 'react-hook-form'
+import { notFound } from 'next/navigation'
 
 /**
  * ページタイトルを設定します。
@@ -41,15 +42,12 @@ export class QueryFormErrorNotification<TFieldValues extends FieldValues> {
     this.setError = setError
   }
 
-  public notification = (data: HttpError | undefined): OpenNotificationParams => {
+  public notification = (data: HttpError | undefined): OpenNotificationParams | false => {
     // ※アロー関数の理由: メソッドを参照だけして呼び出しが後なのでthis消失問題を回避するため
 
+    // ログイン画面へそのまま遷移するためtoastは表示しない
     if (data?.statusCode === HTTP_STATUS.UNAUTHORIZED) {
-      return {
-        message: `再度ログイン後に検索を実施してください`,
-        description: 'ログイン有効期限切れ',
-        type: 'error',
-      }
+      return false
     }
     if (data?.statusCode === HTTP_STATUS.FORBIDDEN) {
       return {
@@ -71,9 +69,25 @@ export class QueryFormErrorNotification<TFieldValues extends FieldValues> {
     }
 
     return {
-      message: `正常に検索を実地できませんでした`,
-      description: 'Error',
+      message: `システム・環境の不備により検索を正常に実行できませんでした`,
+      description: '検索に失敗しました',
       type: 'error',
     }
+  }
+}
+
+/**
+ * 各pageコンポーネントから利用するAPI実行結果向けのエラーハンドラです。
+ * <pre>
+ *  一覧検索以外の
+ * <pre>
+ * @param error
+ */
+export const handleApiError = (error: unknown) => {
+  if ((error as any)?.statusCode === HTTP_STATUS.NOT_FOUND) {
+    notFound()
+  }
+  if ((error as any)?.statusCode === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
+    throw new Error('handleApiError')
   }
 }

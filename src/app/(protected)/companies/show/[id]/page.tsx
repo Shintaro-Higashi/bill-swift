@@ -2,12 +2,9 @@
 
 import { Button, Stack } from '@mui/material'
 import { useLink, useShow } from '@refinedev/core'
-import { CloneButton, Show } from '@refinedev/mui'
+import { Show } from '@refinedev/mui'
 import React from 'react'
-
-import { notFound } from 'next/navigation'
-import { HTTP_STATUS } from '@/core/configs/constants'
-import { setTitle } from '@/core/utils/refineUtil'
+import { handleApiError, setTitle } from '@/core/utils/refineUtil'
 import { CompanyModel } from '@/types'
 import { FieldItem } from '@components/core/content/FieldItem'
 import { formatDateTime } from '@/core/utils/dateUtil'
@@ -21,18 +18,11 @@ const ShowPage: React.FC = () => {
   const { data, isLoading, error } = queryResult
   const record = data?.data
   const Link = useLink()
-  if ((error as any)?.statusCode === HTTP_STATUS.NOT_FOUND) {
-    notFound()
-  }
+  handleApiError(error)
+
   return (
     <Show
       isLoading={isLoading && !record}
-      headerButtons={({ defaultButtons }) => (
-        <>
-          {defaultButtons}
-          <CloneButton disabled={isLoading} />
-        </>
-      )}
       footerButtons={() => (
         <Stack direction='row' justifyContent='flex-end' sx={{ width: 1, margin: 0, padding: 0 }}>
           <Button

@@ -34,10 +34,13 @@ export const forbiddenErrorResponse = (message: string = 'アクセス権限が�
  * @return HTTPレスポンス
  */
 export const badRequestErrorResponse = (zodError: ZodError) => {
-  return new NextResponse(JSON.stringify({ success: false, message: 'Bad Request', error: zodError.issues }), {
-    status: HTTP_STATUS.BAD_REQUEST,
-    headers,
-  })
+  return new NextResponse(
+    JSON.stringify({ success: false, message: '入力情報に誤りがあります', error: zodError.issues }),
+    {
+      status: HTTP_STATUS.BAD_REQUEST,
+      headers,
+    },
+  )
 }
 
 /**

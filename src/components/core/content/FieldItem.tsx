@@ -22,6 +22,7 @@ type Props = {
  * 詳細画面などで利用する項目名と項目値を出力します。
  */
 export const FieldItem = (props: Props) => {
+  const { defaultValue = '' } = props
   const { mode } = useContext(ThemeContext)
   return (
     <Box>
@@ -40,8 +41,8 @@ export const FieldItem = (props: Props) => {
         </Box>
         {props.label}
       </Typography>
-      <Typography variant='body1' sx={{ whiteSpace: 'pre-wrap' }}>
-        {props?.value ?? props?.defaultValue ?? ' '}
+      <Typography variant='body1' minHeight='24px' sx={{ whiteSpace: 'pre-wrap' }}>
+        {props.value == null || props.value === '' ? defaultValue : props.value}
       </Typography>
       {props?.helperText ? (
         <Typography

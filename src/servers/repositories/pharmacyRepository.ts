@@ -56,7 +56,7 @@ export const fetchPagedPharmacies = async (params: PharmacyQueryDto): Promise<Pa
  * @return 店舗情報
  */
 export const fetchPharmacy = async (id: string) => {
-  return await prisma.pharmacy.findUnique({
+  return await prisma.pharmacy.findUniqueOrThrow({
     where: { id: id, existence: true },
     include: {
       company: true,

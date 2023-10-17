@@ -2,11 +2,9 @@
 
 import { Box, Stack } from '@mui/material'
 import { useShow } from '@refinedev/core'
-import { CloneButton, Show } from '@refinedev/mui'
+import { Show } from '@refinedev/mui'
 import React from 'react'
-import { notFound } from 'next/navigation'
-import { HTTP_STATUS } from '@/core/configs/constants'
-import { setTitle } from '@/core/utils/refineUtil'
+import { handleApiError, setTitle } from '@/core/utils/refineUtil'
 import { HealthFacilityModel } from '@/types'
 import { FieldItem } from '@components/core/content/FieldItem'
 import { formatDateTime } from '@/core/utils/dateUtil'
@@ -23,9 +21,7 @@ const ShowPage: React.FC = () => {
   const { queryResult } = useShow<HealthFacilityModel>({ errorNotification: false })
   const { data, isLoading, error } = queryResult
   const record = data?.data
-  if ((error as any)?.statusCode === HTTP_STATUS.NOT_FOUND) {
-    notFound()
-  }
+  handleApiError(error)
 
   /** 店舗変更履歴データを取得 */
   let tableBodyRows: any[] = []
@@ -55,15 +51,7 @@ const ShowPage: React.FC = () => {
   }
 
   return (
-    <Show
-      isLoading={isLoading && !record}
-      headerButtons={({ defaultButtons }) => (
-        <>
-          {defaultButtons}
-          <CloneButton disabled={isLoading} />
-        </>
-      )}
-    >
+    <Show isLoading={isLoading && !record}>
       <Stack gap={1} sx={{ mb: 2 }}>
         <FieldItem
           label='担当店舗'

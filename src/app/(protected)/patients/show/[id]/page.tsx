@@ -4,10 +4,7 @@ import { Box, Chip, Paper, Stack } from '@mui/material'
 import { useShow } from '@refinedev/core'
 import { Show } from '@refinedev/mui'
 import React from 'react'
-
-import { notFound } from 'next/navigation'
-import { HTTP_STATUS } from '@/core/configs/constants'
-import { setTitle } from '@/core/utils/refineUtil'
+import { handleApiError, setTitle } from '@/core/utils/refineUtil'
 import { PatientModel } from '@/types'
 import { FieldItem } from '@components/core/content/FieldItem'
 import { formatDate } from '@/core/utils/dateUtil'
@@ -86,9 +83,8 @@ const ShowPage: React.FC = () => {
   const { data, isLoading, error } = queryResult
   const record = data?.data
   // const Link = useLink()
-  if ((error as any)?.statusCode === HTTP_STATUS.NOT_FOUND) {
-    notFound()
-  }
+  handleApiError(error)
+
   return (
     <Show isLoading={isLoading && !record}>
       <Grid container spacing={2}>
