@@ -1,8 +1,8 @@
 import { queryToObject } from '@/core/utils/commonUtil'
-import { AccountManageQueryRequest, AccountManageQuerySchema } from '@/types'
+import { AccountManageCreationSchema, AccountManageQueryRequest, AccountManageQuerySchema } from '@/types'
 import { NextRequest, NextResponse } from 'next/server'
 import { performRequest } from '@/core/utils/requestUtil'
-import { fetchPagedAccountManages } from '@/servers/repositories/accountManageRepository'
+import { createAccountManage, fetchPagedAccountManages } from '@/servers/repositories/accountManageRepository'
 
 /**
  * 口座管理リストを取得するAPIです。
@@ -15,4 +15,20 @@ export async function GET(req: NextRequest) {
     const response = await fetchPagedAccountManages(parseQuery)
     return NextResponse.json(response)
   })
+}
+
+/**
+ * 口座管理を作成するAPIです。
+ * @param req リクエスト情報
+ */
+export async function POST(req: NextRequest) {
+  return await performRequest(
+    async () => {
+      const createData = await req.json()
+      const parsedCreateData = AccountManageCreationSchema.parse(createData)
+      const response = await createAccountManage(parsedCreateData)
+      return NextResponse.json(response)
+    },
+    { action: 'create' },
+  )
 }

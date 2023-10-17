@@ -1,7 +1,7 @@
 /** 口座種別 */
 export const ACCOUNT_TYPE = {
-  '0': '普通',
-  '1': '当座',
+  SAVINGS: '普通',
+  CURRENT: '当座',
 } as const
 
 /** 口座種別Enum */

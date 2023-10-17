@@ -42,7 +42,7 @@ export const performRequest = async (cb: Function, option?: { action: string }) 
     // pathname'は/api/companies/0000000000000000000C0001'　等の値
     const pathname = headers().get('x-pathname')
     if (pathname && option?.action) {
-      const resourceName = pathname.split('/')[2]
+      const resourceName = pathname.split('/')[2].toLowerCase()
       const hasRole = await validRole(resourceName, option.action)
       if (!hasRole) {
         return forbiddenErrorResponse()

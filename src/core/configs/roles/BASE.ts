@@ -12,6 +12,13 @@ const BASE_ROLE = {
     edit: false,
     archive: false,
   },
+  // 口座管理
+  accountmanages: {
+    read: true,
+    create: false,
+    edit: false,
+    archive: false,
+  },
   // 店舗
   pharmacies: {
     read: true,

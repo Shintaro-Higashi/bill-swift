@@ -2,8 +2,7 @@ import { z } from 'zod'
 import { paginationQuerySchema } from '@/types/schema/pagination'
 import { zNullishString, zOptionalString, zRequiredString } from '@/types/schema/base/zSchemaString'
 import { validateFixedLength, validateFixedLengthMessage } from '@/core/validators/validateFixedLength'
-import createUnionSchema from '@/core/utils/zodUtil'
-import { ACCOUNT_TYPE_KEY_LIST } from '@/shared/items/accountType'
+import { AccountManageAccountType } from '.prisma/client'
 
 // 口座管理検索クエリスキーマ
 export const AccountManageQuerySchema = z
@@ -16,12 +15,30 @@ export const AccountManageQuerySchema = z
   })
   .partial()
 
+const AccountTypeEnum = z.nativeEnum(AccountManageAccountType)
+const dateValidMessage = '毎月処理が可能な日（1～28）を数字のみで入力してください'
 // 口座管理作成スキーマ
 export const AccountManageCreationSchema = z.object({
   // 管理口座名
   name: zRequiredString(64),
   // 振替日
-  transferDate: z.coerce.number().positive().int().nullish(),
+  transferDate: z.preprocess(
+    (v) => {
+      if (!v) return null
+      return Number(v)
+    },
+    z
+      .number({ invalid_type_error: dateValidMessage })
+      .nullish()
+      .refine((v) => {
+        if (!v) return true
+        if (Number.isInteger(v)) {
+          return 1 <= v && v <= 28
+        } else {
+          return false
+        }
+      }, dateValidMessage),
+  ),
   // 金融機関コード
   financialCode: zNullishString().refine((v) => validateFixedLength(v, 4), validateFixedLengthMessage(4)),
   // 金融機関名
@@ -31,7 +48,7 @@ export const AccountManageCreationSchema = z.object({
   // 支店名
   branchName: zNullishString(128),
   // 口座種別
-  accountType: createUnionSchema(ACCOUNT_TYPE_KEY_LIST).nullish(),
+  accountType: AccountTypeEnum.nullish(),
   // 口座番号
   accountNo: zNullishString(7),
   // 口座名義

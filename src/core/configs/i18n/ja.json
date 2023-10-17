@@ -149,6 +149,15 @@
       "clone": "会社複製作成"
     }
   },
+  "accountManages": {
+    "accountManages": "口座管理",
+    "titles": {
+      "list": "口座情報一覧",
+      "show": "口座情報詳細",
+      "edit": "口座情報編集",
+      "create": "口座情報作成"
+    }
+  },
   "pharmacies": {
     "pharmacies": "店舗",
     "titles": {
