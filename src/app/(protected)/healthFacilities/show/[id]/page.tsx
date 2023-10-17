@@ -15,7 +15,6 @@ import { BasicTable } from '@/components/core/content/basicTable'
 import HistoryIcon from '@mui/icons-material/History'
 import { getBillingTypeValue } from '@/shared/items/billingType'
 import { getHealthFacilityPaymentTypeValue } from '@/shared/items/healthFacilityPaymentType'
-import { getTransferGuideValue } from '@/shared/items/transferGuide'
 import { joinString } from '@/core/utils/commonUtil'
 import { RubyItem } from '@components/core/content/rubyItem'
 
@@ -84,7 +83,7 @@ const ShowPage: React.FC = () => {
         <FieldItem label='URL' value={record?.url} />
         <FieldItem label='請求種別' value={getBillingTypeValue(record?.billingType, ' ')} />
         <FieldItem label='支払い種別' value={getHealthFacilityPaymentTypeValue(record?.paymentType, ' ')} />
-        <FieldItem label='振込案内' value={getTransferGuideValue(record?.transferGuide, ' ')} />
+        <FieldItem label='振込口座' value={record?.accountManage?.name} />
         <FieldItem label='患者ソート種別' value={getPatientSortTypeValue(record?.patientSortType, ' ')} />
         <FieldItem label='備考' value={record?.note} />
         <FieldItem label='作成日時' value={formatDateTime(record?.createdAt)} />

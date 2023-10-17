@@ -2,12 +2,11 @@ import { z } from 'zod'
 import { paginationQuerySchema } from '@/types/schema/pagination'
 import { PATIENT_SORT_TYPE_KEY_LIST } from '@/shared/items/patientSortType'
 import createUnionSchema from '@/core/utils/zodUtil'
-import { zNullishString, zOptionalString, zRequiredString } from './base/zSchemaString'
+import { zNullishString, zOptionalString, zRequiredString, zStringSelectMessage } from './base/zSchemaString'
 import { validatePostalCode, validatePostalCodeMessage } from '@/core/validators/validatePostalCode'
 import { validateTel, validateTelMessage } from '@/core/validators/validateTel'
 import { BILLING_TYPE_KEY_LIST } from '@/shared/items/billingType'
 import { HEALTH_FACILITY_PAYMENT_TYPE_KEY_LIST } from '@/shared/items/healthFacilityPaymentType'
-import { TRANSFER_GUIDE_KEY_LIST } from '@/shared/items/transferGuide'
 import { validateEmailMessage, validateUrlMessage } from '@/core/configs/i18n/zodErrorMapJp'
 
 // 施設検索クエリスキーマ
@@ -53,8 +52,8 @@ export const HealthFacilityCreationSchema = z.object({
   billingType: zRequiredString().pipe(createUnionSchema(BILLING_TYPE_KEY_LIST)),
   // 支払い種別
   paymentType: zRequiredString().pipe(createUnionSchema(HEALTH_FACILITY_PAYMENT_TYPE_KEY_LIST)),
-  // 振込案内
-  transferGuide: zRequiredString().pipe(createUnionSchema(TRANSFER_GUIDE_KEY_LIST)),
+  // 口座管理ID
+  accountManageId: zNullishString(),
   // 患者ソート種別
   patientSortType: zRequiredString().pipe(createUnionSchema(PATIENT_SORT_TYPE_KEY_LIST)),
   // 備考

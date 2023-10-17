@@ -50,6 +50,7 @@ export const fetchHealthFacility = async (id: string) => {
         include: { pharmacy: { include: { pharmacyGroup: { select: { name: true } } } } },
         orderBy: { startDate: 'desc' },
       },
+      accountManage: true,
       createdUser: true,
       updatedUser: true,
     },

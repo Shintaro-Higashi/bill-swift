@@ -159,7 +159,7 @@ CREATE TABLE health_facility (
   , url VARCHAR(255) COMMENT 'URL'
   , billing_type enum('BATCH', 'INDIVIDUAL', 'OTHER') COMMENT '請求種別:BATCH: 一括請求, INDIVIDUAL: 個人請求, OTHER: その他'
   , payment_type enum('CASH', 'WITHDRAWAL', 'TRANSFER', 'OTHER')  COMMENT '支払い種別:CASH: 現金, WITHDRAWAL: 引落（振替）, TRANSFER: 振込, OTHER: その他'
-  , transfer_guide enum('MIZUHO', 'RISONA', 'JA', 'OTHER') COMMENT '振込案内:MIZUHO: みずほ, RISONA: りそな, JA: JA, OTHER: その他'
+  , account_manage_id VARCHAR(64) COMMENT '振込用口座管理ID'
   , patient_sort_type enum('NAME', 'CODE', 'OTHER') DEFAULT 'NAME' NOT NULL COMMENT '患者ソート種別:NAME=名前順, CODE=患者コード順, OTHER=その他（持っている情報では単純にソートできない場合'
   , note TEXT COMMENT '備考'
   , created_at TIMESTAMP NULL DEFAULT NULL COMMENT '登録日時'
@@ -460,6 +460,8 @@ ALTER TABLE health_facility_relate_pharmacy
 -- 施設
 ALTER TABLE health_facility
   ADD CONSTRAINT health_facility_FK1 FOREIGN KEY (pharmacy_id) REFERENCES pharmacy(id);
+ALTER TABLE health_facility
+  ADD CONSTRAINT health_facility_FK2 FOREIGN KEY (account_manage_id) REFERENCES account_manage(id);
 ALTER TABLE health_facility
   ADD CONSTRAINT health_facility_FK_created_by FOREIGN KEY (created_by) REFERENCES user(id);
 ALTER TABLE health_facility

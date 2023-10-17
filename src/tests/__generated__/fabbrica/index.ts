@@ -20,7 +20,6 @@ import type { User } from "@prisma/client";
 import type { AccountManageAccountType } from "@prisma/client";
 import type { HealthFacilityBillingType } from "@prisma/client";
 import type { HealthFacilityPaymentType } from "@prisma/client";
-import type { HealthFacilityTransferGuide } from "@prisma/client";
 import type { HealthFacilityPatientSortType } from "@prisma/client";
 import type { HealthFacilityCodeGroupFormatType } from "@prisma/client";
 import type { InquiryStatus } from "@prisma/client";
@@ -53,6 +52,10 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "updatedUser",
                 type: "User",
                 relationName: "account_manage_updated_byTouser"
+            }, {
+                name: "healthFacility",
+                type: "HealthFacility",
+                relationName: "AccountManageToHealthFacility"
             }, {
                 name: "patient",
                 type: "Patient",
@@ -91,6 +94,10 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "pharmacy",
                 type: "Pharmacy",
                 relationName: "HealthFacilityToPharmacy"
+            }, {
+                name: "accountManage",
+                type: "AccountManage",
+                relationName: "AccountManageToHealthFacility"
             }, {
                 name: "createdUser",
                 type: "User",
@@ -622,6 +629,7 @@ type AccountManageFactoryDefineInput = {
     existence?: boolean | null;
     createdUser?: AccountManagecreatedUserFactory | Prisma.UserCreateNestedOneWithoutAccountManageAccountManageCreatedByTouserInput;
     updatedUser?: AccountManageupdatedUserFactory | Prisma.UserCreateNestedOneWithoutAccountManageAccountManageUpdatedByTouserInput;
+    healthFacility?: Prisma.HealthFacilityCreateNestedManyWithoutAccountManageInput;
     patient?: Prisma.PatientCreateNestedManyWithoutAccountManageInput;
     pharmacyTransfer?: Prisma.PharmacyCreateNestedManyWithoutTransferAccountManageInput;
     pharmacyWithdrawal?: Prisma.PharmacyCreateNestedManyWithoutWithdrawalAccountManageInput;
@@ -921,6 +929,11 @@ type HealthFacilitypharmacyFactory = {
     build: () => PromiseLike<Prisma.PharmacyCreateNestedOneWithoutHealthFacilityInput["create"]>;
 };
 
+type HealthFacilityaccountManageFactory = {
+    _factoryFor: "AccountManage";
+    build: () => PromiseLike<Prisma.AccountManageCreateNestedOneWithoutHealthFacilityInput["create"]>;
+};
+
 type HealthFacilitycreatedUserFactory = {
     _factoryFor: "User";
     build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutHealthFacilityCreatedUserInput["create"]>;
@@ -946,7 +959,6 @@ type HealthFacilityFactoryDefineInput = {
     url?: string | null;
     billingType?: HealthFacilityBillingType | null;
     paymentType?: HealthFacilityPaymentType | null;
-    transferGuide?: HealthFacilityTransferGuide | null;
     patientSortType?: HealthFacilityPatientSortType;
     note?: string | null;
     createdAt?: Date | null;
@@ -954,6 +966,7 @@ type HealthFacilityFactoryDefineInput = {
     deletedAt?: Date | null;
     existence?: boolean | null;
     pharmacy: HealthFacilitypharmacyFactory | Prisma.PharmacyCreateNestedOneWithoutHealthFacilityInput;
+    accountManage?: HealthFacilityaccountManageFactory | Prisma.AccountManageCreateNestedOneWithoutHealthFacilityInput;
     createdUser?: HealthFacilitycreatedUserFactory | Prisma.UserCreateNestedOneWithoutHealthFacilityCreatedUserInput;
     updatedUser?: HealthFacilityupdatedUserFactory | Prisma.UserCreateNestedOneWithoutHealthFacilityUpdatedUserInput;
     healthFacilityCodeManage?: Prisma.HealthFacilityCodeManageCreateNestedManyWithoutHealthFacilityInput;
@@ -974,6 +987,10 @@ type HealthFacilityFactoryDefineOptions = {
 
 function isHealthFacilitypharmacyFactory(x: HealthFacilitypharmacyFactory | Prisma.PharmacyCreateNestedOneWithoutHealthFacilityInput | undefined): x is HealthFacilitypharmacyFactory {
     return (x as any)?._factoryFor === "Pharmacy";
+}
+
+function isHealthFacilityaccountManageFactory(x: HealthFacilityaccountManageFactory | Prisma.AccountManageCreateNestedOneWithoutHealthFacilityInput | undefined): x is HealthFacilityaccountManageFactory {
+    return (x as any)?._factoryFor === "AccountManage";
 }
 
 function isHealthFacilitycreatedUserFactory(x: HealthFacilitycreatedUserFactory | Prisma.UserCreateNestedOneWithoutHealthFacilityCreatedUserInput | undefined): x is HealthFacilitycreatedUserFactory {
@@ -1037,6 +1054,9 @@ function defineHealthFacilityFactoryInternal<TOptions extends HealthFacilityFact
                 pharmacy: isHealthFacilitypharmacyFactory(defaultData.pharmacy) ? {
                     create: await defaultData.pharmacy.build()
                 } : defaultData.pharmacy,
+                accountManage: isHealthFacilityaccountManageFactory(defaultData.accountManage) ? {
+                    create: await defaultData.accountManage.build()
+                } : defaultData.accountManage,
                 createdUser: isHealthFacilitycreatedUserFactory(defaultData.createdUser) ? {
                     create: await defaultData.createdUser.build()
                 } : defaultData.createdUser,

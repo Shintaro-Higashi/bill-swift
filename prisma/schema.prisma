@@ -34,6 +34,7 @@ model AccountManage {
   existence                                                Boolean?
   createdUser                         User?                     @relation("account_manage_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK_created_by")
   updatedUser                         User?                     @relation("account_manage_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK_updated_by")
+  healthFacility                                           HealthFacility[]
   patient                                                  Patient[]
   pharmacyTransfer   Pharmacy[]                @relation("pharmacy_transfer_account_manage_idToaccount_manage")
   pharmacyWithdrawal Pharmacy[]                @relation("pharmacy_withdrawal_account_manage_idToaccount_manage")
@@ -89,7 +90,7 @@ model HealthFacility {
   url                               String?                        @db.VarChar(255)
   billingType                       HealthFacilityBillingType?     @map("billing_type")
   paymentType                       HealthFacilityPaymentType?     @map("payment_type")
-  transferGuide                     HealthFacilityTransferGuide?   @map("transfer_guide")
+  accountManageId                   String?                        @map("account_manage_id") @db.VarChar(64)
   patientSortType                   HealthFacilityPatientSortType  @default(NAME) @map("patient_sort_type")
   note                              String?                        @db.Text
   createdAt                         DateTime?                      @map("created_at") @db.Timestamp(0)
@@ -99,6 +100,7 @@ model HealthFacility {
   deletedAt                         DateTime?                      @map("deleted_at") @db.Timestamp(0)
   existence                         Boolean?
   pharmacy                          Pharmacy                       @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK1")
+  accountManage                     AccountManage?                 @relation(fields: [accountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK2")
   createdUser User?                          @relation("health_facility_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK_created_by")
   updatedUser User?                          @relation("health_facility_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_FK_updated_by")
   healthFacilityCodeManage          HealthFacilityCodeManage[]
@@ -108,6 +110,7 @@ model HealthFacility {
   patientRelateHealthFacility       PatientRelateHealthFacility[]
 
   @@index([pharmacyId], map: "health_facility_FK1")
+  @@index([accountManageId], map: "health_facility_FK2")
   @@index([createdBy], map: "health_facility_FK_created_by")
   @@index([updatedBy], map: "health_facility_FK_updated_by")
   @@map("health_facility")
@@ -664,15 +667,6 @@ enum PatientNursingInsuranceStatus {
   UPDATING
 
   @@map("patient_nursing_insurance_status")
-}
-
-enum HealthFacilityTransferGuide {
-  MIZUHO
-  RISONA
-  JA
-  OTHER
-
-  @@map("health_facility_transfer_guide")
 }
 
 enum HealthFacilityPatientSortType {
