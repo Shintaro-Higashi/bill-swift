@@ -13,7 +13,13 @@ export const fetchPagedPharmacyGroups = async (
 ): Promise<PaginationModel<PharmacyGroupModel>> => {
   const orderBy: Prisma.PharmacyGroupOrderByWithRelationInput[] = [{ id: SortOrder.asc }]
   const entities = await prisma.pharmacyGroup.paginate({
-    where: { id: params.id, name: { contains: params.name }, existence: true },
+    where: {
+      id: params.id,
+      ...(params.name !== undefined
+        ? { OR: [{ name: { contains: params.name } }, { nameKana: { contains: params.name } }] }
+        : {}),
+      existence: true,
+    },
     orderBy: orderBy,
     pageNo: params.pageNo,
     pageSize: params.pageSize,

@@ -32,8 +32,9 @@ export const fetchPagedPharmacies = async (params: PharmacyQueryDto): Promise<Pa
     where: {
       company: { id: params.companyId },
       pharmacyGroup: { id: params.pharmacyGroupId },
-      name: { contains: params.name },
-      deletedAt: null,
+      ...(params.name !== undefined
+        ? { OR: [{ name: { contains: params.name } }, { nameKana: { contains: params.name } }] }
+        : {}),
       existence: true,
     },
     include: {
