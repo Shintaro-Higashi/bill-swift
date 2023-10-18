@@ -1,8 +1,8 @@
 import {
   AccountManageCreationDto,
   AccountManageEditingDto,
+  AccountManageModel,
   AccountManageQueryDto,
-  CompanyModel,
   PaginationModel,
 } from '@/types'
 import { Prisma } from '.prisma/client'
@@ -21,7 +21,7 @@ import IntegrityDeletedError from '../core/errors/integrityDeletedError'
  */
 export const fetchPagedAccountManages = async (
   params: AccountManageQueryDto,
-): Promise<PaginationModel<CompanyModel>> => {
+): Promise<PaginationModel<AccountManageModel>> => {
   const orderBy: Prisma.AccountManageOrderByWithRelationInput[] = [{ id: SortOrder.asc }]
   if (params.sort && params.order) {
     orderBy.unshift({ [params.sort]: params.order })
@@ -34,7 +34,7 @@ export const fetchPagedAccountManages = async (
     pageNo: params.pageNo,
     pageSize: params.pageSize,
   })
-  return entities as unknown as PaginationModel<CompanyModel>
+  return entities as unknown as PaginationModel<AccountManageModel>
 }
 
 /**

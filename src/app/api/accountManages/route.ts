@@ -2,7 +2,7 @@ import { queryToObject } from '@/core/utils/commonUtil'
 import { AccountManageCreationSchema, AccountManageQueryRequest, AccountManageQuerySchema } from '@/types'
 import { NextRequest, NextResponse } from 'next/server'
 import { performRequest } from '@/core/utils/requestUtil'
-import { createAccountManage, fetchPagedAccountManages } from '@/servers/repositories/accountManageRepository'
+import { createAccountManage, fetchPagedAccountManages } from '@/servers/services/accountManageService'
 
 /**
  * 口座管理リストを取得するAPIです。

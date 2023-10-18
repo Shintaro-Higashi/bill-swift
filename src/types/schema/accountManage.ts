@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { paginationQuerySchema } from '@/types/schema/pagination'
 import { zNullishString, zOptionalString, zRequiredString } from '@/types/schema/base/zSchemaString'
-import { validateFixedLength, validateFixedLengthMessage } from '@/core/validators/validateFixedLength'
 import { AccountManageAccountType } from '.prisma/client'
 
 // 口座管理検索クエリスキーマ
@@ -40,15 +39,15 @@ export const AccountManageCreationSchema = z.object({
       }, dateValidMessage),
   ),
   // 金融機関コード
-  financialCode: zNullishString().refine((v) => validateFixedLength(v, 4), validateFixedLengthMessage(4)),
+  financialCode: zNullishString().pipe(z.string().length(4).nullish()),
   // 金融機関名
   financialName: zNullishString(128),
   // 支店コード
-  branchCode: zNullishString().refine((v) => validateFixedLength(v, 3), validateFixedLengthMessage(3)),
+  branchCode: zNullishString().pipe(z.string().length(3).nullish()),
   // 支店名
   branchName: zNullishString(128),
   // 口座種別
-  accountType: AccountTypeEnum.nullish(),
+  accountType: AccountTypeEnum.nullish().transform((v) => (v === undefined ? null : v)),
   // 口座番号
   accountNo: zNullishString(7),
   // 口座名義

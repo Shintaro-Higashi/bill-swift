@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ByIdRequest, AccountManageEditingSchema } from '@/types'
-import {
-  archiveAccountManage,
-  fetchAccountManage,
-  updateAccountManage,
-} from '@/servers/repositories/accountManageRepository'
+import { archiveAccountManage, fetchAccountManage, updateAccountManage } from '@/servers/services/accountManageService'
 import { performRequest } from '@/core/utils/requestUtil'
 
 /**
