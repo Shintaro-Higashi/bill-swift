@@ -34,12 +34,12 @@ export const toUTCDate = (date: Date, { timeZone = 'Asia/Tokyo' } = {}) => {
 }
 
 /**
- * 指定の日付を指定書式の文字列に変換します。
- * @param datetime 日付
+ * 指定の日時を指定書式の文字列に変換します。
+ * @param datetime 日時
  * @param options オプション
  * @param options.fmt 書式 [yyyy-MM-dd HH:mm:ss]
- * @param options.timeZone タイムゾーン [Asia/Tokyo]
- * @return 指定書式変換後の日付文字列
+ * @param options.timeZone タイムゾーン [UTC]
+ * @return 指定書式変換後の日時文字列
  */
 export const formatDateTime = (
   datetime: Date | undefined | null,
@@ -50,10 +50,16 @@ export const formatDateTime = (
   const defaultEndDate = new Date('2100-12-31T00:00:00.000Z')
 
   if (!datetime || !argDate || argDate.getTime() === defaultEndDate.getTime()) return ''
-  const { fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = 'Asia/Tokyo' } = options
+  const { fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = 'UTC' } = options
   return formatInTimeZone(datetime, timeZone, fmt)
 }
 
-export const formatDate = (datetime: Date | undefined | null, options: { fmt?: string; timeZone?: string } = {}) => {
-  return formatDateTime(datetime, { fmt: 'yyyy-MM-dd' })
+/**
+ * 指定の日時を日付形式の文字列に変換します。
+ * @param datetime 日時
+ * @param options オプション
+ * @return 指定書式変換後の日付文字列
+ */
+export const formatDate = (datetime: Date | undefined | null, options: { timeZone?: string } = {}) => {
+  return formatDateTime(datetime, { fmt: 'yyyy-MM-dd', timeZone: options?.timeZone })
 }

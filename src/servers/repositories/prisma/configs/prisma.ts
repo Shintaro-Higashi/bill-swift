@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import paginate from '@/servers/repositories/prisma/configs/extensions/paginate'
 import { createPrismaQueryEventHandler } from 'prisma-query-log'
 import { loggerInfo } from '@/core/configs/log'
+import fixOffsetToJST from '@/servers/repositories/prisma/configs/extensions/fixOffsetToJST'
 
 /**
  * PrismaClientをインスタンス化します。
@@ -14,12 +15,12 @@ import { loggerInfo } from '@/core/configs/log'
 const prismaClientSingleton = () => {
   const log = createPrismaQueryEventHandler({
     logger: (query: string) => loggerInfo(query),
-    format: true,
+    format: false,
     indent: '  ',
   })
   const client = new PrismaClient({ log: [{ level: 'query', emit: 'event' }] })
   client.$on('query', log)
-  return client.$extends(paginate)
+  return client.$extends(paginate).$extends(fixOffsetToJST)
 }
 
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>

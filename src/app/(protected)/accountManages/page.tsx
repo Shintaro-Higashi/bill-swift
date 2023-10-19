@@ -9,10 +9,10 @@ import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { BaseRecord, CrudFilters, getDefaultFilter, HttpError, useLink } from '@refinedev/core'
-import { DateField, EditButton, List, useDataGrid } from '@refinedev/mui'
+import { EditButton, List, useDataGrid } from '@refinedev/mui'
 import { useForm } from '@refinedev/react-hook-form'
 import React from 'react'
-import { DATE_FORMAT, QUERY_FORM_HINT } from '@/core/configs/constants'
+import { QUERY_FORM_HINT } from '@/core/configs/constants'
 import { FormSubmitErrorNotification, setTitle } from '@/core/utils/refineUtil'
 import { uniqueId } from 'lodash'
 import SearchIcon from '@mui/icons-material/Search'
@@ -25,6 +25,7 @@ import {
   AccountManageQueryRequest,
   AccountManageQuerySchema,
 } from '@/types'
+import { formatDateTime } from '@/core/utils/dateUtil'
 
 /**
  * 口座管理一覧画面です。
@@ -80,7 +81,7 @@ const ListPage: React.FC = () => {
         headerName: '最終更新日時',
         filterable: false,
         renderCell: function render({ value }) {
-          return <DateField value={value} format={DATE_FORMAT} />
+          return formatDateTime(value)
         },
       },
       {
