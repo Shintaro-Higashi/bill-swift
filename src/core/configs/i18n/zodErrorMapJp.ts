@@ -15,25 +15,23 @@ const errorMap: ZodErrorMap = (issue, _ctx) => {
       if (issue.received === ZodParsedType.undefined) {
         message = '必須項目を入力してください'
       } else {
-        message = `データ型：${JSON.stringify(issue.expected)}で入力してください（入力値：${JSON.stringify(
-          issue.received,
-        )}）`
+        message = `不正な値が入力されました（入力値：${JSON.stringify(issue.received)}）`
       }
       break
     case ZodIssueCode.invalid_literal:
-      message = `次の値を入力してください【${JSON.stringify(issue.expected, util.jsonStringifyReplacer)}】`
+      message = `選択肢の値を設定してください`
       break
     case ZodIssueCode.unrecognized_keys:
-      message = `不正な値が入力されました: ${util.joinValues(issue.keys, ', ')}`
+      message = `選択肢の値を設定してください`
       break
     case ZodIssueCode.invalid_union:
-      message = `不正な値が入力されました`
+      message = `選択肢の値を設定してください`
       break
     case ZodIssueCode.invalid_union_discriminator:
-      message = `【${issue.options.map((value) => JSON.stringify(value))}】のいずれかの値を入力してください`
+      message = `選択肢の値を設定してください`
       break
     case ZodIssueCode.invalid_enum_value:
-      message = `【${issue.options.map((value) => JSON.stringify(value))}】のいずれかの値を入力してください`
+      message = `選択肢の値を設定してください`
       break
     case ZodIssueCode.invalid_arguments:
       message = `不正な値が入力されました`

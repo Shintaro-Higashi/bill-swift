@@ -7,7 +7,7 @@ import React from 'react'
 import { handleApiError, setTitle } from '@/core/utils/refineUtil'
 import { HealthFacilityModel } from '@/types'
 import { FieldItem } from '@components/core/content/FieldItem'
-import { formatDateTime } from '@/core/utils/dateUtil'
+import { formatDateTime, formatDate } from '@/core/utils/dateUtil'
 import { getPatientSortTypeValue } from '@/shared/items/patientSortType'
 import { BasicTable } from '@/components/core/content/basicTable'
 import HistoryIcon from '@mui/icons-material/History'
@@ -33,8 +33,8 @@ const ShowPage: React.FC = () => {
     const relatePharmacies = Object.entries(record?.healthFacilityRelatePharmacy)
     relatePharmacies.forEach(([key, value]: [string, any]) => {
       if (value?.pharmacy) {
-        let startDate = formatDateTime(value.startDate, { fmt: 'yyyy/MM/dd' })
-        let endDate = formatDateTime(value.endDate, { fmt: 'yyyy/MM/dd' })
+        let startDate = formatDate(value.startDate)
+        let endDate = formatDate(value.endDate)
 
         const tableBodyRow = [
           value.pharmacy.pharmacyGroup.name + ' ' + value.pharmacy.name,

@@ -52,6 +52,20 @@ export * from './api/healthFacilityCodeGroup'
 export * from './server/healthFacilityCodeGroup'
 export * from './client/healthFacilityCodeGroup'
 
+// 施設関連薬局
+export * from './schema/healthFacilityRelatePharmacy'
+export * from './models/healthFacilityRelatePharmacyModel'
+export * from './api/healthFacilityRelatePharmacy'
+export * from './server/healthFacilityRelatePharmacy'
+export * from './client/healthFacilityRelatePharmacy'
+
+// 施設コード管理
+export * from './schema/healthFacilityCodeManage'
+export * from './models/healthFacilityCodeManageModel'
+export * from './api/healthFacilityCodeManage'
+export * from './server/healthFacilityCodeManage'
+export * from './client/healthFacilityCodeManage'
+
 // 患者
 export * from './schema/patient'
 export * from './models/patientModel'

@@ -52,7 +52,7 @@ export const PharmacySaveForm = (props: Props) => {
         required
         {...register('name')}
         label='店舗名称'
-        placeholder=''
+        placeholder='XXX店'
         error={!!errors.name}
         helperText={errors.name?.message}
       />
@@ -60,7 +60,7 @@ export const PharmacySaveForm = (props: Props) => {
         required
         {...register('nameKana')}
         label='店舗カナ名称'
-        placeholder=''
+        placeholder='XXX'
         error={!!errors.nameKana}
         helperText={errors.nameKana?.message}
       />

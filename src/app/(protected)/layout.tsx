@@ -6,6 +6,7 @@ import { Authenticated } from '@refinedev/core'
 import { ThemedLayoutV2, ThemedTitleV2 } from '@refinedev/mui'
 import React from 'react'
 import ConfirmProvider from '@components/core/confirm/confirmProvider'
+import DatePickerLocalizationProvider from '@/components/core/form/datePickerLocalizationProvider'
 
 /**
  * ログイン認証後の画面用レイアウトです。
@@ -19,7 +20,9 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         Header={() => <Header sticky />}
         Title={({ collapsed }) => <ThemedTitleV2 collapsed={collapsed} text='BillSwift' icon={<AppIcon />} />}
       >
-        <ConfirmProvider>{children}</ConfirmProvider>
+        <ConfirmProvider>
+          <DatePickerLocalizationProvider>{children}</DatePickerLocalizationProvider>
+        </ConfirmProvider>
       </ThemedLayoutV2>
     </Authenticated>
   )

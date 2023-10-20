@@ -112,6 +112,7 @@ const ListPage: React.FC = () => {
         maxWidth: 50,
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
 

@@ -34,6 +34,7 @@
     "@mui/lab": "^5.0.0-alpha.85",
     "@mui/material": "^5.8.6",
     "@mui/x-data-grid": "^6.11.1",
+    "@mui/x-date-pickers": "^6.16.2",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^5.1.1",
     "@refinedev/cli": "^2.16.4",

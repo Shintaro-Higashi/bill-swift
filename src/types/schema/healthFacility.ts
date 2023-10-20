@@ -1,13 +1,11 @@
 import { z } from 'zod'
 import { paginationQuerySchema } from '@/types/schema/pagination'
-import { PATIENT_SORT_TYPE_KEY_LIST } from '@/shared/items/patientSortType'
-import createUnionSchema from '@/core/utils/zodUtil'
 import { zNullishString, zOptionalString, zRequiredString, zStringSelectMessage } from './base/zSchemaString'
 import { validatePostalCode, validatePostalCodeMessage } from '@/core/validators/validatePostalCode'
 import { validateTel, validateTelMessage } from '@/core/validators/validateTel'
-import { BILLING_TYPE_KEY_LIST } from '@/shared/items/billingType'
-import { HEALTH_FACILITY_PAYMENT_TYPE_KEY_LIST } from '@/shared/items/healthFacilityPaymentType'
 import { validateEmailMessage, validateUrlMessage } from '@/core/configs/i18n/zodErrorMapJp'
+import { zRequiredDate } from './base/zSchemaDate'
+import { HealthFacilityBillingType, HealthFacilityPaymentType, HealthFacilityPatientSortType } from '.prisma/client'
 
 // 施設検索クエリスキーマ
 export const HealthFacilityQuerySchema = z
@@ -24,16 +22,20 @@ export const HealthFacilityQuerySchema = z
   })
   .partial()
 
+const BillingTypeEnum = z.nativeEnum(HealthFacilityBillingType)
+const PaymentTypeEnum = z.nativeEnum(HealthFacilityPaymentType)
+const PatientSortTypeEnum = z.nativeEnum(HealthFacilityPatientSortType)
+
 // 施設作成スキーマ
 export const HealthFacilityCreationSchema = z.object({
-  // コード
-  code: zRequiredString(4),
+  // 対応開始日
+  startDate: zRequiredDate(),
+  // 店舗ID
+  pharmacyId: zRequiredString(64),
   // 名称
   name: zRequiredString(64),
   // カナ名称
   nameKana: zRequiredString(128),
-  // 検索用名称
-  searchName: zRequiredString(255),
   // 郵便番号
   postalCode: zRequiredString().refine(validatePostalCode, validatePostalCodeMessage),
   // 住所1
@@ -45,17 +47,17 @@ export const HealthFacilityCreationSchema = z.object({
   // FAX番号
   fax: zNullishString(16).refine(validateTel, validateTelMessage),
   // メールアドレス
-  mail: zNullishString(128).pipe(z.string().email({ message: validateEmailMessage })),
+  mail: zNullishString(128).pipe(z.string().email({ message: validateEmailMessage }).nullish()),
   // URL
-  url: zNullishString(255).pipe(z.string().url({ message: validateUrlMessage })),
+  url: zNullishString(255).pipe(z.string().url({ message: validateUrlMessage }).nullish()),
   // 請求種別
-  billingType: zRequiredString().pipe(createUnionSchema(BILLING_TYPE_KEY_LIST)),
+  billingType: BillingTypeEnum.nullish().transform((v) => (v === undefined ? null : v)),
   // 支払い種別
-  paymentType: zRequiredString().pipe(createUnionSchema(HEALTH_FACILITY_PAYMENT_TYPE_KEY_LIST)),
+  paymentType: PaymentTypeEnum.nullish().transform((v) => (v === undefined ? null : v)),
   // 口座管理ID
-  accountManageId: zNullishString(),
+  accountManageId: zNullishString(64),
   // 患者ソート種別
-  patientSortType: zRequiredString().pipe(createUnionSchema(PATIENT_SORT_TYPE_KEY_LIST)),
+  patientSortType: zRequiredString().pipe(PatientSortTypeEnum),
   // 備考
   note: zNullishString(9999),
 })
