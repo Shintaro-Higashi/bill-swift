@@ -180,6 +180,7 @@ const ListPage: React.FC = () => {
                 resource='healthFacilities'
                 label='所属施設'
                 name='healthFacilityId'
+                onSearchField='searchName'
                 control={control}
                 error={!!errors.healthFacilityId}
                 helperText={errors.healthFacilityId?.message || '※過去の施設も対象'}

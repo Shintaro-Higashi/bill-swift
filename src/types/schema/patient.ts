@@ -3,11 +3,17 @@ import { paginationQuerySchema } from '@/types/schema/pagination'
 import { zNullishString, zOptionalString, zRequiredString } from '@/types/schema/base/zSchemaString'
 import { validatePostalCode, validatePostalCodeMessage } from '@/core/validators/validatePostalCode'
 import { validateTel, validateTelMessage } from '@/core/validators/validateTel'
-import createUnionSchema from '@/core/utils/zodUtil'
-import { GENDER_KEY_LIST } from '@/shared/items/gender'
-import { INSURANCE_STATUS_KEY_LIST } from '@/shared/items/medicalInsuranceStatus'
-import { MEDICAL_NURSING_SHARE_KEY_LIST } from '@/shared/items/medicalNursingShare'
-import { CONSENT_STATUS_KEY_LIST } from '@/shared/items/consentStatus'
+import {
+  PatientAccountConfirmStatus,
+  PatientConsentStatus,
+  PatientGender,
+  PatientMedicalInsuranceStatus,
+  PatientMedicalShare,
+  PatientNursingInsuranceStatus,
+  PatientNursingShare,
+  PatientPaymentType,
+} from '@prisma/client'
+import { zNullishDate } from '@/types/schema/base/zSchemaDate'
 
 // 患者検索クエリスキーマ
 export const PatientQuerySchema = z
@@ -38,43 +44,50 @@ export const PatientCreationSchema = z.object({
   // 患者名カナ
   nameKana: zRequiredString(128),
   // 性別
-  gender: createUnionSchema(GENDER_KEY_LIST),
+  gender: z.nativeEnum(PatientGender),
   // 生年月日
-  birthday: z.coerce.date().nullish(),
+  birthday: zNullishDate(),
   // 医療保険ステータス
-  medicalInsuranceStatus: createUnionSchema(INSURANCE_STATUS_KEY_LIST).nullish(),
+  medicalInsuranceStatus: z.nativeEnum(PatientMedicalInsuranceStatus),
   // 医療保険開始日
-  medicalInsuranceStartDate: z.coerce.date().nullish(),
+  medicalInsuranceStartDate: zNullishDate(),
   // 医療保険終了日
-  medicalInsuranceEndDate: z.coerce.date().nullish(),
+  medicalInsuranceEndDate: zNullishDate(),
   // 医療負担割合証確認日
-  medicalShareConfirmDate: z.coerce.date().nullish(),
+  medicalShareConfirmDate: zNullishDate(),
   // 医療負担割合
-  medicalShare: createUnionSchema(MEDICAL_NURSING_SHARE_KEY_LIST).nullish(),
+  medicalShare: z
+    .nativeEnum(PatientMedicalShare)
+    .nullish()
+    .transform((v) => (v === undefined ? null : v)),
   // 介護保険ステータス
-  nursingInsuranceStatus: createUnionSchema(INSURANCE_STATUS_KEY_LIST).nullish(),
+  nursingInsuranceStatus: z.nativeEnum(PatientNursingInsuranceStatus),
   // 介護保険開始日
-  nursingInsuranceStartDate: z.coerce.date().nullish(),
+  nursingInsuranceStartDate: zNullishDate(),
   // 介護保険終了日
-  nursingInsuranceEndDate: z.coerce.date().nullish(),
+  nursingInsuranceEndDate: zNullishDate(),
   // 介護負担割合証確認日
-  nursingShareConfirmDate: z.coerce.date().nullish(),
+  nursingShareConfirmDate: zNullishDate(),
   // 介護負担割合
-  nursingShare: createUnionSchema(MEDICAL_NURSING_SHARE_KEY_LIST).nullish(),
+  nursingShare: z
+    .nativeEnum(PatientNursingShare)
+    .nullish()
+    .transform((v) => (v === undefined ? null : v)),
   // 同意書ステータス
-  consentStatus: createUnionSchema(CONSENT_STATUS_KEY_LIST).nullish(),
+  consentStatus: z.nativeEnum(PatientConsentStatus),
   // 同意書確認日
-  consentConfirmDate: zNullishString(64),
-  // TODO 支払い種別 enum化
-  paymentType: createUnionSchema(CONSENT_STATUS_KEY_LIST).nullish(),
+  consentConfirmDate: zNullishDate(),
+  // 支払種別
+  paymentType: z.nativeEnum(PatientPaymentType),
   // 口座振替確認状態
-  accountConfirmStatus: zNullishString(64),
+  accountConfirmStatus: z
+    .nativeEnum(PatientAccountConfirmStatus)
+    .nullish()
+    .transform((v) => (v === undefined ? null : v)),
   // 振替口座管理ID
   accountManageId: zNullishString(64),
   // 公費フラグ
-  publicExpense: zNullishString(64),
-  // レセコン同期フラグ
-  receptSyncFlag: z.boolean(),
+  publicExpense: z.boolean().nullable(),
   // 送付先氏名
   deliveryName: zNullishString(64),
   // 送付先郵便番号
@@ -84,7 +97,7 @@ export const PatientCreationSchema = z.object({
   // 送付先住所2
   deliveryAddress2: zNullishString(20),
   // 送付先電話番号
-  deliveryTel: zRequiredString(16).refine(validateTel, validateTelMessage),
+  deliveryTel: zNullishString(16).refine(validateTel, validateTelMessage),
   // 施設情報
   healthFacilityInfo: zNullishString(255),
   // 備考

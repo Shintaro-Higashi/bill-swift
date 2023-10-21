@@ -1,7 +1,10 @@
-import { PaginationModel, PatientModel, PatientQueryDto } from '@/types'
+import { PaginationModel, PatientEditingDto, PatientModel, PatientQueryDto } from '@/types'
 import { Prisma } from '.prisma/client'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
 import SortOrder = Prisma.SortOrder
+import depend from '@/core/utils/velona'
+import { getCurrentDate } from '@/core/utils/dateUtil'
+import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 
 /**
  * 患者のページング検索を実施します。
@@ -61,9 +64,7 @@ export const fetchPatient = async (id: string) => {
       patientRelateHealthFacility: { include: { healthFacility: true } },
       patientCodeHistory: true,
       patientFile: true,
-      accountManage: true,
-      //TODO リレーションがないためあとで
-      // accountManage:{ select: { name: true } },
+      accountManage: { select: { name: true } },
       // 変更回数は回数上限そう多くないと想定してincludeで取得
       patientChangeHistory: {
         orderBy: { id: SortOrder.asc },
@@ -94,22 +95,22 @@ export const fetchPatient = async (id: string) => {
 //   })
 // })
 
-// /**
-//  * 指定の患者情報を更新します。
-//  * @param id 患者ID
-//  * @param params 患者情報
-//  */
-// export const updatePatient = depend({ client: prisma }, async ({ client }, id: string, params: PatientEditingDto) => {
-//   const now = getCurrentDate()
-//   return await client.patient.update({
-//     data: {
-//       ...params,
-//       updatedBy: getAuthorizedUserId(),
-//       updatedAt: now,
-//     },
-//     where: { id: id, existence: true },
-//   })
-// })
+/**
+ * 指定の患者情報を更新します。
+ * @param id 患者ID
+ * @param params 患者情報
+ */
+export const updatePatient = depend({ client: prisma }, async ({ client }, id: string, params: PatientEditingDto) => {
+  const now = getCurrentDate()
+  return await client.patient.update({
+    data: {
+      ...params,
+      updatedBy: getAuthorizedUserId(),
+      updatedAt: now,
+    },
+    where: { id: id, existence: true },
+  })
+})
 
 // /**
 //  * 指定の患者情報を論理削除します。

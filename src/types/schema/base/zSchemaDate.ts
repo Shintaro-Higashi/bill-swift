@@ -22,5 +22,5 @@ export const zRequiredDate = (message: string = '必須項目を入力してく�
  * @param なし
  */
 export const zNullishDate = () => {
-  return z.coerce.date()
+  return z.coerce.date().nullish()
 }

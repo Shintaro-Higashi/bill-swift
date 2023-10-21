@@ -20,6 +20,8 @@ type Props = {
   error: boolean
   /** 入力補助テキスト */
   helperText: string | undefined
+  /** 禁則 */
+  disabled?: boolean
 }
 
 /**
@@ -46,7 +48,7 @@ type Props = {
  */
 
 export const ControlItemAutocomplete = (props: Props) => {
-  const { required, label, name, options, control, error, helperText } = props
+  const { required, label, name, options, control, error, helperText, disabled } = props
 
   return (
     <Controller
@@ -55,6 +57,7 @@ export const ControlItemAutocomplete = (props: Props) => {
       defaultValue={null as any}
       render={({ field }) => (
         <Autocomplete
+          disabled={disabled}
           value={options.find((item) => item.key === field.value) ?? null}
           options={options}
           onChange={(_, value) => {

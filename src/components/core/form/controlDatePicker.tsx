@@ -18,6 +18,8 @@ type Props = {
   error: boolean
   /** 入力補助テキスト */
   helperText: string | undefined
+  /** 禁則 */
+  disabled?: boolean
 }
 
 /**
@@ -40,7 +42,7 @@ type Props = {
  */
 
 export const ControlDatePicker = (props: Props) => {
-  const { required, label, name, control, error, helperText } = props
+  const { required, label, name, control, error, helperText, disabled = false } = props
 
   return (
     <Controller
@@ -50,6 +52,7 @@ export const ControlDatePicker = (props: Props) => {
       render={({ field }) => (
         <DatePicker
           label={label}
+          disabled={disabled}
           value={field.value}
           onChange={(newValue) => {
             return field.onChange(newValue)
