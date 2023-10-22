@@ -21,7 +21,8 @@
     "test-watch": "dotenv -e .env.test -- jest --watch --runInBand",
     "test:e2e": "playwright test",
     "test:e2e-debug": "playwright test --debug",
-    "test:e2e-codegen": "playwright codegen http://localhost:3000"
+    "test:e2e-codegen": "playwright codegen http://localhost:3000",
+    "patient-import:local": "dotenv -e .env.local -- ts-node --project tsconfig.local.json tools/patientLoader/patientImporter.ts"
   },
   "prisma": {
     "seed": "ts-node -r tsconfig-paths/register --project tsconfig.local.json prisma/seed.ts"
@@ -45,6 +46,7 @@
     "@refinedev/react-hook-form": "^4.8.10",
     "@refinedev/simple-rest": "^4.5.4",
     "bcryptjs": "^2.4.3",
+    "csv-parse": "^5.5.2",
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.0",
     "jose": "^4.15.2",
