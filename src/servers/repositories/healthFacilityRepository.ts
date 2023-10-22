@@ -1,11 +1,11 @@
 import { HealthFacilityCreationDto, HealthFacilityModel, HealthFacilityQueryDto, PaginationModel } from '@/types'
 import { Prisma } from '.prisma/client'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
-import SortOrder = Prisma.SortOrder
 import depend from '@/core/utils/velona'
 import { getCurrentDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 import { createId } from '@paralleldrive/cuid2'
+import SortOrder = Prisma.SortOrder
 
 /**
  * 施設のページング検索を実施します。
@@ -71,12 +71,14 @@ export const createHealthFacility = depend(
   async ({ client }, params: HealthFacilityCreationDto) => {
     const now = getCurrentDate()
     const userId = getAuthorizedUserId()
-    const { startDate, ...healthFacilityParams } = params
-
+    const { startDate, code, searchName, ...healthFacilityParams } = params
+    if (!code || !searchName) throw new Error('createHealthFacility ArgsError.code or searchName is undefined')
     return await client.healthFacility.create({
       data: {
         ...healthFacilityParams,
         id: createId(),
+        code,
+        searchName,
         createdBy: userId,
         updatedBy: userId,
         createdAt: now,

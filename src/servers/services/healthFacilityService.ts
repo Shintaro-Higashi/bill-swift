@@ -97,11 +97,11 @@ export const createHealthFacility = depend(
 
 /**
  * 施設作成時の施設コードを採番します。
- * @param 施設コードグループのフォーマットタイプ
+ * @param formatType 施設コードグループのフォーマットタイプ
  */
 const createHealthFacilityCode = async (formatType: HealthFacilityCodeGroupFormatType) => {
   // 現在のコードの最大値から新しいコードを取得
-  const assignableCodes = await getHealthFacilityNonAssignableCodes(formatType)
+  const assignableCodes = getHealthFacilityNonAssignableCodes(formatType)
   const maxCode = (await getMaxCode(assignableCodes)) || { code: '0000' }
   let newCodeNumber: number = Number(maxCode.code) + 1
 
@@ -109,6 +109,5 @@ const createHealthFacilityCode = async (formatType: HealthFacilityCodeGroupForma
   while (assignableCodes.some((code) => parseInt(code) === newCodeNumber)) {
     newCodeNumber += 1
   }
-  const newCodeString = newCodeNumber.toString().padStart(4, '0')
-  return newCodeString
+  return newCodeNumber.toString().padStart(4, '0')
 }
