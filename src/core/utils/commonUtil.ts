@@ -40,36 +40,6 @@ export const getPropertyByFlatKey = <T>(obj: T, propKey: string): any => {
 }
 
 /**
- * 同一の型のObjectを比較して差分結果を取得します。
- * @param original 比較元Object
- * @param updated  比較先Object
- * @return 差分結果
- */
-export const deepCompareJSON = (original: any, updated: any) => {
-  const changes: Record<string, any> = {}
-
-  const compareObjects = (obj1: any, obj2: any, path: string) => {
-    for (const key in obj2) {
-      const newPath = path ? `${path}.${key}` : key
-      if (obj1[key] !== obj2[key]) {
-        if (typeof obj1[key] === 'object' && typeof obj2[key] === 'object') {
-          compareObjects(obj1[key], obj2[key], newPath)
-        } else {
-          changes[newPath] = {
-            original: obj1[key],
-            updated: obj2[key],
-          }
-        }
-      }
-    }
-  }
-
-  compareObjects(original, updated, '')
-
-  return changes
-}
-
-/**
  * 半角スペース以外に全角スペース、タブ、改行も対象に文字列をtrimします。
  *
  * @param value 文字列

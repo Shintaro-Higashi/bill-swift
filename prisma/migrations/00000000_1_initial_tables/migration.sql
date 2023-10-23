@@ -236,7 +236,7 @@ CREATE TABLE patient (
   , payment_type enum('UNDEFINED', 'CASH', 'WITHDRAWAL', 'WITHDRAWAL_STOP', 'WITHDRAWAL_CONTINUE', 'TRANSFER', 'CONVENIENCE', 'LATER')  DEFAULT 'UNDEFINED' NOT NULL COMMENT '支払い種別:UNDEFINED: 未確認, CASH: 現金, WITHDRAWAL: 振替, WITHDRAWAL_STOP: 振替変更（停止）, WITHDRAWAL_CONTINUE: 振替変更（継続）, TRANSFER: 振込, CONVENIENCE: コンビニ払い, LATER: 後払い'
   , account_confirm_status enum('UNCOLLECTED', 'AVAILABLE', 'INVALID') COMMENT '口座振替確認状態:口座振替の場合に初期値を未回収で設定。UNCOLLECTED: 未回収, AVAILABLE: 使用可, INVALID: 不備'
   , account_manage_id VARCHAR(64) COMMENT '振替口座管理ID:口座振替の場合に設定'
-  , recept_sync_flag BOOL DEFAULT false NOT NULL COMMENT 'レセコン同期フラグ:請求CSVで一致を確認出来たらtrueに変更。転居などで店舗が変わるタイミングでfalseにリセットする必要がある'
+  , receipt_sync_flag BOOL DEFAULT false NOT NULL COMMENT 'レセコン同期フラグ:請求CSVで一致を確認出来たらtrueに変更。転居などで店舗が変わるタイミングでfalseにリセットする必要がある'
   , delivery_name VARCHAR(64) COMMENT '送付先氏名'
   , delivery_postal_code CHAR(8) COMMENT '送付先郵便番号:ハイフン付き「NNN-NNNN」'
   , delivery_address1 VARCHAR(128) COMMENT '送付先住所1'
@@ -313,6 +313,7 @@ CREATE TABLE patient_file (
 CREATE TABLE patient_change_history (
   id VARCHAR(64) NOT NULL COMMENT 'ID'
   , patient_id VARCHAR(64) NOT NULL COMMENT '患者ID'
+  , change_type enum('MANUAL','RECEIPT_SYNC') NOT NULL COMMENT '変更方法:MANUAL:手動操作,RECEIPT_SYNC:レセコン同期'
   , created_at TIMESTAMP NULL DEFAULT NULL COMMENT '登録日時'
   , created_by VARCHAR(64) COMMENT '登録ユーザーID'
   , updated_at TIMESTAMP NULL DEFAULT NULL COMMENT '更新日時'
@@ -327,9 +328,10 @@ CREATE TABLE patient_change_history (
 CREATE TABLE patient_change_content (
   id VARCHAR(64) NOT NULL COMMENT 'ID'
   , patient_change_history_id VARCHAR(64) NOT NULL COMMENT '患者変更履歴ID'
-  , item_name VARCHAR(64) NOT NULL COMMENT '項目名'
-  , before_value VARCHAR(255) COMMENT '変更前の値'
-  , after_value VARCHAR(255) COMMENT '変更後の値'
+  , item_key VARCHAR(32) NOT NULL COMMENT '項目キー:項目物理名'
+  , child_item_name VARCHAR(255) COMMENT '子項目名:配列の差分時に１要素に対する動的な項目名を設定'
+  , before_value TEXT COMMENT '変更前の値'
+  , after_value TEXT COMMENT '変更後の値'
   , created_at TIMESTAMP NULL DEFAULT NULL COMMENT '登録日時'
   , created_by VARCHAR(64) COMMENT '登録ユーザーID'
   , updated_at TIMESTAMP NULL DEFAULT NULL COMMENT '更新日時'
@@ -337,7 +339,7 @@ CREATE TABLE patient_change_content (
   , deleted_at TIMESTAMP NULL DEFAULT NULL COMMENT '削除日時'
   , existence boolean as (CASE WHEN deleted_at IS NULL THEN 1 ELSE NULL END) COMMENT '削除有無:1:有効 NULL:論理削除'
   , CONSTRAINT patient_change_content_PKC PRIMARY KEY (id)
-) COMMENT '患者変更内容:患者情報で変更された内容を管理（備考は対象外？）' ;
+) COMMENT '患者変更内容:患者情報で変更された内容を管理' ;
 
 
 -- 問い合わせ

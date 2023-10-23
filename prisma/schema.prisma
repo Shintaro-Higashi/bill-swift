@@ -5,8 +5,8 @@ generator client {
 generator fabbrica {
   provider    = "prisma-fabbrica"
   output      = "../src/tests/__generated__/fabbrica"
-  tsconfig    = "../tsconfig.local.json"
   noTranspile = "true"
+  tsconfig    = "../tsconfig.local.json"
 }
 
 datasource db {
@@ -284,7 +284,7 @@ model Patient {
   paymentType                 PatientPaymentType            @default(UNDEFINED) @map("payment_type")
   accountConfirmStatus        PatientAccountConfirmStatus?  @map("account_confirm_status")
   accountManageId             String?                       @map("account_manage_id") @db.VarChar(64)
-  receptSyncFlag              Boolean                       @default(false) @map("recept_sync_flag")
+  receiptSyncFlag             Boolean                       @default(false) @map("receipt_sync_flag")
   deliveryName                String?                       @map("delivery_name") @db.VarChar(64)
   deliveryPostalCode          String?                       @map("delivery_postal_code") @db.Char(8)
   deliveryAddress1            String?                       @map("delivery_address1") @db.VarChar(128)
@@ -319,9 +319,10 @@ model Patient {
 model PatientChangeContent {
   id                                      String               @id @db.VarChar(64)
   patientChangeHistoryId                  String               @map("patient_change_history_id") @db.VarChar(64)
-  itemName                                String               @map("item_name") @db.VarChar(64)
-  beforeValue                             String?              @map("before_value") @db.VarChar(255)
-  afterValue                              String?              @map("after_value") @db.VarChar(255)
+  itemKey                                 String               @map("item_key") @db.VarChar(32)
+  childItemName                           String?              @map("child_item_name") @db.VarChar(255)
+  beforeValue                             String?              @map("before_value") @db.Text
+  afterValue                              String?              @map("after_value") @db.Text
   createdAt                               DateTime?            @map("created_at") @db.Timestamp(0)
   createdBy                               String?              @map("created_by") @db.VarChar(64)
   updatedAt                               DateTime?            @map("updated_at") @db.Timestamp(0)
@@ -340,18 +341,19 @@ model PatientChangeContent {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model PatientChangeHistory {
-  id                                      String                 @id @db.VarChar(64)
-  patientId                               String                 @map("patient_id") @db.VarChar(64)
-  createdAt                               DateTime?              @map("created_at") @db.Timestamp(0)
-  createdBy                               String?                @map("created_by") @db.VarChar(64)
-  updatedAt                               DateTime?              @map("updated_at") @db.Timestamp(0)
-  updatedBy                               String?                @map("updated_by") @db.VarChar(64)
-  deletedAt                               DateTime?              @map("deleted_at") @db.Timestamp(0)
+  id                                      String                         @id @db.VarChar(64)
+  patientId                               String                         @map("patient_id") @db.VarChar(64)
+  changeType                              PatientChangeHistoryChangeType @map("change_type")
+  createdAt                               DateTime?                      @map("created_at") @db.Timestamp(0)
+  createdBy                               String?                        @map("created_by") @db.VarChar(64)
+  updatedAt                               DateTime?                      @map("updated_at") @db.Timestamp(0)
+  updatedBy                               String?                        @map("updated_by") @db.VarChar(64)
+  deletedAt                               DateTime?                      @map("deleted_at") @db.Timestamp(0)
   existence                               Boolean?
   patientChangeContent                    PatientChangeContent[]
-  patient                                 Patient                @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK1")
-  createdUser User?                  @relation("patient_change_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK_created_by")
-  updatedUser User?                  @relation("patient_change_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK_updated_by")
+  patient                                 Patient                        @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK1")
+  createdUser User?                          @relation("patient_change_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK_created_by")
+  updatedUser User?                          @relation("patient_change_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_change_history_FK_updated_by")
 
   @@index([patientId], map: "patient_change_history_FK1")
   @@index([createdBy], map: "patient_change_history_FK_created_by")
@@ -594,6 +596,13 @@ enum HealthFacilityCodeGroupFormatType {
   PADDING
 
   @@map("health_facility_code_group_format_type")
+}
+
+enum PatientChangeHistoryChangeType {
+  MANUAL
+  RECEIPT_SYNC
+
+  @@map("patient_change_history_change_type")
 }
 
 enum InquiryStatus {

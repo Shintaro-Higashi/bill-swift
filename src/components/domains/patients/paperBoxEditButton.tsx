@@ -11,7 +11,7 @@ type Props = {
 }
 
 /**
- * 患者詳細画面の各PaperBox内に配置するための編集ボタンです
+ * 患者詳細画面の各PaperToggleBox内に配置するための編集Box切り替えボタンです
  */
 export const PaperBoxEditButton = (props: Props) => {
   const { showButton, handleClick } = props

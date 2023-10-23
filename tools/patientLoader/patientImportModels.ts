@@ -137,7 +137,7 @@ export type PatientInputModel = {
   paymentType: PatientPaymentType
   accountConfirmStatus: PatientAccountConfirmStatus | null
   accountManageId: string | null
-  receptSyncFlag: boolean
+  receiptSyncFlag: boolean
   deliveryName: string | null
   deliveryPostalCode: string | null
   deliveryAddress1: string | null

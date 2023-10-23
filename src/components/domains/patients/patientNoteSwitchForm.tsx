@@ -55,7 +55,7 @@ type ViewProps = {
 const PatientNoteView = (props: ViewProps) => {
   const { record } = props
   return (
-    <Box sx={{ px: 1 }}>
+    <Box sx={{ px: 1, maxHeight: 400, overflowY: 'auto' }}>
       <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{record?.note || 'なし'}</pre>
     </Box>
   )

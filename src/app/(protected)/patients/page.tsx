@@ -9,7 +9,7 @@ import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { BaseRecord, CrudFilters, getDefaultFilter, HttpError, useLink } from '@refinedev/core'
-import { EditButton, List, useDataGrid } from '@refinedev/mui'
+import { List, useDataGrid } from '@refinedev/mui'
 import { useForm } from '@refinedev/react-hook-form'
 import React from 'react'
 import { QUERY_FORM_HINT } from '@/core/configs/constants'
@@ -120,23 +120,6 @@ const ListPage: React.FC = () => {
         renderCell: function render({ row }) {
           return row.updatedUser?.name
         },
-      },
-      {
-        field: 'actions',
-        headerName: '操作',
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        renderCell: function render({ row }) {
-          return (
-            <>
-              <EditButton hideText recordItemId={row.id} />
-            </>
-          )
-        },
-        align: 'center',
-        headerAlign: 'center',
-        maxWidth: 50,
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps

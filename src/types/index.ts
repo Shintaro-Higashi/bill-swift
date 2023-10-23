@@ -73,6 +73,12 @@ export * from './api/patient'
 export * from './server/patient'
 export * from './client/patient'
 
+// 患者変更履歴
+export * from './schema/patientChangeHistory'
+export * from './models/patientChangeHistory'
+export * from './api/patientChangeHistory'
+export * from './server/patientChangeHistory'
+
 // ユーザ
 export * from './schema/user'
 export * from './models/userModel'

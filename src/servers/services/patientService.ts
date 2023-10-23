@@ -1,11 +1,14 @@
-import { PatientEditingDto, PatientQueryDto } from '@/types'
+import { PatientEditingDto, PatientModel, PatientQueryDto } from '@/types'
 import {
   fetchPagedPatients as fetchPaged,
   fetchPatient as fetch,
   updatePatient as update,
 } from '@/servers/repositories/patientRepository'
+import { createPatientChangeHistory } from '@/servers/repositories/patientChangeHistoryRepository'
+import { createManyPatientChangeContent } from '@/servers/repositories/patientChangeContentRepository'
 import depend from '@/core/utils/velona'
 import { performTransaction } from '@/servers/repositories/performTransaction'
+import { createPatientChangeContentList } from '@/servers/services/patientChangeHistoryService'
 
 /**
  * 患者のページング検索を実地します。
@@ -41,17 +44,33 @@ export const fetchPatient = depend({ fetch }, async ({ fetch }, id: string) => {
  * @param id 患者ID
  * @param params 患者情報
  */
-export const updatePatient = depend({ update }, async ({ update }, id: string, params: PatientEditingDto) => {
-  return await performTransaction(async (tx: any) => {
-    params.billEnableFlag = isBillEnablePatient(params)
-    const tUpdate: typeof update = (update as any).inject({ client: tx })
-    return await tUpdate(id, params)
-  })
-})
+export const updatePatient = depend(
+  { fetch, update },
+  async ({ fetch, update }, id: string, params: PatientEditingDto) => {
+    return await performTransaction(async (tx: any) => {
+      const previousPatient = (await fetch(id)) as unknown as PatientModel
+      params.billEnableFlag = isBillEnablePatient(params)
+      const tUpdate: typeof update = (update as any).inject({ client: tx })
+      const result = await tUpdate(id, params)
+      const tFetchPatient: typeof fetch = (fetch as any).inject({ client: tx })
+      const latestPatient = (await tFetchPatient(id)) as unknown as PatientModel
+      const tCreatePatientChangeHistory: typeof createPatientChangeHistory = (createPatientChangeHistory as any).inject(
+        { client: tx },
+      )
+      const tCreateManyPatientChangeContent: typeof createManyPatientChangeContent = (
+        createManyPatientChangeContent as any
+      ).inject({ client: tx })
+      const { id: patientChangeHistoryId } = await tCreatePatientChangeHistory({ patientId: id, changeType: 'MANUAL' })
+      const patientChangeContentList = createPatientChangeContentList(previousPatient, latestPatient)
+      await tCreateManyPatientChangeContent(patientChangeHistoryId, patientChangeContentList)
+      return result
+    })
+  },
+)
 
 /**
  * 患者が請求可能か判定します。
- * TODO 暫定仕様で概ね全部そろえばよしとする(期限が過ぎたらNGにするなどは今後必要なのか？)
+ * TODO 暫定仕様で概ね全部そろえばよしとする(期限が過ぎたらNGにするなどは今後必要なのか？送付先は個人だと必須?)
  * @param params
  */
 const isBillEnablePatient = (params: PatientEditingDto) => {
@@ -89,9 +108,7 @@ const isBillEnablePatient = (params: PatientEditingDto) => {
     if (params.accountConfirmStatus !== 'AVAILABLE' || !params.accountManageId) return false
   }
   // [公費]
-  if (params.publicExpense == null) return false
-
-  return true
+  return params.publicExpense != null
 }
 
 // /**

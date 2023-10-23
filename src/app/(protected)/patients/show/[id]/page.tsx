@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Stack } from '@mui/material'
-import { HttpError } from '@refinedev/core'
+import { HttpError, useResource } from '@refinedev/core'
 import { Show } from '@refinedev/mui'
 import React, { useEffect, useState } from 'react'
 import { FormSubmitErrorNotification, handleApiError, setTitle } from '@/core/utils/refineUtil'
@@ -31,11 +31,15 @@ import { PatientNoteSwitchForm } from '@components/domains/patients/patientNoteS
 import { FormProvider } from 'react-hook-form'
 import { PatientDeliverySwitchForm } from '@components/domains/patients/patientDeliverySwitchForm'
 import { PatientCheckListSwitchForm } from '@components/domains/patients/patientCheckListSwitchForm'
+import { PatientChangeHistory } from '@components/domains/patients/patientChangeHistory'
 
 const ShowPage = () => {
   setTitle()
   const [boxEditStatus, setBoxEditStatus] = useState<BoxEditStatus>(null)
   const errorNotification = new FormSubmitErrorNotification<PatientEditingForm>()
+  const { id } = useResource()
+  if (!id) throw new Error('id is undefined')
+
   const methods = useForm<PatientModel, HttpError, PatientEditingForm>({
     resolver: zodResolver(PatientEditingSchema),
     refineCoreProps: {
@@ -114,14 +118,8 @@ const ShowPage = () => {
               </Box>
             </PaperBox>
             <PaperBox title='患者情報変更履歴' icon={<HistoryOutlined />} sx={{ p: 0, mt: 2 }}>
-              <Box sx={{ px: 1, mt: 2 }}>
-                以下の変更内容を表示予定
-                <br />
-                ・施設の変更
-                <br />
-                ・患者番号の変更(店舗の移動 or 施設の移動 or 会社グループの移動 で発生)
-                <br />
-                ・患者情報の変更(患者情報変更画面で変更した内容を自動で記録)
+              <Box sx={{}}>
+                <PatientChangeHistory patientId={id?.toString()} updatedAt={record?.updatedAt} />
               </Box>
             </PaperBox>
             <PaperBox title='申し送り' icon={<ConnectWithoutContactOutlined />} sx={{ p: 0, mt: 2 }}>

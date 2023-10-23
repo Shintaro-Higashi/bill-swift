@@ -56,8 +56,8 @@ export const fetchPagedPatients = async (params: PatientQueryDto): Promise<Pagin
  * @param id 患者ID
  * @return 患者情報
  */
-export const fetchPatient = async (id: string) => {
-  return await prisma.patient.findUniqueOrThrow({
+export const fetchPatient = depend({ client: prisma }, async ({ client }, id: string) => {
+  return await client.patient.findUniqueOrThrow({
     where: { id: id, existence: true },
     include: {
       healthFacility: { select: { code: true, name: true, nameKana: true } },
@@ -65,16 +65,11 @@ export const fetchPatient = async (id: string) => {
       patientCodeHistory: true,
       patientFile: true,
       accountManage: { select: { name: true } },
-      // 変更回数は回数上限そう多くないと想定してincludeで取得
-      patientChangeHistory: {
-        orderBy: { id: SortOrder.asc },
-        include: { patientChangeContent: { orderBy: { id: SortOrder.asc } } },
-      },
       createdUser: true,
       updatedUser: true,
     },
   })
-}
+})
 
 // /**
 //  * 患者を作成します。

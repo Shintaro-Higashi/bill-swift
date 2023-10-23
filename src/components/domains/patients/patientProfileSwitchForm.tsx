@@ -74,7 +74,7 @@ const PatientProfileView = (props: ViewProps) => {
   const { record } = props
   return (
     <Stack alignItems='flex-start' spacing={1} sx={{ ml: 1 }}>
-      {record?.receptSyncFlag ? (
+      {record?.receiptSyncFlag ? (
         <Chip icon={<HowToRegOutlined />} color='success' label='レセコン同期済' size='small' />
       ) : (
         <Chip icon={<SyncProblemOutlined />} color='warning' label='レセコン同期未確認' size='small' />

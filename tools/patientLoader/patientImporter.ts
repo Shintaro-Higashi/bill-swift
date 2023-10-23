@@ -659,7 +659,7 @@ const createPatientInput = (
     healthFacilityInfo: getFacilityComment(tempPatient.note),
     note: getNote(tempPatient.note, tempPatient.comment),
     // レセコン同期フラグは請求CSVに一致する患者コードがあった場合（生年月日が設定されている）に立てる
-    receptSyncFlag: tempPatient.birthDate !== undefined,
+    receiptSyncFlag: tempPatient.birthDate !== undefined,
     patientCodeHistory: [],
     patientRelateHealthFacility: [],
     tempLastBillDate: tempPatient.lastBillDate,

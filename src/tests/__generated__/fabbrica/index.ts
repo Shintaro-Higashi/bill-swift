@@ -31,6 +31,7 @@ import type { PatientNursingShare } from "@prisma/client";
 import type { PatientConsentStatus } from "@prisma/client";
 import type { PatientPaymentType } from "@prisma/client";
 import type { PatientAccountConfirmStatus } from "@prisma/client";
+import type { PatientChangeHistoryChangeType } from "@prisma/client";
 import type { PatientRelateHealthFacilityReason } from "@prisma/client";
 import type { UserUserType } from "@prisma/client";
 import { Prisma } from "@prisma/client";
@@ -2101,7 +2102,7 @@ type PatientFactoryDefineInput = {
     consentConfirmDate?: Date | null;
     paymentType?: PatientPaymentType;
     accountConfirmStatus?: PatientAccountConfirmStatus | null;
-    receptSyncFlag?: boolean;
+    receiptSyncFlag?: boolean;
     deliveryName?: string | null;
     deliveryPostalCode?: string | null;
     deliveryAddress1?: string | null;
@@ -2256,7 +2257,7 @@ export function definePatientFactory<TOptions extends PatientFactoryDefineOption
 
 type PatientChangeContentScalarOrEnumFields = {
     id: string;
-    itemName: string;
+    itemKey: string;
 };
 
 type PatientChangeContentpatientChangeHistoryFactory = {
@@ -2276,7 +2277,8 @@ type PatientChangeContentupdatedUserFactory = {
 
 type PatientChangeContentFactoryDefineInput = {
     id?: string;
-    itemName?: string;
+    itemKey?: string;
+    childItemName?: string | null;
     beforeValue?: string | null;
     afterValue?: string | null;
     createdAt?: Date | null;
@@ -2331,7 +2333,7 @@ function autoGeneratePatientChangeContentScalarsOrEnums({ seq }: {
 }): PatientChangeContentScalarOrEnumFields {
     return {
         id: getScalarFieldValueGenerator().String({ modelName: "PatientChangeContent", fieldName: "id", isId: true, isUnique: false, seq }),
-        itemName: getScalarFieldValueGenerator().String({ modelName: "PatientChangeContent", fieldName: "itemName", isId: false, isUnique: false, seq })
+        itemKey: getScalarFieldValueGenerator().String({ modelName: "PatientChangeContent", fieldName: "itemKey", isId: false, isUnique: false, seq })
     };
 }
 
@@ -2410,6 +2412,7 @@ export function definePatientChangeContentFactory<TOptions extends PatientChange
 
 type PatientChangeHistoryScalarOrEnumFields = {
     id: string;
+    changeType: PatientChangeHistoryChangeType;
 };
 
 type PatientChangeHistorypatientFactory = {
@@ -2429,6 +2432,7 @@ type PatientChangeHistoryupdatedUserFactory = {
 
 type PatientChangeHistoryFactoryDefineInput = {
     id?: string;
+    changeType?: PatientChangeHistoryChangeType;
     createdAt?: Date | null;
     updatedAt?: Date | null;
     deletedAt?: Date | null;
@@ -2481,7 +2485,8 @@ function autoGeneratePatientChangeHistoryScalarsOrEnums({ seq }: {
     readonly seq: number;
 }): PatientChangeHistoryScalarOrEnumFields {
     return {
-        id: getScalarFieldValueGenerator().String({ modelName: "PatientChangeHistory", fieldName: "id", isId: true, isUnique: false, seq })
+        id: getScalarFieldValueGenerator().String({ modelName: "PatientChangeHistory", fieldName: "id", isId: true, isUnique: false, seq }),
+        changeType: "MANUAL"
     };
 }
 
