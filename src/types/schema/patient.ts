@@ -108,21 +108,24 @@ export const PatientCreationSchema = z.object({
 // 患者編集スキーマ
 export const PatientEditingSchema = PatientCreationSchema.extend({})
 
-// 患者施設変更(理由:逝去)
-const PatientHealthFacilityDeceaseEditingSchema = z.object({
+// 患者施設変更共通スキーマ
+const PatientHealthFacilityBaseEditingSchema = z.object({
   // 退去理由
   reason: z.literal(PatientRelateHealthFacilityReason.DECEASE),
-  // 退去日
-  endDate: zRequiredDate(),
   // 備考
   note: zNullishString(9999),
+})
 
+// 患者施設変更(理由:逝去)
+export const PatientHealthFacilityDeceaseEditingSchema = PatientHealthFacilityBaseEditingSchema.extend({
+  // 退去日
+  endDate: zRequiredDate(),
+  // 施設ID
   healthFacilityId: zNullishString(1),
-  startDate: zNullishDate(),
 })
 
 // 患者施設変更(理由:退去)
-export const PatientHealthFacilityRelocationEditingSchema = z.object({
+export const PatientHealthFacilityRelocationEditingSchema = PatientHealthFacilityBaseEditingSchema.extend({
   // 退去理由
   reason: z.literal(PatientRelateHealthFacilityReason.RELOCATION),
   // 転出先施設
@@ -131,23 +134,9 @@ export const PatientHealthFacilityRelocationEditingSchema = z.object({
   startDate: zRequiredDate(),
   // 備考
   note: zNullishString(9999),
-
-  endDate: zNullishDate(),
 })
 
-// 患者施設変更スキーマ
-// export const PatientHealthFacilityEditingSchema = z.object({
-//   // 施設
-//   healthFacilityId: zRequiredString(64),
-//   // 入居日
-//   startDate: zRequiredDate(),
-//   // 退去日
-//   endDate: zRequiredDate(),
-//   // 退去理由
-//   reason: z.nativeEnum(PatientRelateHealthFacilityReason),
-//   // 備考
-//   note: zNullishString(9999),
-// })
+// 患者施設変更スキーマ(公開用)
 export const PatientHealthFacilityEditingSchema = z.discriminatedUnion('reason', [
   PatientHealthFacilityDeceaseEditingSchema,
   PatientHealthFacilityRelocationEditingSchema,

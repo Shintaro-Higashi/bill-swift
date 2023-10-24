@@ -1,18 +1,14 @@
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  TextField,
-  Tooltip,
-} from '@mui/material'
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Tooltip } from '@mui/material'
 import { LowPriorityOutlined } from '@mui/icons-material'
 import React, { useEffect, useState } from 'react'
 import IconButton from '@mui/material/IconButton'
-import { PatientHealthFacilityEditingForm, PatientHealthFacilityEditingSchema, PatientModel } from '@/types'
+import {
+  PatientHealthFacilityDeceaseEditingSchema,
+  PatientHealthFacilityEditingForm,
+  PatientHealthFacilityEditingSchema,
+  PatientHealthFacilityRelocationEditingSchema,
+  PatientModel,
+} from '@/types'
 import { ControlAutocomplete } from '@components/core/form/controlAutocomplete'
 import { useForm } from '@refinedev/react-hook-form'
 import { BaseRecord, HttpError } from '@refinedev/core'
@@ -22,12 +18,10 @@ import useConfirm from '@/core/hooks/useConfirm'
 import { Loading } from '@components/core/content/loading'
 import { ControlDatePicker } from '@components/core/form/controlDatePicker'
 import { ControlItemAutocomplete } from '@components/core/form/controlItemAutocomplete'
-import {
-  PATIENT_HEALTH_FACILITY_CHANGE_REASON_KEY_LIST,
-  PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST,
-} from '@/shared/items/patientHealthFacilityChangeReason'
-import { useWatch } from 'react-hook-form'
+import { PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST } from '@/shared/items/patientHealthFacilityChangeReason'
+import { FieldErrors, useWatch } from 'react-hook-form'
 import Typography from '@mui/material/Typography'
+import { z } from 'zod'
 
 type Props = {
   viewBoxEditButton: boolean
@@ -80,13 +74,9 @@ export const ChangePatientHealthFacility = (props: Props) => {
       },
     },
   })
+  const deceaseErrors: FieldErrors<z.infer<typeof PatientHealthFacilityDeceaseEditingSchema>> = errors
+  const relocationErrors: FieldErrors<z.infer<typeof PatientHealthFacilityRelocationEditingSchema>> = errors
   const reason = useWatch({ control: control, name: 'reason' })
-  if (reason === 'DECEASE') {
-    setValue('healthFacilityId', null)
-    setValue('startDate', null)
-  } else if (reason === 'RELOCATION') {
-    setValue('endDate', null)
-  }
 
   errorNotification.error = setError
   const { $confirm } = useConfirm()
@@ -163,8 +153,8 @@ export const ChangePatientHealthFacility = (props: Props) => {
                 label='入居日'
                 name='startDate'
                 control={control}
-                error={!!errors.startDate}
-                helperText={errors.startDate?.message}
+                error={!!relocationErrors.startDate}
+                helperText={relocationErrors.startDate?.message}
               />
             </>
           )}
@@ -175,8 +165,8 @@ export const ChangePatientHealthFacility = (props: Props) => {
                 label='退去日'
                 name='endDate'
                 control={control}
-                error={!!errors.endDate}
-                helperText={errors.endDate?.message}
+                error={!!deceaseErrors}
+                helperText={deceaseErrors?.endDate?.message}
               />
             </>
           )}
