@@ -20,7 +20,7 @@ import {
 import { createPatientChangeHistory } from '@/servers/repositories/patientChangeHistoryRepository'
 import { createManyPatientChangeContent } from '@/servers/repositories/patientChangeContentRepository'
 import depend from '@/core/utils/velona'
-import { performTransaction } from '@/servers/repositories/performTransaction'
+import { injectTransaction, performTransaction } from '@/servers/repositories/performTransaction'
 import { createPatientChangeContentList } from '@/servers/services/patientChangeHistoryService'
 import NoContentError from '@/servers/core/errors/noContentError'
 import { isPast, subDays } from 'date-fns'
@@ -137,10 +137,8 @@ export const updatePatientHealthFacility = depend(
       )
       params.patientId = patient.id
 
-      const tUpdatePatientRelateHealthFacility: typeof updatePatientRelateHealthFacility = (
-        updatePatientRelateHealthFacility as any
-      ).inject({ client: tx })
-      const tUpdatePatientUpdated: typeof updatePatientUpdated = (updatePatientUpdated as any).inject({ client: tx })
+      const tUpdatePatientRelateHealthFacility = injectTransaction(updatePatientRelateHealthFacility, tx)
+      const tUpdatePatientUpdated = injectTransaction(updatePatientUpdated, tx)
       // 退出
       if (params.reason === 'DECEASE') {
         params.healthFacilityId = patient.healthFacilityId
@@ -153,9 +151,7 @@ export const updatePatientHealthFacility = depend(
       // 転出
       const newHealthFacilityId = params.healthFacilityId
       if (!newHealthFacilityId) throw new Error('患者転出施設ID未設定')
-      const tCreatePatientRelateHealthFacility: typeof createPatientRelateHealthFacility = (
-        createPatientRelateHealthFacility as any
-      ).inject({ client: tx })
+      const tCreatePatientRelateHealthFacility = injectTransaction(createPatientRelateHealthFacility, tx)
       // 既存所属施設の退去日を設定
       if (!params.startDate) throw new Error('患者転出転居日未設定')
       await tUpdatePatientRelateHealthFacility(nowRelateHealthFacility.id, {
@@ -170,16 +166,15 @@ export const updatePatientHealthFacility = depend(
         // ・今の施設コード管理を取得するにはコードで検索すればいい？ つまり施設IDとコードでユニーク?ユニークインデックスを作りたい
         //　※施設IDを指定して最新descで取得すればいいだけか。
         // 施設コード管理のシーケンス番号を+1してかつ値を取得 (lockをかける)
-        const tIncrementHealthFacilityCodeManageSequenceNo: typeof incrementHealthFacilityCodeManageSequenceNo = (
-          incrementHealthFacilityCodeManageSequenceNo as any
-        ).inject({ client: tx })
+        const tIncrementHealthFacilityCodeManageSequenceNo = injectTransaction(
+          incrementHealthFacilityCodeManageSequenceNo,
+          tx,
+        )
 
         const healthFacilityCodeManage = await tIncrementHealthFacilityCodeManageSequenceNo(newHealthFacilityId)
         const newPatientCode = createNewPatientCode(healthFacilityCodeManage)
 
-        const tCreatePatientCodeHistory: typeof createPatientCodeHistory = (createPatientCodeHistory as any).inject({
-          client: tx,
-        })
+        const tCreatePatientCodeHistory = injectTransaction(createPatientCodeHistory, tx)
         // 患者コード履歴を登録
         await tCreatePatientCodeHistory({
           patientId: patient.id,
@@ -188,12 +183,12 @@ export const updatePatientHealthFacility = depend(
         })
         // コードと施設を最新、施設メモを初期化
         const nowHealthFacilityInfo = patient.healthFacilityInfo
-        const tUpdate: typeof update = (update as any).inject({ client: tx })
+        const tUpdate = injectTransaction(update, tx)
         patient.healthFacilityId = newHealthFacilityId
         patient.code = newPatientCode
         patient.healthFacilityInfo = null
         await tUpdate(patient.id, patient)
-        // TODO 患者関連施設TBLの請求書ソート順を更新(※一覧で並べたいはずなので実装はしてみたい) 基本施設メモでソートなので移動後は最後?
+        // TODO 患者関連施設TBLの請求書ソート順を更新(※一覧で並べたいはずなので実装はしておきたい) 基本施設メモでソートなので移動後は最後?
         await tCreatePatientRelateHealthFacility({
           patientId: patient.id,
           healthFacilityId: newHealthFacilityId,
@@ -202,12 +197,8 @@ export const updatePatientHealthFacility = depend(
           note: params.note,
         })
         if (nowHealthFacilityInfo !== null) {
-          const tCreatePatientChangeHistory: typeof createPatientChangeHistory = (
-            createPatientChangeHistory as any
-          ).inject({ client: tx })
-          const tCreateManyPatientChangeContent: typeof createManyPatientChangeContent = (
-            createManyPatientChangeContent as any
-          ).inject({ client: tx })
+          const tCreatePatientChangeHistory = injectTransaction(createPatientChangeHistory, tx)
+          const tCreateManyPatientChangeContent = injectTransaction(createManyPatientChangeContent, tx)
           const { id: patientChangeHistoryId } = await tCreatePatientChangeHistory({
             patientId: id,
             changeType: 'MANUAL',
