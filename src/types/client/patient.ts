@@ -1,4 +1,10 @@
-import { PatientCreationRequest, PatientEditingRequest, PatientEditingSchema, PatientQueryRequest } from '@/types'
+import {
+  PatientCreationRequest,
+  PatientEditingRequest,
+  PatientEditingSchema,
+  PatientHealthFacilityEditingRequest,
+  PatientQueryRequest,
+} from '@/types'
 import React from 'react'
 
 // 患者検索フォーム
@@ -16,3 +22,5 @@ export type BoxEditProps = {
   boxEditStatus: BoxEditStatus
   setBoxEditStatus: React.Dispatch<React.SetStateAction<BoxEditStatus>>
 }
+// 患者施設変更リクエスト
+export type PatientHealthFacilityEditingForm = PatientHealthFacilityEditingRequest

@@ -1,0 +1,202 @@
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  Tooltip,
+} from '@mui/material'
+import { LowPriorityOutlined } from '@mui/icons-material'
+import React, { useEffect, useState } from 'react'
+import IconButton from '@mui/material/IconButton'
+import { PatientHealthFacilityEditingForm, PatientHealthFacilityEditingSchema, PatientModel } from '@/types'
+import { ControlAutocomplete } from '@components/core/form/controlAutocomplete'
+import { useForm } from '@refinedev/react-hook-form'
+import { BaseRecord, HttpError } from '@refinedev/core'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { FormSubmitErrorNotification } from '@/core/utils/refineUtil'
+import useConfirm from '@/core/hooks/useConfirm'
+import { Loading } from '@components/core/content/loading'
+import { ControlDatePicker } from '@components/core/form/controlDatePicker'
+import { ControlItemAutocomplete } from '@components/core/form/controlItemAutocomplete'
+import {
+  PATIENT_HEALTH_FACILITY_CHANGE_REASON_KEY_LIST,
+  PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST,
+} from '@/shared/items/patientHealthFacilityChangeReason'
+import { useWatch } from 'react-hook-form'
+import Typography from '@mui/material/Typography'
+
+type Props = {
+  viewBoxEditButton: boolean
+  patient: PatientModel | undefined
+}
+
+const errorNotification = new FormSubmitErrorNotification<PatientHealthFacilityEditingForm>()
+
+/**
+ * 施設の転出を処理するボタンおよびFormダイアログを提供します。
+ * @param props
+ */
+export const ChangePatientHealthFacility = (props: Props) => {
+  const { patient, viewBoxEditButton } = props
+
+  const [open, setOpen] = useState(false)
+  const handleOpen = () => {
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+
+  const {
+    saveButtonProps,
+    refineCore: { formLoading },
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    setValue,
+    setError,
+  } = useForm<BaseRecord, HttpError, PatientHealthFacilityEditingForm>({
+    resolver: zodResolver(PatientHealthFacilityEditingSchema),
+    refineCoreProps: {
+      errorNotification: errorNotification.notification,
+      action: 'create',
+      resource: `patients/${patient?.id}/health-facilities`,
+      redirect: false,
+      onMutationSuccess: (_data, _variables, _context, _isAutoSave) => {
+        setOpen(false)
+      },
+      successNotification: (data, values, resource) => {
+        return {
+          message: '施設情報の変更が完了しました',
+          description: '操作完了',
+          type: 'success',
+        }
+      },
+    },
+  })
+  const reason = useWatch({ control: control, name: 'reason' })
+  if (reason === 'DECEASE') {
+    setValue('healthFacilityId', null)
+    setValue('startDate', null)
+  } else if (reason === 'RELOCATION') {
+    setValue('endDate', null)
+  }
+
+  errorNotification.error = setError
+  const { $confirm } = useConfirm()
+
+  useEffect(() => {
+    setValue('reason', 'RELOCATION')
+  }, [])
+
+  const handleEdit = (e: any) => {
+    $confirm({
+      message: '施設を変更します。操作を続けてもよろしいですか',
+      onConfirm() {
+        saveButtonProps.onClick(e)
+      },
+    })
+  }
+
+  if (!patient) return <Loading />
+  return (
+    <Box
+      flexDirection='row'
+      justifyContent='flex-end'
+      display='flex'
+      sx={{ position: 'relative', width: '100%', marginTop: 0, display: viewBoxEditButton ? 'flex' : 'none' }}
+    >
+      <Tooltip title='施設の退去、または変更'>
+        <IconButton
+          color='primary'
+          sx={{ position: 'absolute', right: '0px', bottom: 0, zIndex: 100 }}
+          aria-label='change-health-facility'
+          onClick={handleOpen}
+        >
+          <LowPriorityOutlined />
+        </IconButton>
+      </Tooltip>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>所属施設情報の変更</DialogTitle>
+        <DialogContent>
+          {reason === 'RELOCATION' && (
+            <>
+              <Typography>転出予定の場合は入居日に未来の日付を指定してください</Typography>
+              <Typography>予定日中に患者番号が新しい施設の番号に切り替わります</Typography>
+              <Typography>現在入居中の退去日は転出先施設入居日の１日前になります</Typography>
+            </>
+          )}
+          {reason === 'DECEASE' && (
+            <>
+              <Typography></Typography>
+            </>
+          )}
+          <ControlItemAutocomplete
+            required
+            label='変更理由'
+            name='reason'
+            control={control}
+            error={!!errors.reason}
+            helperText={errors.reason?.message}
+            options={PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST}
+          />
+          {reason === 'RELOCATION' && (
+            <>
+              <ControlAutocomplete
+                required
+                resource='healthFacilities'
+                label='施設'
+                name='healthFacilityId'
+                defaultId={patient?.healthFacilityId}
+                control={control}
+                error={!!errors?.healthFacilityId}
+                helperText={errors.healthFacilityId?.message}
+              />
+              <ControlDatePicker
+                required
+                label='入居日'
+                name='startDate'
+                control={control}
+                error={!!errors.startDate}
+                helperText={errors.startDate?.message}
+              />
+            </>
+          )}
+          {reason === 'DECEASE' && (
+            <>
+              <ControlDatePicker
+                required
+                label='退去日'
+                name='endDate'
+                control={control}
+                error={!!errors.endDate}
+                helperText={errors.endDate?.message}
+              />
+            </>
+          )}
+          <TextField
+            {...register('note')}
+            label='備考'
+            placeholder=''
+            multiline
+            rows={2}
+            error={!!errors.note}
+            helperText={errors.note?.message}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>施設の変更をやめる</Button>
+          <Button variant='contained' onClick={handleSubmit(handleEdit)}>
+            施設を変更
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  )
+}

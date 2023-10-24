@@ -1,4 +1,4 @@
-import { PatientCreationRequest, PatientQueryRequest } from '@/types'
+import { PatientCreationRequest, PatientHealthFacilityEditingRequest, PatientQueryRequest } from '@/types'
 
 // 患者検索Dto
 export type PatientQueryDto = PatientQueryRequest & {}
@@ -12,3 +12,5 @@ export type PatientEditingDto = PatientCreationRequest & {
   // 請求可否フラグ
   billEnableFlag?: boolean
 }
+// 患者施設変更リクエスト
+export type PatientHealthFacilityEditingDto = PatientHealthFacilityEditingRequest

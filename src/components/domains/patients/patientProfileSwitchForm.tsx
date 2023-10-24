@@ -1,11 +1,12 @@
 import { useFormContext } from 'react-hook-form'
 import { BoxEditProps, BoxEditStatus, PatientEditingForm, PatientEditingSchema, PatientModel } from '@/types'
 import { Box, Button, Chip, Stack, SxProps, TextField } from '@mui/material'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { HttpError } from '@refinedev/core'
 import {
   ArrowBackOutlined,
   CakeOutlined,
+  EditOutlined,
   FormatListNumberedOutlined,
   HowToRegOutlined,
   InfoOutlined,
@@ -25,6 +26,8 @@ import useConfirm from '@/core/hooks/useConfirm'
 import { PaperToggleBox } from '@components/domains/patients/paperToggleBox'
 import { Theme } from '@mui/system'
 import { ControlDatePicker } from '@components/core/form/controlDatePicker'
+import { ChangePatientHealthFacility } from '@components/domains/patients/changePatientHealthFacility'
+import { Loading } from '@components/core/content/loading'
 
 const BOX_NAME: BoxEditStatus = 'profile'
 
@@ -41,7 +44,13 @@ export const PatientProfileSwitchForm = (props: Props) => {
   } = useFormContext<PatientModel, HttpError, PatientEditingForm>()
   const patient = queryResult ? queryResult.data?.data : undefined
   const { boxEditStatus, setBoxEditStatus } = props
-
+  const [viewBoxEditButton, setViewBoxEditButton] = useState<boolean>(false)
+  const handleShowEditButton = () => {
+    setViewBoxEditButton(true)
+  }
+  const handleHideEditButton = () => {
+    setViewBoxEditButton(false)
+  }
   return (
     <PaperToggleBox
       title='基本情報'
@@ -49,9 +58,11 @@ export const PatientProfileSwitchForm = (props: Props) => {
       boxName={BOX_NAME}
       boxEditStatus={boxEditStatus}
       setBoxEditStatus={setBoxEditStatus}
+      handleShow={handleShowEditButton}
+      handleHide={handleHideEditButton}
     >
       {boxEditStatus !== BOX_NAME ? (
-        <PatientProfileView record={patient} />
+        <PatientProfileView record={patient} viewBoxEditButton={viewBoxEditButton} />
       ) : (
         <PatientProfileForm
           handleCancelButtonClick={() => setBoxEditStatus(null)}
@@ -65,13 +76,14 @@ export const PatientProfileSwitchForm = (props: Props) => {
 
 type ViewProps = {
   record: PatientModel | undefined
+  viewBoxEditButton: boolean
 }
 
 /**
  * 患者基本情報表示コンポーネントです。
  */
 const PatientProfileView = (props: ViewProps) => {
-  const { record } = props
+  const { record, viewBoxEditButton } = props
   return (
     <Stack alignItems='flex-start' spacing={1} sx={{ ml: 1 }}>
       {record?.receiptSyncFlag ? (
@@ -84,6 +96,7 @@ const PatientProfileView = (props: ViewProps) => {
         icon={<StoreOutlined />}
         value={<RubyItem value={record?.healthFacility?.name} ruby={record?.healthFacility?.nameKana} />}
       />
+      <ChangePatientHealthFacility patient={record} viewBoxEditButton={viewBoxEditButton} />
       <FieldItem label='施設メモ' icon={<InfoOutlined />} value={record?.healthFacilityInfo} />
       <FieldItem label='患者番号' icon={<FormatListNumberedOutlined />} value={record?.code} />
       <FieldItem

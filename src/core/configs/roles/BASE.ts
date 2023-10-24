@@ -39,6 +39,7 @@ const BASE_ROLE = {
     read: true,
     create: true,
     edit: true,
+    'edit-health-facilities': true,
     archive: true,
   },
   // ユーザ
