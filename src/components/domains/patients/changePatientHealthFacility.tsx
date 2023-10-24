@@ -11,7 +11,7 @@ import {
 } from '@/types'
 import { ControlAutocomplete } from '@components/core/form/controlAutocomplete'
 import { useForm } from '@refinedev/react-hook-form'
-import { BaseRecord, HttpError } from '@refinedev/core'
+import { BaseRecord, HttpError, useInvalidate } from '@refinedev/core'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormSubmitErrorNotification } from '@/core/utils/refineUtil'
 import useConfirm from '@/core/hooks/useConfirm'
@@ -63,6 +63,9 @@ export const ChangePatientHealthFacility = (props: Props) => {
       resource: `patients/${patient?.id}/health-facilities`,
       redirect: false,
       onMutationSuccess: (_data, _variables, _context, _isAutoSave) => {
+        const buttons = document.querySelectorAll('.MuiCardHeader-action button') as NodeListOf<HTMLButtonElement>
+        const refreshButton = buttons[buttons.length - 1]
+        refreshButton.click()
         setOpen(false)
       },
       successNotification: (data, values, resource) => {
