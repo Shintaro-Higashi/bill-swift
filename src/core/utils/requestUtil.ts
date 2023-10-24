@@ -6,6 +6,7 @@ import { z, ZodError } from 'zod'
 import {
   badRequestErrorResponse,
   forbiddenErrorResponse,
+  noContentResponse,
   notFoundResponse,
   unauthorizedErrorResponse,
   unprocessableEntityResponse,
@@ -17,6 +18,7 @@ import { headers } from 'next/headers'
 import IntegrityDeletedError from '@/servers/core/errors/integrityDeletedError'
 import { UserTypeKey } from '@/shared/items/userType'
 import ForbiddenError from '@/servers/core/errors/forbiddenError'
+import NoContentError from '@/servers/core/errors/noContentError'
 
 let isSetErrorMap = false
 
@@ -56,6 +58,10 @@ export const performRequest = async (cb: Function, option?: { action: string }) 
     }
     return await cb()
   } catch (e) {
+    // 更新内容に変化がなかった場合
+    if (e instanceof NoContentError) {
+      return noContentResponse()
+    }
     // バリデーションエラー
     if (e instanceof ZodError) {
       return badRequestErrorResponse(e)

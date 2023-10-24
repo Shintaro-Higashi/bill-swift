@@ -106,6 +106,23 @@ export const updatePatient = depend({ client: prisma }, async ({ client }, id: s
   })
 })
 
+/**
+ * 指定患者の更新者情報のみを更新します。
+ * <pre>
+ *  主に関連テーブルのみ変更した時に利用します。
+ * </pre>
+ */
+export const updatePatientUpdated = depend({ client: prisma }, async ({ client }, id: string) => {
+  const now = getCurrentDate()
+  return await client.patient.update({
+    data: {
+      updatedBy: getAuthorizedUserId(),
+      updatedAt: now,
+    },
+    where: { id: id, existence: true },
+  })
+})
+
 // /**
 //  * 指定の患者情報を論理削除します。
 //  * @param id 患者ID

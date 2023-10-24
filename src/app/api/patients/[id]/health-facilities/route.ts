@@ -9,6 +9,7 @@ import {
 import { performRequest } from '@/core/utils/requestUtil'
 import { queryToObject } from '@/core/utils/commonUtil'
 import { fetchPagedPatientChangeHistories } from '@/servers/services/patientChangeHistoryService'
+import { updatePatientHealthFacility } from '@/servers/services/patientService'
 
 /**
  * 患者の新規所属施設を作成するAPIです。
@@ -19,6 +20,7 @@ export async function POST(req: NextRequest, { params: { id } }: { params: ByIdR
     async () => {
       const editData = await req.json()
       const parsedEditData = PatientHealthFacilityEditingSchema.parse(editData)
+      await updatePatientHealthFacility(id, parsedEditData)
       return NextResponse.json({ status: 'ok' })
     },
     { action: 'edit-health-facilities' },

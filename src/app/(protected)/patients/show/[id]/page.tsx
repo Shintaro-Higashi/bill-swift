@@ -48,6 +48,20 @@ const ShowPage = () => {
       onMutationSuccess: (_data, _variables, _context, _isAutoSave) => {
         setBoxEditStatus(null)
       },
+      successNotification: (data, values, resource) => {
+        if ((data?.data as any) === '') {
+          return {
+            description: `更新処理をスキップ`,
+            message: '編集内容に変更がありませんでした',
+            type: 'error',
+          }
+        }
+        return {
+          message: `操作の完了`,
+          description: '患者情報の変更が完了しました',
+          type: 'success',
+        }
+      },
     },
   })
   const {

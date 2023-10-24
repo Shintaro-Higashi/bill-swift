@@ -120,8 +120,6 @@ const PatientHealthFacilityBaseEditingSchema = z.object({
 export const PatientHealthFacilityDeceaseEditingSchema = PatientHealthFacilityBaseEditingSchema.extend({
   // 退去日
   endDate: zRequiredDate(),
-  // 施設ID
-  healthFacilityId: zNullishString(1),
 })
 
 // 患者施設変更(理由:退去)

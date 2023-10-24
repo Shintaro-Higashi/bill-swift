@@ -81,10 +81,6 @@ export const ChangePatientHealthFacility = (props: Props) => {
   errorNotification.error = setError
   const { $confirm } = useConfirm()
 
-  useEffect(() => {
-    setValue('reason', 'RELOCATION')
-  }, [])
-
   const handleEdit = (e: any) => {
     $confirm({
       message: '施設を変更します。操作を続けてもよろしいですか',
@@ -145,8 +141,8 @@ export const ChangePatientHealthFacility = (props: Props) => {
                 name='healthFacilityId'
                 defaultId={patient?.healthFacilityId}
                 control={control}
-                error={!!errors?.healthFacilityId}
-                helperText={errors.healthFacilityId?.message}
+                error={!!relocationErrors?.healthFacilityId}
+                helperText={relocationErrors.healthFacilityId?.message}
               />
               <ControlDatePicker
                 required

@@ -5,6 +5,18 @@ import { HTTP_STATUS } from '@/core/configs/constants'
 const headers = { 'content-type': 'application/json' }
 
 /**
+ * 更新結果、変更がなかった場合のHTTPレスポンス情報です。
+ * @param zodError バリデーションエラー情報
+ * @return HTTPレスポンス
+ */
+export const noContentResponse = () => {
+  return new NextResponse(null, {
+    status: HTTP_STATUS.NO_CONTENT,
+    headers,
+  })
+}
+
+/**
  * 認証エラーが発生した時のHTTPレスポンス情報です。
  * @param message エラーメッセージ
  * @return HTTPレスポンス
