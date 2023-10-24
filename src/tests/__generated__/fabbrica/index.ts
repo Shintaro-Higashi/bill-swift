@@ -1,4 +1,5 @@
 import type { AccountManage } from "@prisma/client";
+import type { CaulPatient } from "@prisma/client";
 import type { Company } from "@prisma/client";
 import type { HealthFacility } from "@prisma/client";
 import type { HealthFacilityCodeGroup } from "@prisma/client";
@@ -70,6 +71,9 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 type: "Pharmacy",
                 relationName: "pharmacy_withdrawal_account_manage_idToaccount_manage"
             }]
+    }, {
+        name: "CaulPatient",
+        fields: []
     }, {
         name: "Company",
         fields: [{
@@ -747,6 +751,149 @@ function defineAccountManageFactoryInternal<TOptions extends AccountManageFactor
  */
 export function defineAccountManageFactory<TOptions extends AccountManageFactoryDefineOptions>(options?: TOptions): AccountManageFactoryInterface<TOptions> {
     return defineAccountManageFactoryInternal(options ?? {});
+}
+
+type CaulPatientScalarOrEnumFields = {
+    code: string;
+    name: string;
+};
+
+type CaulPatientFactoryDefineInput = {
+    code?: string;
+    name?: string;
+    nameKana?: string | null;
+    gender?: string | null;
+    birthday?: Date | null;
+    postalCode?: string | null;
+    address1?: string | null;
+    address2?: string | null;
+    shopCd?: string | null;
+    shopName?: string | null;
+    classCd1?: string | null;
+    className1?: string | null;
+    classCd2?: string | null;
+    className2?: string | null;
+    classCd3?: string | null;
+    className3?: string | null;
+    classCd4?: string | null;
+    className4?: string | null;
+    classCd5?: string | null;
+    className5?: string | null;
+    billType?: string | null;
+    billTypeName?: string | null;
+    lastBillDay?: Date | null;
+    note?: string | null;
+    facilityCd?: string | null;
+    facilityName?: string | null;
+    deliverryName?: string | null;
+    consentCd?: string | null;
+    consentName?: string | null;
+    insuranceCd?: string | null;
+    insuranceName?: string | null;
+    billIssueCd?: string | null;
+    billIssueName?: string | null;
+    comment?: string | null;
+    createdAt?: Date | null;
+    updatedAt?: Date | null;
+    fileName?: string | null;
+};
+
+type CaulPatientFactoryDefineOptions = {
+    defaultData?: Resolver<CaulPatientFactoryDefineInput, BuildDataOptions>;
+    traits?: {
+        [traitName: string | symbol]: {
+            data: Resolver<Partial<CaulPatientFactoryDefineInput>, BuildDataOptions>;
+        };
+    };
+};
+
+type CaulPatientTraitKeys<TOptions extends CaulPatientFactoryDefineOptions> = keyof TOptions["traits"];
+
+export interface CaulPatientFactoryInterfaceWithoutTraits {
+    readonly _factoryFor: "CaulPatient";
+    build(inputData?: Partial<Prisma.CaulPatientCreateInput>): PromiseLike<Prisma.CaulPatientCreateInput>;
+    buildCreateInput(inputData?: Partial<Prisma.CaulPatientCreateInput>): PromiseLike<Prisma.CaulPatientCreateInput>;
+    buildList(inputData: number | readonly Partial<Prisma.CaulPatientCreateInput>[]): PromiseLike<Prisma.CaulPatientCreateInput[]>;
+    pickForConnect(inputData: CaulPatient): Pick<CaulPatient, "code">;
+    create(inputData?: Partial<Prisma.CaulPatientCreateInput>): PromiseLike<CaulPatient>;
+    createList(inputData: number | readonly Partial<Prisma.CaulPatientCreateInput>[]): PromiseLike<CaulPatient[]>;
+    createForConnect(inputData?: Partial<Prisma.CaulPatientCreateInput>): PromiseLike<Pick<CaulPatient, "code">>;
+}
+
+export interface CaulPatientFactoryInterface<TOptions extends CaulPatientFactoryDefineOptions = CaulPatientFactoryDefineOptions> extends CaulPatientFactoryInterfaceWithoutTraits {
+    use(name: CaulPatientTraitKeys<TOptions>, ...names: readonly CaulPatientTraitKeys<TOptions>[]): CaulPatientFactoryInterfaceWithoutTraits;
+}
+
+function autoGenerateCaulPatientScalarsOrEnums({ seq }: {
+    readonly seq: number;
+}): CaulPatientScalarOrEnumFields {
+    return {
+        code: getScalarFieldValueGenerator().String({ modelName: "CaulPatient", fieldName: "code", isId: true, isUnique: false, seq }),
+        name: getScalarFieldValueGenerator().String({ modelName: "CaulPatient", fieldName: "name", isId: false, isUnique: false, seq })
+    };
+}
+
+function defineCaulPatientFactoryInternal<TOptions extends CaulPatientFactoryDefineOptions>({ defaultData: defaultDataResolver, traits: traitsDefs = {} }: TOptions): CaulPatientFactoryInterface<TOptions> {
+    const getFactoryWithTraits = (traitKeys: readonly CaulPatientTraitKeys<TOptions>[] = []) => {
+        const seqKey = {};
+        const getSeq = () => getSequenceCounter(seqKey);
+        const screen = createScreener("CaulPatient", modelFieldDefinitions);
+        const build = async (inputData: Partial<Prisma.CaulPatientCreateInput> = {}) => {
+            const seq = getSeq();
+            const requiredScalarData = autoGenerateCaulPatientScalarsOrEnums({ seq });
+            const resolveValue = normalizeResolver<CaulPatientFactoryDefineInput, BuildDataOptions>(defaultDataResolver ?? {});
+            const defaultData = await traitKeys.reduce(async (queue, traitKey) => {
+                const acc = await queue;
+                const resolveTraitValue = normalizeResolver<Partial<CaulPatientFactoryDefineInput>, BuildDataOptions>(traitsDefs[traitKey]?.data ?? {});
+                const traitData = await resolveTraitValue({ seq });
+                return {
+                    ...acc,
+                    ...traitData,
+                };
+            }, resolveValue({ seq }));
+            const defaultAssociations = {};
+            const data: Prisma.CaulPatientCreateInput = { ...requiredScalarData, ...defaultData, ...defaultAssociations, ...inputData };
+            return data;
+        };
+        const buildList = (inputData: number | readonly Partial<Prisma.CaulPatientCreateInput>[]) => Promise.all(normalizeList(inputData).map(data => build(data)));
+        const pickForConnect = (inputData: CaulPatient) => ({
+            code: inputData.code
+        });
+        const create = async (inputData: Partial<Prisma.CaulPatientCreateInput> = {}) => {
+            const data = await build(inputData).then(screen);
+            return await getClient<PrismaClient>().caulPatient.create({ data });
+        };
+        const createList = (inputData: number | readonly Partial<Prisma.CaulPatientCreateInput>[]) => Promise.all(normalizeList(inputData).map(data => create(data)));
+        const createForConnect = (inputData: Partial<Prisma.CaulPatientCreateInput> = {}) => create(inputData).then(pickForConnect);
+        return {
+            _factoryFor: "CaulPatient" as const,
+            build,
+            buildList,
+            buildCreateInput: build,
+            pickForConnect,
+            create,
+            createList,
+            createForConnect,
+        };
+    };
+    const factory = getFactoryWithTraits();
+    const useTraits = (name: CaulPatientTraitKeys<TOptions>, ...names: readonly CaulPatientTraitKeys<TOptions>[]) => {
+        return getFactoryWithTraits([name, ...names]);
+    };
+    return {
+        ...factory,
+        use: useTraits,
+    };
+}
+
+/**
+ * Define factory for {@link CaulPatient} model.
+ *
+ * @param options
+ * @returns factory {@link CaulPatientFactoryInterface}
+ */
+export function defineCaulPatientFactory<TOptions extends CaulPatientFactoryDefineOptions>(options?: TOptions): CaulPatientFactoryInterface<TOptions> {
+    return defineCaulPatientFactoryInternal(options ?? {});
 }
 
 type CompanyScalarOrEnumFields = {

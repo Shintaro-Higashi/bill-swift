@@ -29,6 +29,7 @@ import {
   PatientMedicalInsuranceStatus,
   PatientConsentStatus,
   PatientAccountConfirmStatus,
+  CaulPatient,
 } from '@prisma/client'
 import {
   convertSearchName,
@@ -56,12 +57,15 @@ import {
   getPatientPaymentType,
 } from './patientImporterConfig'
 import { createPrismaQueryEventHandler } from 'prisma-query-log'
+import differentPatientDef from './differentPatient.json'
 
 //-----------------------------------------------------------------------------
 // 各種定義
 //-----------------------------------------------------------------------------
 // ツールで使用するprismaのインスタンス
 const loaderPrisma = new PrismaClient({ log: [{ level: 'query', emit: 'event' }] })
+// 数字のみで構成されているかを判断するための正規表現
+const NUM_REG = /^[0-9]+$/
 
 //-----------------------------------------------------------------------------
 // 関数定義
@@ -83,21 +87,26 @@ const execute = async () => {
   })
 
   // 入居者CSVから患者の一時データを作成
-  const tempPatientList = await createTmpPatientList(CAUL_CSV_PATH)
+  const caulPatientList: CaulPatient[] = []
+  const tempPatientList = await createTmpPatientList(CAUL_CSV_PATH, caulPatientList)
   // 請求CSVから患者の一時データに生年月日と性別を設定
-  await addInformationByBillCsv(BILL_CSV_PATH, tempPatientList)
+  await addInformationByBillCsv(BILL_CSV_PATH, tempPatientList, caulPatientList)
+  logging('INF', `CAUL患者データを登録します ${caulPatientList.length}件`)
+  await loaderPrisma.caulPatient.createMany({ data: caulPatientList })
   const excludeList = tempPatientList.filter((p) => !p.birthDate).map((p) => p.patientName + '(' + p.patientCode + ')')
   logging(
     'TRC',
     `生年月日が未設定の情報 (${excludeList.length} / ${tempPatientList.length}): ${excludeList.join(', ')}`,
   )
+  // ソート（患者名, （生年月日）, 住所, 前回請求締年月日）
+  const sortedPatientList = sortTempPatientList(tempPatientList)
 
   // 一時データをもとにデータを作成
   logging('INF', '一時データをもとに各種登録・更新用データを作成します')
   let lastTempPatient: TmpPatientModel | null = null
   let lastPatient: PatientInputModel | null = null
   const patientList: PatientInputModel[] = []
-  for (const tempPatient of tempPatientList) {
+  for (const tempPatient of sortedPatientList) {
     // シーケンス番号に最大値を設定
     setMaxSeq(tempPatient, codeManageList, manageList)
 
@@ -146,7 +155,7 @@ const getVal = (key: string, record: any) => {
  * @param csvPath CSVファイルを格納したパス
  * @returns 患者一時データのリスト
  */
-const createTmpPatientList = async (csvPath: string): Promise<TmpPatientModel[]> => {
+const createTmpPatientList = async (csvPath: string, caulList: CaulPatient[]): Promise<TmpPatientModel[]> => {
   // 薬局の一覧データを取得（会社の施設コードグループIDを取得するため）
   logging('INF', '薬局の全レコードを取得します')
   const pharmacyList = (await loaderPrisma.pharmacy.findMany({
@@ -167,9 +176,10 @@ const createTmpPatientList = async (csvPath: string): Promise<TmpPatientModel[]>
     .map((file) => path.join(csvPath, file))
 
   const tmpPatientList: TmpPatientModel[] = []
+  let hasError = false
   csvFileList.forEach((csvFile) => {
     // CSVファイルを読み込み
-    logging('INF', `CSVファイルを読み込み一時情報を作成します ⇒ ${csvFile}`)
+    logging('INF', `入居者CSVファイルを読み込み一時情報を作成します ⇒ ${csvFile}`)
     const rawData = fs.readFileSync(csvFile)
     // 文字コード変換
     const csvData = iconv.decode(rawData, 'ms932')
@@ -177,20 +187,40 @@ const createTmpPatientList = async (csvPath: string): Promise<TmpPatientModel[]>
     const records = parse(csvData, { columns: true })
     // レコードから一時情報を作成
     for (const record of records) {
+      // 患者コードが4桁以下の場合は無視する
       if (
         getVal('分類CD2', record) !== '1' ||
         getVal('施設名', record) === '外来' ||
-        getVal('部門CD', record) === '999'
+        getVal('部門CD', record) === '999' ||
+        getVal('得意先CD', record).length <= 4
       ) {
-        // 「1: 請求対象者, 2: 外来」のため1以外は管理対象外とする
-        // また、施設名が「外来」の場合も管理対象外とする
-        // さらに部門CDが「999」も対象外とする
+        // ・「1: 請求対象者, 2: 外来」のため1以外は管理対象外とする
+        // ・施設名が「外来」の場合も管理対象外とする
+        // ・部門CDが「999」も対象外とする
+        // ・患者コードが4桁以下の場合も対象外とする
         const info = `患者=${getVal('得意先名', record)}(${getVal('得意先CD', record)}), 分類=${getVal(
           '分類名2',
           record,
         )}, 施設名=${getVal('施設名', record)}, 部門CD=${getVal('部門CD', record)}`
         logging('DBG', `対象外: ${info}`)
         continue
+      }
+      const caulPatient = createCaulPatient(record, csvFile)
+      const existCode = caulList.find((c) => c.code === caulPatient.code)
+      if (existCode) {
+        if (removeSeparator(caulPatient.name) === removeSeparator(existCode.name)) {
+          logging(
+            'DEB',
+            `別店舗のデータと同じものが存在するためスキップ データ=${caulPatient.fileName}, スキップ=${existCode.fileName}`,
+          )
+          continue
+        }
+        logging('ERR', '同じ患者コードが存在しています')
+        logging('INF', JSON.stringify(existCode))
+        logging('INF', JSON.stringify(caulPatient))
+        hasError = true
+      } else {
+        caulList.push(caulPatient)
       }
       // 正しいデータが出来た場合のみデータを追加
       const tmpPatient = convertTmpPatientModel(record, pharmacyList, facilityList)
@@ -201,8 +231,10 @@ const createTmpPatientList = async (csvPath: string): Promise<TmpPatientModel[]>
       }
     }
   })
-  // ソート（患者名, （生年月日）, 住所, 前回請求締年月日）
-  return sortTempPatientList(tmpPatientList)
+  if (hasError) {
+    throw new Error('同一患者コードを持つ入居者データが存在します')
+  }
+  return tmpPatientList
 }
 
 /**
@@ -218,12 +250,17 @@ const convertTmpPatientModel = (
   facilityList: FaciltyData[],
 ): TmpPatientModel | null => {
   const patientName = getVal('得意先名', record).replace(/\s/g, '　') // 氏名の間にスペースが入っている場合は全角に統一
+  const patientKana = getVal('得意先名カナ', record)
+  // 名前に数字のみが設定されている場合、備考が未設定なら備考に内容を設定
+  if (NUM_REG.test(patientKana) && getVal('備考', record) === '') {
+    record['備考'] = patientKana
+  }
   const address = getAddress(record)
   const comment = getVal('申し送り', record)
   const tempPatient: TmpPatientModel = {
     patientCode: getVal('得意先CD', record),
     patientName: patientName,
-    patientKana: getVal('得意先名カナ', record),
+    patientKana: patientKana,
     billName: getVal('送付先宛名', record) !== '' ? getVal('送付先宛名', record) : patientName,
     trimName: removeSeparator(patientName) as string,
     postalCode: getVal('郵便番号', record),
@@ -452,11 +489,15 @@ const sortTempPatientList = (tmpPatientList: TmpPatientModel[]): TmpPatientModel
     }
     // 生年月日が設定されている場合
     if (p1.birthDate && p2.birthDate) {
-      if (p1.birthDate < p2.birthDate) {
+      if (p1.birthDate.getTime() < p2.birthDate.getTime()) {
         return -1
-      } else if (p1.birthDate > p2.birthDate) {
+      } else if (p1.birthDate.getTime() > p2.birthDate.getTime()) {
         return 1
       }
+    } else if (p1.birthDate) {
+      return -1
+    } else if (p2.birthDate) {
+      return 1
     }
     // 住所
     if (p1.address1 < p2.address1) {
@@ -466,9 +507,9 @@ const sortTempPatientList = (tmpPatientList: TmpPatientModel[]): TmpPatientModel
     }
     // 前回請求締年月日
     if (p1.lastBillDate !== null && p2.lastBillDate !== null) {
-      if (p1.lastBillDate < p2.lastBillDate) {
+      if (p1.lastBillDate.getTime() < p2.lastBillDate.getTime()) {
         return -1
-      } else if (p1.lastBillDate > p2.lastBillDate) {
+      } else if (p1.lastBillDate.getTime() > p2.lastBillDate.getTime()) {
         return 1
       }
     } else if (p1.lastBillDate !== null && p2.lastBillDate === null) {
@@ -485,14 +526,18 @@ const sortTempPatientList = (tmpPatientList: TmpPatientModel[]): TmpPatientModel
  * @param csvPath 請求CSVパス
  * @param tempPatientList 患者一時情報リスト
  */
-const addInformationByBillCsv = async (csvPath: string, tempPatientList: TmpPatientModel[]) => {
+const addInformationByBillCsv = async (
+  csvPath: string,
+  tempPatientList: TmpPatientModel[],
+  caulList: CaulPatient[],
+) => {
   // 入力ファイルのリストを取得
   const csvFileList = getFileNames(csvPath)
 
   const doneCodeList: string[] = []
   csvFileList.forEach((csvFile) => {
     // CSVファイルを読み込み
-    logging('INF', `CSVファイルを読み込み一時情報に値を設定します ⇒ ${csvFile}`)
+    logging('INF', `請求CSVファイルを読み込み一時情報に値を設定します ⇒ ${csvFile}`)
     const rawData = fs.readFileSync(csvFile)
     // 文字コード変換
     let csvData = iconv.decode(rawData, 'ms932')
@@ -549,8 +594,56 @@ const addInformationByBillCsv = async (csvPath: string, tempPatientList: TmpPati
           )}`,
         )
       }
+      const caulPatient = caulList.find((c) => c.code === code)
+      if (caulPatient) {
+        caulPatient.nameKana = getVal('カナ氏名', record)
+        caulPatient.birthday = new Date(getVal('生年月日', record))
+        caulPatient.gender = getVal('性別', record)
+      }
     }
   })
+}
+
+const createCaulPatient = (record: any, fileName: string): CaulPatient => {
+  return {
+    code: record['得意先CD'],
+    name: record['得意先名'],
+    nameKana: record['得意先名カナ'],
+    gender: '',
+    birthday: null,
+    postalCode: record['郵便番号'],
+    address1: record['住所1'],
+    address2: record['住所2'],
+    shopCd: record['部門CD'],
+    shopName: record['部門名'],
+    classCd1: record['分類CD1'],
+    className1: record['分類名1'],
+    classCd2: record['分類CD2'],
+    className2: record['分類名2'],
+    classCd3: record['分類CD3'],
+    className3: record['分類名3'],
+    classCd4: record['分類CD4'],
+    className4: record['分類名4'],
+    classCd5: record['分類CD5'],
+    className5: record['分類名5'],
+    billType: record['請求書種類'],
+    billTypeName: record['請求書種類名'],
+    lastBillDay: record['前回請求締年月日'] === '' ? null : new Date(record['前回請求締年月日']),
+    note: record['備考'],
+    facilityCd: record['施設CD'],
+    facilityName: record['施設名'],
+    deliverryName: record['送付先宛名'],
+    consentCd: record['同意書CD'],
+    consentName: record['同意書名'],
+    insuranceCd: record['保険書CD'],
+    insuranceName: record['保険書名'],
+    billIssueCd: record['請求書発行CD'],
+    billIssueName: record['請求書発行名'],
+    comment: record['申し送り'],
+    createdAt: new Date(record['登録日時']),
+    updatedAt: new Date(record['更新日時']),
+    fileName: fileName,
+  }
 }
 
 const getFileNames = (dirPath: string) => {
@@ -666,7 +759,7 @@ const createPatientInput = (
   }
   setCommonColumns(patient)
   // 逝去されている場合は論理削除
-  if (tempPatient.notActive && tempPatient.note.includes('逝去')) {
+  if (tempPatient.note.includes('逝去') || tempPatient.comment.includes('逝去')) {
     patient.deletedAt = tempPatient.lastBillDate ? tempPatient.lastBillDate : DEFAULT_START_DATE
   }
   logging(
@@ -680,7 +773,6 @@ const createPatientInput = (
   return patient
 }
 
-const NUM_REG = /^[0-9]+$/
 /**
  * 備考に「階」「号」「室」「部屋」が含まれている場合、または数字のみの場合は施設情報と判定する
  * @param val 備考の値
@@ -800,13 +892,11 @@ const addPatientRelateHealthFacility = (
  * @returns 同じ場合に true を返す
  */
 const checkSamePatient = (tempPatient: TmpPatientModel, lastTempPatient: TmpPatientModel): boolean => {
-  // 名前が同じでない場合は異なる患者
-  if (tempPatient.trimName !== lastTempPatient.trimName) {
-    return false
-  }
   // 生年月日と性別がそれぞれ設定されていて値が異なる場合は違う患者
   if (
-    (tempPatient.birthDate && lastTempPatient.birthDate && tempPatient.birthDate !== lastTempPatient.birthDate) ||
+    (tempPatient.birthDate &&
+      lastTempPatient.birthDate &&
+      tempPatient.birthDate.getTime() !== lastTempPatient.birthDate.getTime()) ||
     (tempPatient.gender && lastTempPatient.gender && tempPatient.gender !== lastTempPatient.gender)
   ) {
     return false
@@ -817,11 +907,19 @@ const checkSamePatient = (tempPatient: TmpPatientModel, lastTempPatient: TmpPati
     logging('DBG', `コードが同じ患者 ${patientInfo}`)
     return true
   }
+
+  // 名前が同じでない場合は異なる患者
+  const nameMatch = tempPatient.trimName === lastTempPatient.trimName
+  const kanaMatch = removeSeparator(tempPatient.patientKana) === removeSeparator(lastTempPatient.patientKana)
+  if (!nameMatch && !kanaMatch) {
+    return false
+  }
+
   // 生年月日と性別がそれぞれ設定されていて同じ値か
   const matchedBirthGender =
     tempPatient.birthDate &&
     lastTempPatient.birthDate &&
-    tempPatient.birthDate === lastTempPatient.birthDate &&
+    tempPatient.birthDate.getTime() === lastTempPatient.birthDate.getTime() &&
     tempPatient.gender &&
     lastTempPatient.gender &&
     tempPatient.gender === lastTempPatient.gender
@@ -841,21 +939,32 @@ const checkSamePatient = (tempPatient: TmpPatientModel, lastTempPatient: TmpPati
     logging('DBG', `生年月日、性別、住所が同じ患者 ${patientInfo}`)
     return true
   }
-  // 生年月日と性別が一致して、一方の住所が空の患者は同一の患者とする
-  if (
-    ((tempPatient.address1 !== '' && lastTempPatient.address1 === '') ||
-      (tempPatient.address1 === '' && lastTempPatient.address1 !== '')) &&
-    matchedBirthGender
-  ) {
-    logging('DBG', `生年月日と性別が一致して、一方の住所が空の患者は同一の患者 ${patientInfo}`)
-    return true
-  }
   // 生年月日と性別が未設定のものがある場合は住所が一致すれば同一の患者と判定
   if (
     (!tempPatient.birthDate || !lastTempPatient.birthDate || !tempPatient.gender || !lastTempPatient.gender) &&
     matchedAddress
   ) {
     logging('DBG', `生年月日と性別が未設定のものがある場合は住所が一致すれば同一の患者 ${patientInfo}`)
+    return true
+  }
+  // 生年月日と性別と（カナ）氏名が一致すれば同一の患者
+  if (matchedBirthGender) {
+    if (
+      differentPatientDef.includes(tempPatient.patientCode) &&
+      differentPatientDef.includes(lastTempPatient.patientCode)
+    ) {
+      logging('DBG', `生年月日と性別と（カナ）氏名が一致すしているが設定に定義があるため別患者とする ${patientInfo}`)
+      return false
+    }
+    logging('DBG', `生年月日と性別と（カナ）氏名が一致すれば同一の患者`)
+    logging(
+      'INF',
+      `${tempPatient.patientCode}\t${tempPatient.patientName}\t${tempPatient.patientKana}\t${tempPatient.healthFacilityName}\t${tempPatient.address1}`,
+    )
+    logging(
+      'INF',
+      `${lastTempPatient.patientCode}\t${lastTempPatient.patientName}\t${lastTempPatient.patientKana}\t${lastTempPatient.healthFacilityName}\t${lastTempPatient.address1}`,
+    )
     return true
   }
   return false
@@ -933,7 +1042,7 @@ const doSamePatient = (
   // 古い順にソートされているのでコードを新しいものに変更（古いコードは患者コード履歴に存在）
   lastPatient.code = tempPatient.patientCode
   // 逝去されている場合は論理削除
-  if (tempPatient.notActive && tempPatient.note.includes('逝去')) {
+  if (tempPatient.note.includes('逝去') || tempPatient.comment.includes('逝去')) {
     lastPatient.deletedAt = tempPatient.lastBillDate ? tempPatient.lastBillDate : DEFAULT_START_DATE
   }
   // 該当患者の履歴に持っていない患者コードの場合は患者コード履歴を追加

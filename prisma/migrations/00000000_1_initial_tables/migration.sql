@@ -558,4 +558,46 @@ ALTER TABLE inquiry_file
   ADD CONSTRAINT inquiry_file_FK_updated_by FOREIGN KEY (updated_by) REFERENCES user(id);
 
 
-
+/* ----------------------------------------------------------------------------
+ * 患者データ移行時に元データを保存しておくテーブル
+ * --------------------------------------------------------------------------*/
+CREATE TABLE caul_patient (
+  code VARCHAR(64) NOT NULL COMMENT '得意先CD'
+  , name VARCHAR(64) NOT NULL COMMENT '得意先名'
+  , name_kana VARCHAR(64) COMMENT '得意先名カナ:請求CSVデータがあれば上書き'
+  , gender VARCHAR(64) COMMENT '性別:請求CSVデータがあれば設定'
+  , birthday DATE COMMENT '生年月日:請求CSVデータがあれば設定'
+  , postal_code VARCHAR(64) COMMENT '郵便番号'
+  , address1 VARCHAR(64) COMMENT '住所1'
+  , address2 VARCHAR(64) COMMENT '住所2'
+  , shop_cd VARCHAR(64) COMMENT '部門CD'
+  , shop_name VARCHAR(64) COMMENT '部門名'
+  , class_cd1 VARCHAR(64) COMMENT '分類CD1'
+  , class_name1 VARCHAR(64) COMMENT '分類名1'
+  , class_cd2 VARCHAR(64) COMMENT '分類CD2'
+  , class_name2 VARCHAR(64) COMMENT '分類名2'
+  , class_cd3 VARCHAR(64) COMMENT '分類CD3'
+  , class_name3 VARCHAR(64) COMMENT '分類名3'
+  , class_cd4 VARCHAR(64) COMMENT '分類CD4'
+  , class_name4 VARCHAR(64) COMMENT '分類名4'
+  , class_cd5 VARCHAR(64) COMMENT '分類CD5'
+  , class_name5 VARCHAR(64) COMMENT '分類名5'
+  , bill_type VARCHAR(64) COMMENT '請求書種類'
+  , bill_type_name VARCHAR(64) COMMENT '請求書種類名'
+  , last_bill_day DATE COMMENT '前回請求締年月日'
+  , note TEXT COMMENT '備考'
+  , facility_cd VARCHAR(64) COMMENT '施設CD'
+  , facility_name VARCHAR(64) COMMENT '施設名'
+  , deliverry_name VARCHAR(64) COMMENT '送付先宛名'
+  , consent_cd VARCHAR(64) COMMENT '同意書CD'
+  , consent_name VARCHAR(64) COMMENT '同意書名'
+  , insurance_cd VARCHAR(64) COMMENT '保険書CD'
+  , insurance_name VARCHAR(64) COMMENT '保険書名'
+  , bill_issue_cd VARCHAR(64) COMMENT '請求書発行CD'
+  , bill_issue_name VARCHAR(64) COMMENT '請求書発行名'
+  , comment TEXT COMMENT '申し送り'
+  , created_at DATE COMMENT '登録日時'
+  , updated_at DATE COMMENT '更新日時'
+  , file_name VARCHAR(255) COMMENT '元データファイル名'
+  , CONSTRAINT caul_patient_PKC PRIMARY KEY (code)
+) COMMENT 'カウル患者データ' ;

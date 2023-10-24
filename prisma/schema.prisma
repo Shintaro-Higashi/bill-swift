@@ -5,8 +5,8 @@ generator client {
 generator fabbrica {
   provider    = "prisma-fabbrica"
   output      = "../src/tests/__generated__/fabbrica"
-  noTranspile = "true"
   tsconfig    = "../tsconfig.local.json"
+  noTranspile = "true"
 }
 
 datasource db {
@@ -42,6 +42,49 @@ model AccountManage {
   @@index([createdBy], map: "account_manage_FK_created_by")
   @@index([updatedBy], map: "account_manage_FK_updated_by")
   @@map("account_manage")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model CaulPatient {
+  code          String    @id @db.VarChar(64)
+  name          String    @db.VarChar(64)
+  nameKana      String?   @map("name_kana") @db.VarChar(64)
+  gender        String?   @db.VarChar(64)
+  birthday      DateTime? @db.Date
+  postalCode    String?   @map("postal_code") @db.VarChar(64)
+  address1      String?   @db.VarChar(64)
+  address2      String?   @db.VarChar(64)
+  shopCd        String?   @map("shop_cd") @db.VarChar(64)
+  shopName      String?   @map("shop_name") @db.VarChar(64)
+  classCd1      String?   @map("class_cd1") @db.VarChar(64)
+  className1    String?   @map("class_name1") @db.VarChar(64)
+  classCd2      String?   @map("class_cd2") @db.VarChar(64)
+  className2    String?   @map("class_name2") @db.VarChar(64)
+  classCd3      String?   @map("class_cd3") @db.VarChar(64)
+  className3    String?   @map("class_name3") @db.VarChar(64)
+  classCd4      String?   @map("class_cd4") @db.VarChar(64)
+  className4    String?   @map("class_name4") @db.VarChar(64)
+  classCd5      String?   @map("class_cd5") @db.VarChar(64)
+  className5    String?   @map("class_name5") @db.VarChar(64)
+  billType      String?   @map("bill_type") @db.VarChar(64)
+  billTypeName  String?   @map("bill_type_name") @db.VarChar(64)
+  lastBillDay   DateTime? @map("last_bill_day") @db.Date
+  note          String?   @db.Text
+  facilityCd    String?   @map("facility_cd") @db.VarChar(64)
+  facilityName  String?   @map("facility_name") @db.VarChar(64)
+  deliverryName String?   @map("deliverry_name") @db.VarChar(64)
+  consentCd     String?   @map("consent_cd") @db.VarChar(64)
+  consentName   String?   @map("consent_name") @db.VarChar(64)
+  insuranceCd   String?   @map("insurance_cd") @db.VarChar(64)
+  insuranceName String?   @map("insurance_name") @db.VarChar(64)
+  billIssueCd   String?   @map("bill_issue_cd") @db.VarChar(64)
+  billIssueName String?   @map("bill_issue_name") @db.VarChar(64)
+  comment       String?   @db.Text
+  createdAt     DateTime? @map("created_at") @db.Date
+  updatedAt     DateTime? @map("updated_at") @db.Date
+  fileName      String?   @map("file_name") @db.VarChar(255)
+
+  @@map("caul_patient")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
