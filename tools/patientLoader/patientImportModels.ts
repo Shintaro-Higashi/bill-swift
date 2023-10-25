@@ -17,6 +17,7 @@ import {
   PatientNursingInsuranceStatus,
   PatientPaymentType,
   PatientRelateHealthFacilityReason,
+  PatientStatus,
   Pharmacy,
 } from '@prisma/client'
 
@@ -115,6 +116,7 @@ export type PatientInputModel = {
   id: string
   healthFacilityId: string
   code: string
+  status: PatientStatus
   name: string
   nameKana: string
   searchName: string

@@ -30,6 +30,7 @@ import {
   PatientConsentStatus,
   PatientAccountConfirmStatus,
   CaulPatient,
+  PatientStatus,
 } from '@prisma/client'
 import {
   convertSearchName,
@@ -304,9 +305,11 @@ const convertTmpPatientModel = (
   }
   tempPatient.healthFacilityCodeGroupId = pharmacy.company.healthFacilityCodeGroupId
   // 施設IDを取得して設定
+  const code = getVal('施設CD', record)
+  const simpleCode = Number(code).toString()
   const facility = facilityList.find(
     (f) =>
-      f.code === getVal('施設CD', record) &&
+      (f.code === code || f.code === simpleCode) &&
       f.healthFacilityCodeManage.find((g) => g.healthFacilityCodeGroupId === tempPatient.healthFacilityCodeGroupId),
   )
   if (facility) {
@@ -712,6 +715,7 @@ const createPatientInput = (
     id: createId(),
     healthFacilityId: tempPatient.healthFacilityId,
     code: tempPatient.patientCode,
+    status: PatientStatus.INRESIDENCE,
     // 氏名
     name: tempPatient.patientName,
     nameKana: nameKana,
@@ -758,9 +762,9 @@ const createPatientInput = (
     tempLastBillDate: tempPatient.lastBillDate,
   }
   setCommonColumns(patient)
-  // 逝去されている場合は論理削除
+  // 逝去されている場合はステータスを変更
   if (tempPatient.note.includes('逝去') || tempPatient.comment.includes('逝去')) {
-    patient.deletedAt = tempPatient.lastBillDate ? tempPatient.lastBillDate : DEFAULT_START_DATE
+    patient.status = PatientStatus.DECEASE
   }
   logging(
     'TRC',
@@ -859,7 +863,7 @@ const addPatientRelateHealthFacility = (
   if (patient.patientRelateHealthFacility) {
     if (patient.patientRelateHealthFacility && patient.patientRelateHealthFacility.length > 0) {
       const beforeFacility = patient.patientRelateHealthFacility[patient.patientRelateHealthFacility.length - 1]
-      // 前の関連に退居を設定
+      // 前の関連に転居を設定
       beforeFacility.reason = PatientRelateHealthFacilityReason.RELOCATION
       if (patient.tempLastBillDate) {
         // 前回請求締年月日がある場合、直前の終了日にその月末日付を、該当の開始日にその翌日を設定
@@ -1041,9 +1045,17 @@ const doSamePatient = (
   }
   // 古い順にソートされているのでコードを新しいものに変更（古いコードは患者コード履歴に存在）
   lastPatient.code = tempPatient.patientCode
-  // 逝去されている場合は論理削除
+  // 逝去されている場合はステータスを変更
   if (tempPatient.note.includes('逝去') || tempPatient.comment.includes('逝去')) {
-    lastPatient.deletedAt = tempPatient.lastBillDate ? tempPatient.lastBillDate : DEFAULT_START_DATE
+    lastPatient.status = PatientStatus.DECEASE
+  }
+  // 逝去していなくて「退去」の有無でステータス変更
+  if (lastPatient.status !== PatientStatus.DECEASE) {
+    if (tempPatient.comment.includes('退居') || tempPatient.comment.includes('退去')) {
+      lastPatient.status = PatientStatus.EXIT
+    } else {
+      lastPatient.status = PatientStatus.INRESIDENCE
+    }
   }
   // 該当患者の履歴に持っていない患者コードの場合は患者コード履歴を追加
   if (lastPatient.patientCodeHistory?.find((h) => h.patientCode === tempPatient.patientCode) === undefined) {
@@ -1077,12 +1089,12 @@ const setLastRelateFacilityReason = (patient: PatientInputModel | null, tempPati
     const endDate = tempPatient.lastBillDate
       ? subDays(startOfMonth(tempPatient.lastBillDate), 1)
       : subDays(addMonths(relateFacility.startDate, 1), 1)
-    // 患者が論理削除されている場合は逝去と判定済み（そうでなければ退居）
-    if (patient.deletedAt !== undefined) {
+    // 患者のステータスに逝去や退居が設定されている場合は終了日を設定
+    if (patient.status === PatientStatus.DECEASE) {
       relateFacility.reason = PatientRelateHealthFacilityReason.DECEASE
       relateFacility.endDate = endDate
-    } else if (tempPatient.notActive) {
-      relateFacility.reason = PatientRelateHealthFacilityReason.RELOCATION
+    } else if (patient.status === PatientStatus.EXIT) {
+      relateFacility.reason = PatientRelateHealthFacilityReason.EXIT
       relateFacility.endDate = endDate
     }
   }
@@ -1106,7 +1118,9 @@ const setCommonColumns = (data: CommonColumns) => {
  */
 const affectDB = async (patientList: PatientInputModel[], manageList: any[]) => {
   const notRelatedPatient = patientList.filter(
-    (p) => (!p.patientRelateHealthFacility || p.patientRelateHealthFacility.length === 0) && !p.deletedAt,
+    (p) =>
+      (!p.patientRelateHealthFacility || p.patientRelateHealthFacility.length === 0) &&
+      p.status !== PatientStatus.DECEASE,
   )
   logging('WRN', `ご逝去していなくて施設に紐づきがない患者数: ${notRelatedPatient.length}`)
   logging('DBG', `一覧: \n\t${notRelatedPatient.map((p) => `${p.name}\t${p.code}\t${p.id}`).join('\n\t')}`)
