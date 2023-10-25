@@ -11,7 +11,6 @@ import type { InquiryFile } from "@prisma/client";
 import type { Patient } from "@prisma/client";
 import type { PatientChangeContent } from "@prisma/client";
 import type { PatientChangeHistory } from "@prisma/client";
-import type { PatientCodeHistory } from "@prisma/client";
 import type { PatientFile } from "@prisma/client";
 import type { PatientRelateHealthFacility } from "@prisma/client";
 import type { Pharmacy } from "@prisma/client";
@@ -124,10 +123,6 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "patient",
                 type: "Patient",
                 relationName: "HealthFacilityToPatient"
-            }, {
-                name: "patientCodeHistory",
-                type: "PatientCodeHistory",
-                relationName: "HealthFacilityToPatientCodeHistory"
             }, {
                 name: "patientRelateHealthFacility",
                 type: "PatientRelateHealthFacility",
@@ -270,10 +265,6 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 type: "PatientChangeHistory",
                 relationName: "PatientToPatientChangeHistory"
             }, {
-                name: "patientCodeHistory",
-                type: "PatientCodeHistory",
-                relationName: "PatientToPatientCodeHistory"
-            }, {
                 name: "patientFile",
                 type: "PatientFile",
                 relationName: "PatientToPatientFile"
@@ -315,25 +306,6 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "updatedUser",
                 type: "User",
                 relationName: "patient_change_history_updated_byTouser"
-            }]
-    }, {
-        name: "PatientCodeHistory",
-        fields: [{
-                name: "healthFacility",
-                type: "HealthFacility",
-                relationName: "HealthFacilityToPatientCodeHistory"
-            }, {
-                name: "patient",
-                type: "Patient",
-                relationName: "PatientToPatientCodeHistory"
-            }, {
-                name: "createdUser",
-                type: "User",
-                relationName: "patient_code_history_created_byTouser"
-            }, {
-                name: "updatedUser",
-                type: "User",
-                relationName: "patient_code_history_updated_byTouser"
             }]
     }, {
         name: "PatientFile",
@@ -536,14 +508,6 @@ const modelFieldDefinitions: ModelWithFields[] = [{
                 name: "patientChangeHistoryUpdatedUser",
                 type: "PatientChangeHistory",
                 relationName: "patient_change_history_updated_byTouser"
-            }, {
-                name: "patientCodeHistoryCreatedUser",
-                type: "PatientCodeHistory",
-                relationName: "patient_code_history_created_byTouser"
-            }, {
-                name: "patientCodeHistoryUpdatedUser",
-                type: "PatientCodeHistory",
-                relationName: "patient_code_history_updated_byTouser"
             }, {
                 name: "patientFileCreatedUser",
                 type: "PatientFile",
@@ -1121,7 +1085,6 @@ type HealthFacilityFactoryDefineInput = {
     healthFacilityCodeManage?: Prisma.HealthFacilityCodeManageCreateNestedManyWithoutHealthFacilityInput;
     healthFacilityRelatePharmacy?: Prisma.HealthFacilityRelatePharmacyCreateNestedManyWithoutHealthFacilityInput;
     patient?: Prisma.PatientCreateNestedManyWithoutHealthFacilityInput;
-    patientCodeHistory?: Prisma.PatientCodeHistoryCreateNestedManyWithoutHealthFacilityInput;
     patientRelateHealthFacility?: Prisma.PatientRelateHealthFacilityCreateNestedManyWithoutHealthFacilityInput;
 };
 
@@ -2269,7 +2232,6 @@ type PatientFactoryDefineInput = {
     createdUser?: PatientcreatedUserFactory | Prisma.UserCreateNestedOneWithoutPatientCreatedUserInput;
     updatedUser?: PatientupdatedUserFactory | Prisma.UserCreateNestedOneWithoutPatientUpdatedUserInput;
     patientChangeHistory?: Prisma.PatientChangeHistoryCreateNestedManyWithoutPatientInput;
-    patientCodeHistory?: Prisma.PatientCodeHistoryCreateNestedManyWithoutPatientInput;
     patientFile?: Prisma.PatientFileCreateNestedManyWithoutPatientInput;
     patientRelateHealthFacility?: Prisma.PatientRelateHealthFacilityCreateNestedManyWithoutPatientInput;
 };
@@ -2712,171 +2674,6 @@ export function definePatientChangeHistoryFactory<TOptions extends PatientChange
     return definePatientChangeHistoryFactoryInternal(options);
 }
 
-type PatientCodeHistoryScalarOrEnumFields = {
-    id: string;
-    patientCode: string;
-};
-
-type PatientCodeHistoryhealthFacilityFactory = {
-    _factoryFor: "HealthFacility";
-    build: () => PromiseLike<Prisma.HealthFacilityCreateNestedOneWithoutPatientCodeHistoryInput["create"]>;
-};
-
-type PatientCodeHistorypatientFactory = {
-    _factoryFor: "Patient";
-    build: () => PromiseLike<Prisma.PatientCreateNestedOneWithoutPatientCodeHistoryInput["create"]>;
-};
-
-type PatientCodeHistorycreatedUserFactory = {
-    _factoryFor: "User";
-    build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutPatientCodeHistoryCreatedUserInput["create"]>;
-};
-
-type PatientCodeHistoryupdatedUserFactory = {
-    _factoryFor: "User";
-    build: () => PromiseLike<Prisma.UserCreateNestedOneWithoutPatientCodeHistoryUpdatedUserInput["create"]>;
-};
-
-type PatientCodeHistoryFactoryDefineInput = {
-    id?: string;
-    patientCode?: string;
-    createdAt?: Date | null;
-    updatedAt?: Date | null;
-    deletedAt?: Date | null;
-    existence?: boolean | null;
-    healthFacility: PatientCodeHistoryhealthFacilityFactory | Prisma.HealthFacilityCreateNestedOneWithoutPatientCodeHistoryInput;
-    patient: PatientCodeHistorypatientFactory | Prisma.PatientCreateNestedOneWithoutPatientCodeHistoryInput;
-    createdUser?: PatientCodeHistorycreatedUserFactory | Prisma.UserCreateNestedOneWithoutPatientCodeHistoryCreatedUserInput;
-    updatedUser?: PatientCodeHistoryupdatedUserFactory | Prisma.UserCreateNestedOneWithoutPatientCodeHistoryUpdatedUserInput;
-};
-
-type PatientCodeHistoryFactoryDefineOptions = {
-    defaultData: Resolver<PatientCodeHistoryFactoryDefineInput, BuildDataOptions>;
-    traits?: {
-        [traitName: string | symbol]: {
-            data: Resolver<Partial<PatientCodeHistoryFactoryDefineInput>, BuildDataOptions>;
-        };
-    };
-};
-
-function isPatientCodeHistoryhealthFacilityFactory(x: PatientCodeHistoryhealthFacilityFactory | Prisma.HealthFacilityCreateNestedOneWithoutPatientCodeHistoryInput | undefined): x is PatientCodeHistoryhealthFacilityFactory {
-    return (x as any)?._factoryFor === "HealthFacility";
-}
-
-function isPatientCodeHistorypatientFactory(x: PatientCodeHistorypatientFactory | Prisma.PatientCreateNestedOneWithoutPatientCodeHistoryInput | undefined): x is PatientCodeHistorypatientFactory {
-    return (x as any)?._factoryFor === "Patient";
-}
-
-function isPatientCodeHistorycreatedUserFactory(x: PatientCodeHistorycreatedUserFactory | Prisma.UserCreateNestedOneWithoutPatientCodeHistoryCreatedUserInput | undefined): x is PatientCodeHistorycreatedUserFactory {
-    return (x as any)?._factoryFor === "User";
-}
-
-function isPatientCodeHistoryupdatedUserFactory(x: PatientCodeHistoryupdatedUserFactory | Prisma.UserCreateNestedOneWithoutPatientCodeHistoryUpdatedUserInput | undefined): x is PatientCodeHistoryupdatedUserFactory {
-    return (x as any)?._factoryFor === "User";
-}
-
-type PatientCodeHistoryTraitKeys<TOptions extends PatientCodeHistoryFactoryDefineOptions> = keyof TOptions["traits"];
-
-export interface PatientCodeHistoryFactoryInterfaceWithoutTraits {
-    readonly _factoryFor: "PatientCodeHistory";
-    build(inputData?: Partial<Prisma.PatientCodeHistoryCreateInput>): PromiseLike<Prisma.PatientCodeHistoryCreateInput>;
-    buildCreateInput(inputData?: Partial<Prisma.PatientCodeHistoryCreateInput>): PromiseLike<Prisma.PatientCodeHistoryCreateInput>;
-    buildList(inputData: number | readonly Partial<Prisma.PatientCodeHistoryCreateInput>[]): PromiseLike<Prisma.PatientCodeHistoryCreateInput[]>;
-    pickForConnect(inputData: PatientCodeHistory): Pick<PatientCodeHistory, "id">;
-    create(inputData?: Partial<Prisma.PatientCodeHistoryCreateInput>): PromiseLike<PatientCodeHistory>;
-    createList(inputData: number | readonly Partial<Prisma.PatientCodeHistoryCreateInput>[]): PromiseLike<PatientCodeHistory[]>;
-    createForConnect(inputData?: Partial<Prisma.PatientCodeHistoryCreateInput>): PromiseLike<Pick<PatientCodeHistory, "id">>;
-}
-
-export interface PatientCodeHistoryFactoryInterface<TOptions extends PatientCodeHistoryFactoryDefineOptions = PatientCodeHistoryFactoryDefineOptions> extends PatientCodeHistoryFactoryInterfaceWithoutTraits {
-    use(name: PatientCodeHistoryTraitKeys<TOptions>, ...names: readonly PatientCodeHistoryTraitKeys<TOptions>[]): PatientCodeHistoryFactoryInterfaceWithoutTraits;
-}
-
-function autoGeneratePatientCodeHistoryScalarsOrEnums({ seq }: {
-    readonly seq: number;
-}): PatientCodeHistoryScalarOrEnumFields {
-    return {
-        id: getScalarFieldValueGenerator().String({ modelName: "PatientCodeHistory", fieldName: "id", isId: true, isUnique: false, seq }),
-        patientCode: getScalarFieldValueGenerator().String({ modelName: "PatientCodeHistory", fieldName: "patientCode", isId: false, isUnique: false, seq })
-    };
-}
-
-function definePatientCodeHistoryFactoryInternal<TOptions extends PatientCodeHistoryFactoryDefineOptions>({ defaultData: defaultDataResolver, traits: traitsDefs = {} }: TOptions): PatientCodeHistoryFactoryInterface<TOptions> {
-    const getFactoryWithTraits = (traitKeys: readonly PatientCodeHistoryTraitKeys<TOptions>[] = []) => {
-        const seqKey = {};
-        const getSeq = () => getSequenceCounter(seqKey);
-        const screen = createScreener("PatientCodeHistory", modelFieldDefinitions);
-        const build = async (inputData: Partial<Prisma.PatientCodeHistoryCreateInput> = {}) => {
-            const seq = getSeq();
-            const requiredScalarData = autoGeneratePatientCodeHistoryScalarsOrEnums({ seq });
-            const resolveValue = normalizeResolver<PatientCodeHistoryFactoryDefineInput, BuildDataOptions>(defaultDataResolver ?? {});
-            const defaultData = await traitKeys.reduce(async (queue, traitKey) => {
-                const acc = await queue;
-                const resolveTraitValue = normalizeResolver<Partial<PatientCodeHistoryFactoryDefineInput>, BuildDataOptions>(traitsDefs[traitKey]?.data ?? {});
-                const traitData = await resolveTraitValue({ seq });
-                return {
-                    ...acc,
-                    ...traitData,
-                };
-            }, resolveValue({ seq }));
-            const defaultAssociations = {
-                healthFacility: isPatientCodeHistoryhealthFacilityFactory(defaultData.healthFacility) ? {
-                    create: await defaultData.healthFacility.build()
-                } : defaultData.healthFacility,
-                patient: isPatientCodeHistorypatientFactory(defaultData.patient) ? {
-                    create: await defaultData.patient.build()
-                } : defaultData.patient,
-                createdUser: isPatientCodeHistorycreatedUserFactory(defaultData.createdUser) ? {
-                    create: await defaultData.createdUser.build()
-                } : defaultData.createdUser,
-                updatedUser: isPatientCodeHistoryupdatedUserFactory(defaultData.updatedUser) ? {
-                    create: await defaultData.updatedUser.build()
-                } : defaultData.updatedUser
-            };
-            const data: Prisma.PatientCodeHistoryCreateInput = { ...requiredScalarData, ...defaultData, ...defaultAssociations, ...inputData };
-            return data;
-        };
-        const buildList = (inputData: number | readonly Partial<Prisma.PatientCodeHistoryCreateInput>[]) => Promise.all(normalizeList(inputData).map(data => build(data)));
-        const pickForConnect = (inputData: PatientCodeHistory) => ({
-            id: inputData.id
-        });
-        const create = async (inputData: Partial<Prisma.PatientCodeHistoryCreateInput> = {}) => {
-            const data = await build(inputData).then(screen);
-            return await getClient<PrismaClient>().patientCodeHistory.create({ data });
-        };
-        const createList = (inputData: number | readonly Partial<Prisma.PatientCodeHistoryCreateInput>[]) => Promise.all(normalizeList(inputData).map(data => create(data)));
-        const createForConnect = (inputData: Partial<Prisma.PatientCodeHistoryCreateInput> = {}) => create(inputData).then(pickForConnect);
-        return {
-            _factoryFor: "PatientCodeHistory" as const,
-            build,
-            buildList,
-            buildCreateInput: build,
-            pickForConnect,
-            create,
-            createList,
-            createForConnect,
-        };
-    };
-    const factory = getFactoryWithTraits();
-    const useTraits = (name: PatientCodeHistoryTraitKeys<TOptions>, ...names: readonly PatientCodeHistoryTraitKeys<TOptions>[]) => {
-        return getFactoryWithTraits([name, ...names]);
-    };
-    return {
-        ...factory,
-        use: useTraits,
-    };
-}
-
-/**
- * Define factory for {@link PatientCodeHistory} model.
- *
- * @param options
- * @returns factory {@link PatientCodeHistoryFactoryInterface}
- */
-export function definePatientCodeHistoryFactory<TOptions extends PatientCodeHistoryFactoryDefineOptions>(options: TOptions): PatientCodeHistoryFactoryInterface<TOptions> {
-    return definePatientCodeHistoryFactoryInternal(options);
-}
-
 type PatientFileScalarOrEnumFields = {
     id: string;
     title: string;
@@ -3035,6 +2832,7 @@ export function definePatientFileFactory<TOptions extends PatientFileFactoryDefi
 
 type PatientRelateHealthFacilityScalarOrEnumFields = {
     id: string;
+    patientCode: string;
     startDate: Date;
 };
 
@@ -3060,6 +2858,7 @@ type PatientRelateHealthFacilityupdatedUserFactory = {
 
 type PatientRelateHealthFacilityFactoryDefineInput = {
     id?: string;
+    patientCode?: string;
     startDate?: Date;
     endDate?: Date;
     billSort?: number | null;
@@ -3122,6 +2921,7 @@ function autoGeneratePatientRelateHealthFacilityScalarsOrEnums({ seq }: {
 }): PatientRelateHealthFacilityScalarOrEnumFields {
     return {
         id: getScalarFieldValueGenerator().String({ modelName: "PatientRelateHealthFacility", fieldName: "id", isId: true, isUnique: false, seq }),
+        patientCode: getScalarFieldValueGenerator().String({ modelName: "PatientRelateHealthFacility", fieldName: "patientCode", isId: false, isUnique: true, seq }),
         startDate: getScalarFieldValueGenerator().DateTime({ modelName: "PatientRelateHealthFacility", fieldName: "startDate", isId: false, isUnique: false, seq })
     };
 }
@@ -3766,8 +3566,6 @@ type UserFactoryDefineInput = {
     patientChangeContentUpdatedUser?: Prisma.PatientChangeContentCreateNestedManyWithoutUpdatedUserInput;
     patientChangeHistoryCreatedUser?: Prisma.PatientChangeHistoryCreateNestedManyWithoutCreatedUserInput;
     patientChangeHistoryUpdatedUser?: Prisma.PatientChangeHistoryCreateNestedManyWithoutUpdatedUserInput;
-    patientCodeHistoryCreatedUser?: Prisma.PatientCodeHistoryCreateNestedManyWithoutCreatedUserInput;
-    patientCodeHistoryUpdatedUser?: Prisma.PatientCodeHistoryCreateNestedManyWithoutUpdatedUserInput;
     patientFileCreatedUser?: Prisma.PatientFileCreateNestedManyWithoutCreatedUserInput;
     patientFileUpdatedUser?: Prisma.PatientFileCreateNestedManyWithoutUpdatedUserInput;
     patientRelateHealthFacilityCreatedUser?: Prisma.PatientRelateHealthFacilityCreateNestedManyWithoutCreatedUserInput;

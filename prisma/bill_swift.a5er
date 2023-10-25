@@ -321,7 +321,7 @@ ZOrder=10
 [Entity]
 PName=patient_relate_health_facility
 LName=患者関連施設
-Comment=施設が入居する患者を管理
+Comment=患者の施設変更履歴を管理。施設の店舗変更による患者コード変更発生も履歴管理対象
 TableOption=
 Page=薬局・施設・患者
 Left=2500
@@ -329,16 +329,18 @@ Top=1100
 Field="ID","id","*UUID","NOT NULL",0,"","",$FFFFFFFF,""
 Field="患者ID","patient_id","*UUID","NOT NULL",,"","",$FFFFFFFF,""
 Field="施設ID","health_facility_id","*UUID","NOT NULL",,"","",$FFFFFFFF,""
+Field="患者コード","patient_code","CHAR(8)","NOT NULL",,"","",$FFFFFFFF,""
 Field="入居日","start_date","DATE","NOT NULL",,"","",$FFFFFFFF,""
 Field="退居日","end_date","DATE","NOT NULL",,"\q2100-12-31\q","",$FFFFFFFF,""
 Field="請求書ソート順","bill_sort","INT",,,"","施設単位での請求書に出力する患者のソート順。施設の患者ソート種別がその他以外はデータ登録時に番号を振りなおして更新する",$FFFFFFFF,""
-Field="退居理由","reason","enum(\qDECEASE\q, \qEXIT\q,\qRELOCATION\q)",,,"","DECEASE: 逝去,EXIT:退去, RELOCATION: 転居",$FFFFFFFF,""
+Field="変更理由","reason","enum(\qDECEASE\q, \qEXIT\q,\qRELOCATION\q,\qCHANGE_PHARMACY\q)",,,"","DECEASE: 逝去,EXIT:退去, RELOCATION: 転居, CHANGE_PHARMACY: 薬局変更",$FFFFFFFF,""
 Field="備考","note","TEXT",,,"","",$FFFFFFFF,""
+Index==1,patient_id,health_facility_id,patient_code
 EffectMode=None
 Color=$000000
 BkColor=$99FFFF
-ModifiedDateTime=20231025103113
-Position="薬局・施設・患者",2500,1100,994,301
+ModifiedDateTime=20231025165117
+Position="薬局・施設・患者",2500,1100,1282,327
 Position="MAIN",700,1200,296,101
 ZOrder=11
 
@@ -491,7 +493,7 @@ Fields2=health_facility_id
 Cardinarity1=
 Cardinarity2=
 Position="MAIN",0,3210,6300,3275,R,R,""
-Position="薬局・施設・患者",0,1692,4567,3704,R,R,""
+Position="薬局・施設・患者",0,1692,4567,3680,R,R,""
 Dependence=0
 Caption=
 PName=
@@ -1707,49 +1709,6 @@ TermPos1=R
 TermPos2=R
 ZOrder=98
 
-[Entity]
-PName=patient_code_history
-LName=患者コード履歴
-Comment=患者コードの体系は「施設コード（4桁）」＋「各店舗ごとのユニーク番号（4桁）」だが、\n施設移動になったり店舗が変更された場合に別店舗で新たに番号が付与されることもある\nその際に、元の店舗のコードを変更する運用は存在していないため、同一患者で複数のコードを持つ可能性がある
-TableOption=
-Page=薬局・施設・患者
-Left=1400
-Top=1900
-Field="ID","id","*UUID","NOT NULL",0,"","",$FFFFFFFF,""
-Field="患者ID","patient_id","*UUID","NOT NULL",,"","",$FFFFFFFF,""
-Field="施設ID","health_facility_id","*UUID","NOT NULL",,"","",$FFFFFFFF,""
-Field="患者コード","patient_code","VARCHAR(8)","NOT NULL",,"","",$FFFFFFFF,""
-EffectMode=None
-Color=$000000
-BkColor=$99FFFF
-ModifiedDateTime=20231013165310
-Position="薬局・施設・患者",1400,1900,598,156
-Position="MAIN",1200,900,294,98
-ZOrder=102
-
-[Relation]
-Entity1=patient
-Entity2=patient_code_history
-RelationType1=2
-RelationType2=3
-Fields1=id
-Fields2=patient_id
-Cardinarity1=
-Cardinarity2=
-Position="MAIN",0,3191,4869,3191,R,R,""
-Position="薬局・施設・患者",0,2678,4739,3510,R,R,""
-Dependence=0
-Caption=
-PName=
-ModifiedDateTime=20230726140105
-LineMode=0
-Bar1=319
-Bar2=487
-Bar3=319
-TermPos1=R
-TermPos2=R
-ZOrder=103
-
 [Comment]
 Comment=薬局は個人ではなく\n店舗につき1アカウント
 FontName=Tahoma
@@ -2276,29 +2235,6 @@ Bar3=169
 TermPos1=R
 TermPos2=R
 ZOrder=150
-
-[Relation]
-Entity1=health_facility
-Entity2=patient_code_history
-RelationType1=2
-RelationType2=3
-Fields1=id
-Fields2=health_facility_id
-Cardinarity1=
-Cardinarity2=
-Position="MAIN",0,6919,5117,6707,R,R,""
-Position="薬局・施設・患者",0,2113,5863,3533,R,R,""
-Dependence=0
-Caption=
-PName=
-ModifiedDateTime=20231013141909
-LineMode=0
-Bar1=692
-Bar2=512
-Bar3=671
-TermPos1=R
-TermPos2=R
-ZOrder=155
 
 [Relation]
 Entity1=health_facility

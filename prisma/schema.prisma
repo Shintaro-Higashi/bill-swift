@@ -149,7 +149,6 @@ model HealthFacility {
   healthFacilityCodeManage          HealthFacilityCodeManage[]
   healthFacilityRelatePharmacy      HealthFacilityRelatePharmacy[]
   patient                           Patient[]
-  patientCodeHistory                PatientCodeHistory[]
   patientRelateHealthFacility       PatientRelateHealthFacility[]
 
   @@index([pharmacyId], map: "health_facility_FK1")
@@ -348,7 +347,6 @@ model Patient {
   createdUser  User?                         @relation("patient_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK_created_by")
   updatedUser  User?                         @relation("patient_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_FK_updated_by")
   patientChangeHistory        PatientChangeHistory[]
-  patientCodeHistory          PatientCodeHistory[]
   patientFile                 PatientFile[]
   patientRelateHealthFacility PatientRelateHealthFacility[]
 
@@ -406,30 +404,6 @@ model PatientChangeHistory {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model PatientCodeHistory {
-  id                                    String         @id @db.VarChar(64)
-  patientId                             String         @map("patient_id") @db.VarChar(64)
-  healthFacilityId                      String         @map("health_facility_id") @db.VarChar(64)
-  patientCode                           String         @map("patient_code") @db.VarChar(8)
-  createdAt                             DateTime?      @map("created_at") @db.Timestamp(0)
-  createdBy                             String?        @map("created_by") @db.VarChar(64)
-  updatedAt                             DateTime?      @map("updated_at") @db.Timestamp(0)
-  updatedBy                             String?        @map("updated_by") @db.VarChar(64)
-  deletedAt                             DateTime?      @map("deleted_at") @db.Timestamp(0)
-  existence                             Boolean?
-  healthFacility                        HealthFacility @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK1")
-  patient                               Patient        @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK2")
-  createdUser User?          @relation("patient_code_history_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK_created_by")
-  updatedUser User?          @relation("patient_code_history_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_code_history_FK_updated_by")
-
-  @@index([healthFacilityId], map: "patient_code_history_FK1")
-  @@index([patientId], map: "patient_code_history_FK2")
-  @@index([createdBy], map: "patient_code_history_FK_created_by")
-  @@index([updatedBy], map: "patient_code_history_FK_updated_by")
-  @@map("patient_code_history")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model PatientFile {
   id                             String    @id @db.VarChar(64)
   patientId                      String    @map("patient_id") @db.VarChar(64)
@@ -457,6 +431,7 @@ model PatientRelateHealthFacility {
   id                                             String                             @id @db.VarChar(64)
   patientId                                      String                             @map("patient_id") @db.VarChar(64)
   healthFacilityId                               String                             @map("health_facility_id") @db.VarChar(64)
+  patientCode                                    String                             @map("patient_code") @db.Char(8)
   startDate                                      DateTime                           @map("start_date") @db.Date
   endDate                                        DateTime                           @default(dbgenerated("'2100-12-31'")) @map("end_date") @db.Date
   billSort                                       Int?                               @map("bill_sort")
@@ -473,8 +448,8 @@ model PatientRelateHealthFacility {
   createdUser User?                              @relation("patient_relate_health_facility_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_relate_health_facility_FK_created_by")
   updatedUser User?                              @relation("patient_relate_health_facility_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_relate_health_facility_FK_updated_by")
 
+  @@unique([patientId, healthFacilityId, patientCode], map: "patient_relate_health_facility_IX1")
   @@index([healthFacilityId], map: "patient_relate_health_facility_FK1")
-  @@index([patientId], map: "patient_relate_health_facility_FK2")
   @@index([createdBy], map: "patient_relate_health_facility_FK_created_by")
   @@index([updatedBy], map: "patient_relate_health_facility_FK_updated_by")
   @@map("patient_relate_health_facility")
@@ -603,8 +578,6 @@ model User {
   patientChangeContentUpdatedUser                     PatientChangeContent[]           @relation("patient_change_content_updated_byTouser")
   patientChangeHistoryCreatedUser                     PatientChangeHistory[]           @relation("patient_change_history_created_byTouser")
   patientChangeHistoryUpdatedUser                     PatientChangeHistory[]           @relation("patient_change_history_updated_byTouser")
-  patientCodeHistoryCreatedUser                         PatientCodeHistory[]             @relation("patient_code_history_created_byTouser")
-  patientCodeHistoryUpdatedUser                         PatientCodeHistory[]             @relation("patient_code_history_updated_byTouser")
   patientFileCreatedUser                                       PatientFile[]                    @relation("patient_file_created_byTouser")
   patientFileUpdatedUser                                       PatientFile[]                    @relation("patient_file_updated_byTouser")
   patientRelateHealthFacilityCreatedUser       PatientRelateHealthFacility[]    @relation("patient_relate_health_facility_created_byTouser")
@@ -666,14 +639,6 @@ enum PatientStatus {
   @@map("patient_status")
 }
 
-enum PatientRelateHealthFacilityReason {
-  DECEASE
-  EXIT
-  RELOCATION
-
-  @@map("patient_relate_health_facility_reason")
-}
-
 enum AccountManageAccountType {
   SAVINGS
   CURRENT
@@ -687,6 +652,15 @@ enum PatientGender {
   FEMALE
 
   @@map("patient_gender")
+}
+
+enum PatientRelateHealthFacilityReason {
+  DECEASE
+  EXIT
+  RELOCATION
+  CHANGE_PHARMACY
+
+  @@map("patient_relate_health_facility_reason")
 }
 
 enum PatientMedicalInsuranceStatus {
