@@ -31,9 +31,14 @@ export const fetchPatientRelateHealthFacilitiesByPatientId = depend(
  */
 export const fetchPatientRelateHealthFacilityByPatient = depend(
   { client: prisma },
-  async ({ client }, patientId: string, healthFacilityId: string) => {
+  async ({ client }, patientId: string, healthFacilityId: string, patientCode: string) => {
     return await client.patientRelateHealthFacility.findFirstOrThrow({
-      where: { patientId, healthFacilityId, existence: true },
+      where: {
+        patientId,
+        healthFacilityId,
+        patientCode,
+        existence: true,
+      },
     })
   },
 )

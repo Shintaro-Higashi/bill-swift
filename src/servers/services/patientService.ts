@@ -25,7 +25,6 @@ import { createPatientChangeContentList } from '@/servers/services/patientChange
 import NoContentError from '@/servers/core/errors/noContentError'
 import { isPast, subDays } from 'date-fns'
 import { incrementHealthFacilityCodeManageSequenceNo } from '@/servers/repositories/healthFacilityCodeManageRepository'
-import { createPatientCodeHistory } from '@/servers/repositories/patientCodeHistoryRepository'
 
 /**
  * 患者のページング検索を実地します。
@@ -110,7 +109,6 @@ export const updatePatientHealthFacility = depend(
     updatePatientUpdated,
     createPatientRelateHealthFacility,
     incrementHealthFacilityCodeManageSequenceNo,
-    createPatientCodeHistory,
     createPatientChangeHistory,
     createManyPatientChangeContent,
   },
@@ -123,7 +121,6 @@ export const updatePatientHealthFacility = depend(
       updatePatientUpdated,
       createPatientRelateHealthFacility,
       incrementHealthFacilityCodeManageSequenceNo,
-      createPatientCodeHistory,
       createManyPatientChangeContent,
     },
     id: string,
@@ -134,6 +131,7 @@ export const updatePatientHealthFacility = depend(
       const nowRelateHealthFacility = await fetchPatientRelateHealthFacilityByPatient(
         patient.id,
         patient.healthFacilityId,
+        patient.code,
       )
       params.patientId = patient.id
 
@@ -176,14 +174,6 @@ export const updatePatientHealthFacility = depend(
 
         const healthFacilityCodeManage = await tIncrementHealthFacilityCodeManageSequenceNo(newHealthFacilityId)
         const newPatientCode = createNewPatientCode(healthFacilityCodeManage)
-
-        const tCreatePatientCodeHistory = injectTx(createPatientCodeHistory, tx)
-        // 患者コード履歴を登録
-        await tCreatePatientCodeHistory({
-          patientId: patient.id,
-          healthFacilityId: newHealthFacilityId,
-          patientCode: newPatientCode,
-        })
         // コードと施設を最新、施設メモを初期化
         const nowHealthFacilityInfo = patient.healthFacilityInfo
 
@@ -195,6 +185,7 @@ export const updatePatientHealthFacility = depend(
         await tCreatePatientRelateHealthFacility({
           patientId: patient.id,
           healthFacilityId: newHealthFacilityId,
+          patientCode: newHealthFacilityId,
           startDate: params.startDate,
           reason: params.reason,
           note: params.note,

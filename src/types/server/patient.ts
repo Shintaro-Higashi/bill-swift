@@ -28,6 +28,7 @@ export type PatientHealthFacilityEditingDto = {
   reason?: PatientHealthFacilityChangeReasonKey
   patientId?: string
   healthFacilityId?: string
+  patientCode?: string
   startDate?: Date
   endDate?: Date
   note?: string | null
