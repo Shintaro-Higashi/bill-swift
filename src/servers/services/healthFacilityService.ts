@@ -3,11 +3,13 @@ import {
   createHealthFacility as rCreateHealthFacility,
   fetchHealthFacility as fetch,
   fetchPagedHealthFacilities as fetchPaged,
-  getMaxCode,
   getRelatedEntitiesData,
 } from '@/servers/repositories/healthFacilityRepository'
 import { createHealthFacilityRelatePharmacy as rCreateHealthFacilityRelatePharmacy } from '@/servers/repositories/healthFacilityRelatePharmacyRepository'
-import { createHealthFacilityCodeManage as rCreateHealthFacilityCodeManage } from '@/servers/repositories/healthFacilityCodeManageRepository'
+import {
+  getMaxCode,
+  createHealthFacilityCodeManage as rCreateHealthFacilityCodeManage,
+} from '@/servers/repositories/healthFacilityCodeManageRepository'
 
 import depend from '@/core/utils/velona'
 import { performTransaction } from '../repositories/performTransaction'
@@ -51,9 +53,10 @@ export const createHealthFacility = depend(
       throw new Error('コード採番：関連エンティティの取得に失敗しました')
     }
     const formatType = relatedEntitiesData.company?.healthFacilityCodeGroup?.formatType
+    const codeGroupId = relatedEntitiesData.company?.healthFacilityCodeGroup?.id
 
     // 施設作成に必要な情報を取得
-    const code = await createHealthFacilityCode(formatType)
+    const code = await createHealthFacilityCode(codeGroupId, formatType)
     const searchName = params.name.replace(/[\s\u3000]+/g, '') + params.nameKana.replace(/[\s\u3000]+/g, '')
 
     return await performTransaction(async (tx: any) => {
@@ -99,15 +102,18 @@ export const createHealthFacility = depend(
  * 施設作成時の施設コードを採番します。
  * @param formatType 施設コードグループのフォーマットタイプ
  */
-const createHealthFacilityCode = async (formatType: HealthFacilityCodeGroupFormatType) => {
+const createHealthFacilityCode = async (codeGroupId: string, formatType: HealthFacilityCodeGroupFormatType) => {
   // 現在のコードの最大値から新しいコードを取得
   const assignableCodes = getHealthFacilityNonAssignableCodes(formatType)
-  const maxCode = (await getMaxCode(assignableCodes)) || { code: '0000' }
+  const maxCode: any = (await getMaxCode(codeGroupId, assignableCodes)) || { code: '0' }
   let newCodeNumber: number = Number(maxCode.code) + 1
 
   // 新しいコードが欠番だった場合の回避処理
   while (assignableCodes.some((code) => parseInt(code) === newCodeNumber)) {
     newCodeNumber += 1
+  }
+  if (formatType === HealthFacilityCodeGroupFormatType.SIMPLE) {
+    return newCodeNumber.toString()
   }
   return newCodeNumber.toString().padStart(4, '0')
 }

@@ -102,23 +102,3 @@ export const getRelatedEntitiesData = depend({ client: prisma }, async ({ client
     },
   })
 })
-
-/**
- * 登録されたレコードから最大のコードを取得します（採番不可を除く）。
- * @param 採番不可コード配列
- */
-export const getMaxCode = depend({ client: prisma }, async ({ client }, assignableCodes: string[]) => {
-  return await client.healthFacility.findFirst({
-    where: {
-      code: {
-        notIn: assignableCodes,
-      },
-    },
-    orderBy: {
-      code: 'desc',
-    },
-    select: {
-      code: true,
-    },
-  })
-})
