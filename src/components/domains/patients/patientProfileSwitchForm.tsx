@@ -6,8 +6,8 @@ import { HttpError } from '@refinedev/core'
 import {
   ArrowBackOutlined,
   CakeOutlined,
-  EditOutlined,
   FormatListNumberedOutlined,
+  GroupRemoveOutlined,
   HowToRegOutlined,
   InfoOutlined,
   PersonOutlineOutlined,
@@ -15,7 +15,6 @@ import {
   StoreOutlined,
   SyncProblemOutlined,
   WcOutlined,
-  GroupRemoveOutlined,
 } from '@mui/icons-material'
 import { FieldItem } from '@components/core/content/FieldItem'
 import { RubyItem } from '@components/core/content/rubyItem'
@@ -27,8 +26,7 @@ import useConfirm from '@/core/hooks/useConfirm'
 import { PaperToggleBox } from '@components/domains/patients/paperToggleBox'
 import { Theme } from '@mui/system'
 import { ControlDatePicker } from '@components/core/form/controlDatePicker'
-import { ChangePatientHealthFacility } from '@components/domains/patients/changePatientHealthFacility'
-import { Loading } from '@components/core/content/loading'
+import { ChangePatientHealthFacilityDialogForm } from '@components/domains/patients/changePatientHealthFacilityDialogForm'
 import { getPatientStatusValue } from '@/shared/items/patientStatus'
 
 const BOX_NAME: BoxEditStatus = 'profile'
@@ -106,7 +104,7 @@ const PatientProfileView = (props: ViewProps) => {
         icon={<StoreOutlined />}
         value={<RubyItem value={record?.healthFacility?.name} ruby={record?.healthFacility?.nameKana} />}
       />
-      <ChangePatientHealthFacility patient={record} viewBoxEditButton={viewBoxEditButton} />
+      <ChangePatientHealthFacilityDialogForm patient={record} viewBoxEditButton={viewBoxEditButton} />
       <FieldItem label='施設メモ' icon={<InfoOutlined />} value={record?.healthFacilityInfo} />
       <FieldItem label='患者番号' icon={<FormatListNumberedOutlined />} value={record?.code} />
       <FieldItem

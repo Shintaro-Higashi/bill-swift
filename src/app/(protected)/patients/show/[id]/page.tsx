@@ -32,6 +32,7 @@ import { FormProvider } from 'react-hook-form'
 import { PatientDeliverySwitchForm } from '@components/domains/patients/patientDeliverySwitchForm'
 import { PatientCheckListSwitchForm } from '@components/domains/patients/patientCheckListSwitchForm'
 import { PatientChangeHistory } from '@components/domains/patients/patientChangeHistory'
+import { PatientHealthFacility } from '@components/domains/patients/patientHealthFacility'
 
 const ShowPage = () => {
   setTitle()
@@ -107,6 +108,7 @@ const ShowPage = () => {
               boxEditStatus={boxEditStatus}
               setBoxEditStatus={setBoxEditStatus}
             />
+            <PatientHealthFacility patientId={id?.toString()} updatedAt={record?.updatedAt} />
             <PatientNoteSwitchForm boxEditStatus={boxEditStatus} setBoxEditStatus={setBoxEditStatus} />
             <PaperBox title='添付資料' icon={<AttachmentOutlined />} sx={{ p: 0, mt: 2 }}>
               <Box sx={{ px: 1 }}>添付したファイル名とメモのリストを表示予定</Box>
@@ -131,11 +133,7 @@ const ShowPage = () => {
                 </Stack>
               </Box>
             </PaperBox>
-            <PaperBox title='患者情報変更履歴' icon={<HistoryOutlined />} sx={{ p: 0, mt: 2 }}>
-              <Box sx={{}}>
-                <PatientChangeHistory patientId={id?.toString()} updatedAt={record?.updatedAt} />
-              </Box>
-            </PaperBox>
+            <PatientChangeHistory patientId={id?.toString()} updatedAt={record?.updatedAt} />
             <PaperBox title='申し送り' icon={<ConnectWithoutContactOutlined />} sx={{ p: 0, mt: 2 }}>
               <Box sx={{ px: 1 }}>未確認の(未完了のステータスも必要?)店舗⇔業務課 の連絡情報を表示予定</Box>
             </PaperBox>

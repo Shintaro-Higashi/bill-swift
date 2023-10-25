@@ -25,7 +25,7 @@ export type PatientEditingDto = PatientCreationRequest & {
 }
 // 患者施設変更Dto
 export type PatientHealthFacilityEditingDto = {
-  reason?: PatientHealthFacilityChangeReasonKey
+  reason?: PatientHealthFacilityChangeReasonKey | null
   patientId?: string
   healthFacilityId?: string
   patientCode?: string

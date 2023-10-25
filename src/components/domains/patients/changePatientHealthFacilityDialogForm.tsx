@@ -1,6 +1,14 @@
+'use client'
+
+/**
+ * 施設の転居、退去を操作するFormダイアログを提供します。
+ * <pre>
+ *  UIはダイアログCallボタンを提供します。
+ * </pre>
+ */
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Tooltip } from '@mui/material'
 import { LowPriorityOutlined } from '@mui/icons-material'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import IconButton from '@mui/material/IconButton'
 import {
   PatientHealthFacilityDeceaseExitEditingSchema,
@@ -11,7 +19,7 @@ import {
 } from '@/types'
 import { ControlAutocomplete } from '@components/core/form/controlAutocomplete'
 import { useForm } from '@refinedev/react-hook-form'
-import { BaseRecord, HttpError, useInvalidate } from '@refinedev/core'
+import { BaseRecord, HttpError } from '@refinedev/core'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormSubmitErrorNotification } from '@/core/utils/refineUtil'
 import useConfirm from '@/core/hooks/useConfirm'
@@ -30,11 +38,7 @@ type Props = {
 
 const errorNotification = new FormSubmitErrorNotification<PatientHealthFacilityEditingForm>()
 
-/**
- * 施設の転出を処理するボタンおよびFormダイアログを提供します。
- * @param props
- */
-export const ChangePatientHealthFacility = (props: Props) => {
+export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
   const { patient, viewBoxEditButton } = props
 
   const {
@@ -47,6 +51,7 @@ export const ChangePatientHealthFacility = (props: Props) => {
     reset,
     setValue,
     setError,
+    clearErrors,
   } = useForm<BaseRecord, HttpError, PatientHealthFacilityEditingForm>({
     resolver: zodResolver(PatientHealthFacilityEditingSchema),
     refineCoreProps: {
@@ -76,6 +81,7 @@ export const ChangePatientHealthFacility = (props: Props) => {
   const [open, setOpen] = useState(false)
   const handleOpen = () => {
     setOpen(true)
+    reset()
   }
 
   const handleClose = () => {
@@ -95,6 +101,11 @@ export const ChangePatientHealthFacility = (props: Props) => {
   }
 
   if (!patient) return <Loading />
+
+  const reasonOptions = PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST.filter(
+    (keyValue) => keyValue.key !== 'CHANGE_PHARMACY',
+  )
+
   return (
     <Box
       flexDirection='row'
@@ -134,9 +145,9 @@ export const ChangePatientHealthFacility = (props: Props) => {
             control={control}
             error={!!errors.reason}
             helperText={errors.reason?.message}
-            options={PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST}
+            options={reasonOptions}
           />
-          {reason === 'RELOCATION' && (
+          {reason && reason === 'RELOCATION' && (
             <>
               <ControlAutocomplete
                 required
@@ -158,11 +169,11 @@ export const ChangePatientHealthFacility = (props: Props) => {
               />
             </>
           )}
-          {reason !== 'RELOCATION' && (
+          {reason && reason !== 'RELOCATION' && (
             <>
               <ControlDatePicker
                 required
-                label='退去日'
+                label='退出日'
                 name='endDate'
                 control={control}
                 error={!!deceaseExitErrors}

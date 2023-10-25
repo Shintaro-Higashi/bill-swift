@@ -17,19 +17,29 @@ export const fetchPatientRelateHealthFacilitiesByPatientId = depend(
   { client: prisma },
   async ({ client }, patientId: string) => {
     return await client.patientRelateHealthFacility.findMany({
-      where: { patientId, existence: true },
-      include: {
+      select: {
+        id: true,
+        patientCode: true,
+        startDate: true,
+        endDate: true,
+        reason: true,
+        note: true,
         healthFacility: {
-          select: { name: true, nameKana: true },
-          include: {
+          select: {
+            name: true,
+            nameKana: true,
             pharmacy: {
-              select: { name: true, nameKana: true },
-              include: { pharmacyGroup: { select: { name: true, nameKana: true } } },
+              select: { name: true, nameKana: true, pharmacyGroup: { select: { name: true, nameKana: true } } },
             },
           },
         },
+        createdAt: true,
+        createdUser: { select: { name: true } },
+        updatedAt: true,
+        updatedUser: { select: { name: true } },
       },
-      orderBy: { id: SortOrder.desc },
+      where: { patientId, existence: true },
+      orderBy: { createdAt: SortOrder.desc },
     })
   },
 )

@@ -3,6 +3,7 @@ export const PATIENT_HEALTH_FACILITY_CHANGE_REASON = {
   DECEASE: '逝去',
   EXIT: '退去',
   RELOCATION: '施設の変更',
+  CHANGE_PHARMACY: '店舗の変更',
 } as const
 
 /** 患者施設変更理由Enum */

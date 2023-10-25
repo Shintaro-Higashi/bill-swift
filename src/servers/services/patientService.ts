@@ -151,7 +151,7 @@ export const upsertPatientHealthFacility = depend(
       const tUpdatePatientRelateHealthFacility = injectTx(updatePatientRelateHealthFacility, tx)
       const tUpdatePatientUpdated = injectTx(updatePatientUpdated, tx)
       // [逝去、退去]
-      if (params.reason !== 'RELOCATION') {
+      if (params.reason === 'DECEASE' || params.reason === 'EXIT') {
         if (!params.endDate) throw new Error('患者逝去、退去日未設定')
 
         params.healthFacilityId = patient.healthFacilityId
@@ -171,17 +171,11 @@ export const upsertPatientHealthFacility = depend(
       // 既存所属施設の退去日を設定
       if (!params.startDate) throw new Error('患者転出転居日未設定')
       await tUpdatePatientRelateHealthFacility(nowRelateHealthFacility.id, {
+        reason: params.reason,
         endDate: subDays(params.startDate, 1),
       })
       // TODO 過去日の場合、転出処理を即時に実行
       if (isPast(params.startDate)) {
-        // 施設と患者番号の変更
-        // [確認]
-        // ・患者番号払いだしは施設コード管理のシーケンス番号+1であっている？
-        // ・0埋めって前4桁,後ろ4桁どちらも埋めて連結すればいい？
-        // ・今の施設コード管理を取得するにはコードで検索すればいい？ つまり施設IDとコードでユニーク?ユニークインデックスを作りたい
-        //　※施設IDを指定して最新descで取得すればいいだけか。
-        // 施設コード管理のシーケンス番号を+1してかつ値を取得 (lockをかける)
         const tIncrementHealthFacilityCodeManageSequenceNo = injectTx(incrementHealthFacilityCodeManageSequenceNo, tx)
 
         const healthFacilityCodeManage = await tIncrementHealthFacilityCodeManageSequenceNo(newHealthFacilityId)
@@ -197,9 +191,9 @@ export const upsertPatientHealthFacility = depend(
         await tCreatePatientRelateHealthFacility({
           patientId: patient.id,
           healthFacilityId: newHealthFacilityId,
-          patientCode: newHealthFacilityId,
+          patientCode: newPatientCode,
           startDate: params.startDate,
-          reason: params.reason,
+          reason: null,
           note: params.note,
         })
         if (nowHealthFacilityInfo !== null) {
