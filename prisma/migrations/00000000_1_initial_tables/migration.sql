@@ -214,7 +214,7 @@ CREATE TABLE patient (
   id VARCHAR(64) NOT NULL COMMENT 'ID'
   , health_facility_id VARCHAR(64) NOT NULL COMMENT '施設ID:現在所属している施設ID'
   , code CHAR(8) NOT NULL COMMENT '患者コード:現在有効な患者コード（施設の移動により切り替わる）'
-  , status enum('INRESIDENCE','DECEASE','EXIT','RELOCATION') DEFAULT 'INRESIDENCE' NOT NULL COMMENT 'ステータス:INRESIDENCE:入居中、DECEASE:逝去、EXIT:退去'
+  , status enum('INRESIDENCE','DECEASE','EXIT') DEFAULT 'INRESIDENCE' NOT NULL COMMENT 'ステータス:INRESIDENCE:入居中、DECEASE:逝去、EXIT:退去'
   , name VARCHAR(64) NOT NULL COMMENT '氏名'
   , name_kana VARCHAR(128) NOT NULL COMMENT 'カナ氏名'
   , search_name VARCHAR(255) NOT NULL COMMENT '検索用氏名:スペースを取り除いた氏名とカナ指名を連結して格納'
