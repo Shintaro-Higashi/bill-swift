@@ -42,7 +42,6 @@ import {
   CommonColumns,
   FacilityRelateData,
   FaciltyData,
-  PatientCodeHistoryInput,
   PatientInputModel,
   PatientRelateHealthFacilityInputModel,
   PharmacyData,
@@ -757,7 +756,6 @@ const createPatientInput = (
     note: getNote(tempPatient.note, tempPatient.comment),
     // レセコン同期フラグは請求CSVに一致する患者コードがあった場合（生年月日が設定されている）に立てる
     receiptSyncFlag: tempPatient.birthDate !== undefined,
-    patientCodeHistory: [],
     patientRelateHealthFacility: [],
     tempLastBillDate: tempPatient.lastBillDate,
   }
@@ -770,8 +768,6 @@ const createPatientInput = (
     'TRC',
     `患者を追加 (氏名=${patient.name}, コード=${patient.code}, 請求先=(${patient.deliveryName}, ${patient.deliveryPostalCode}, ${patient.deliveryAddress1}, ${patient.deliveryAddress2}, ${patient.deliveryTel}), 支払い種別=${patient.paymentType}, 振替口座管理ID=${patient.accountManageId}, 備考=${patient.note}`,
   )
-  // 患者コード履歴
-  addPatientCodeHistory(patient, tempPatient)
   // 患者関連施設
   addPatientRelateHealthFacility(patient, tempPatient, facilityRelateList)
   return patient
@@ -806,28 +802,6 @@ const getNote = (note: string, comment: string) => {
 }
 
 /**
- * 患者コード履歴を作成し患者情報に追加します。
- * @param patient 患者情報
- * @param tempPatient 患者一時情報
- */
-const addPatientCodeHistory = (patient: PatientInputModel, tempPatient: TmpPatientModel) => {
-  const history: PatientCodeHistoryInput = {
-    id: createId(),
-    patientId: patient.id,
-    healthFacilityId: tempPatient.healthFacilityId,
-    patientCode: patient.code,
-  }
-  setCommonColumns(history)
-  patient.code = tempPatient.patientCode
-  if (patient.patientCodeHistory) {
-    if (patient.patientCodeHistory.length > 0) {
-      logging('TRC', `コード履歴を追加 (${history.patientCode})`)
-    }
-    patient.patientCodeHistory.push(history)
-  }
-}
-
-/**
  * 患者関連施設情報を作成し患者情報に追加します。
  * @param patient 患者情報
  * @param tempPatient 患者一時情報
@@ -855,6 +829,7 @@ const addPatientRelateHealthFacility = (
     id: createId(),
     patientId: patient.id,
     healthFacilityId: tempPatient.healthFacilityId,
+    patientCode: tempPatient.patientCode,
     startDate: facilityRelatePharmacy.startDate,
     endDate: facilityRelatePharmacy.endDate,
   }
@@ -863,8 +838,12 @@ const addPatientRelateHealthFacility = (
   if (patient.patientRelateHealthFacility) {
     if (patient.patientRelateHealthFacility && patient.patientRelateHealthFacility.length > 0) {
       const beforeFacility = patient.patientRelateHealthFacility[patient.patientRelateHealthFacility.length - 1]
-      // 前の関連に転居を設定
-      beforeFacility.reason = PatientRelateHealthFacilityReason.RELOCATION
+      // 前の関連に退居理由を設定（同じ施設IDだったら店舗が変わったということ）
+      //（施設IDと患者コードの組み合わせが存在しない場合にこの関数に入ってくるので）
+      beforeFacility.reason =
+        beforeFacility.healthFacilityId === tempPatient.healthFacilityId
+          ? PatientRelateHealthFacilityReason.CHANGE_PHARMACY
+          : PatientRelateHealthFacilityReason.RELOCATION
       if (patient.tempLastBillDate) {
         // 前回請求締年月日がある場合、直前の終了日にその月末日付を、該当の開始日にその翌日を設定
         beforeFacility.endDate = endOfMonth(patient.tempLastBillDate)
@@ -1057,14 +1036,11 @@ const doSamePatient = (
       lastPatient.status = PatientStatus.INRESIDENCE
     }
   }
-  // 該当患者の履歴に持っていない患者コードの場合は患者コード履歴を追加
-  if (lastPatient.patientCodeHistory?.find((h) => h.patientCode === tempPatient.patientCode) === undefined) {
-    addPatientCodeHistory(lastPatient, tempPatient)
-  }
-  // 該当患者の関連施設にない施設IDの場合は患者関連施設を追加
+  // 施設IDと患者コードの組み合わせが該当患者の関連施設にない場合は患者関連施設を追加
   if (
-    lastPatient.patientRelateHealthFacility?.find((r) => r.healthFacilityId === tempPatient.healthFacilityId) ===
-    undefined
+    lastPatient.patientRelateHealthFacility?.find(
+      (r) => r.healthFacilityId === tempPatient.healthFacilityId && r.patientCode === tempPatient.patientCode,
+    ) === undefined
   ) {
     addPatientRelateHealthFacility(lastPatient, tempPatient, facilityRelateList)
   }
@@ -1125,14 +1101,10 @@ const affectDB = async (patientList: PatientInputModel[], manageList: any[]) => 
   logging('WRN', `ご逝去していなくて施設に紐づきがない患者数: ${notRelatedPatient.length}`)
   logging('DBG', `一覧: \n\t${notRelatedPatient.map((p) => `${p.name}\t${p.code}\t${p.id}`).join('\n\t')}`)
   // 登録情報を用意
-  const historyList: PatientCodeHistoryInput[] = patientList.flatMap((p) =>
-    p.patientCodeHistory ? p.patientCodeHistory : [],
-  )
   const relateList: PatientRelateHealthFacilityInputModel[] = patientList.flatMap((p) =>
     p.patientRelateHealthFacility ? p.patientRelateHealthFacility : [],
   )
   patientList.forEach((p) => {
-    delete p.patientCodeHistory
     delete p.patientRelateHealthFacility
     delete p.tempLastBillDate
     // 空文字の場合は null を登録するようにする
@@ -1147,9 +1119,6 @@ const affectDB = async (patientList: PatientInputModel[], manageList: any[]) => 
   // 患者を登録
   logging('INF', `患者データを登録します ${patientList.length}件`)
   await loaderPrisma.patient.createMany({ data: patientList })
-  // 患者コード履歴を登録
-  logging('INF', `患者コード履歴データを登録します ${historyList.length}件`)
-  await loaderPrisma.patientCodeHistory.createMany({ data: historyList })
   // 患者関連施設を登録
   logging('INF', `患者関連施設データを登録します ${relateList.length}件`)
   await loaderPrisma.patientRelateHealthFacility.createMany({ data: relateList })
