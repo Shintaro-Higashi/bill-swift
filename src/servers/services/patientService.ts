@@ -137,18 +137,24 @@ export const updatePatientHealthFacility = depend(
       )
       params.patientId = patient.id
 
+      const tUpdate = injectTransaction(update, tx)
       const tUpdatePatientRelateHealthFacility = injectTransaction(updatePatientRelateHealthFacility, tx)
       const tUpdatePatientUpdated = injectTransaction(updatePatientUpdated, tx)
-      // 退出
-      if (params.reason === 'DECEASE') {
+      // [逝去、退去]
+      if (params.reason !== 'RELOCATION') {
+        if (!params.endDate) throw new Error('患者逝去、退去日未設定')
+
         params.healthFacilityId = patient.healthFacilityId
 
         const relateHealthFacilityResult = await tUpdatePatientRelateHealthFacility(nowRelateHealthFacility.id, params)
         await tUpdatePatientUpdated(patient.id)
-        // TODO 過去日の場合、すぐに患者ステータスを変更する？
+
+        if (isPast(params.endDate)) {
+          await tUpdate(patient.id, { ...patient, ...{ status: params.reason } })
+        }
         return relateHealthFacilityResult
       }
-      // 転出
+      // [転出]
       const newHealthFacilityId = params.healthFacilityId
       if (!newHealthFacilityId) throw new Error('患者転出施設ID未設定')
       const tCreatePatientRelateHealthFacility = injectTransaction(createPatientRelateHealthFacility, tx)
@@ -183,7 +189,7 @@ export const updatePatientHealthFacility = depend(
         })
         // コードと施設を最新、施設メモを初期化
         const nowHealthFacilityInfo = patient.healthFacilityInfo
-        const tUpdate = injectTransaction(update, tx)
+
         patient.healthFacilityId = newHealthFacilityId
         patient.code = newPatientCode
         patient.healthFacilityInfo = null

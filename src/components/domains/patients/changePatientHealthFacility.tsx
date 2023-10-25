@@ -3,7 +3,7 @@ import { LowPriorityOutlined } from '@mui/icons-material'
 import React, { useEffect, useState } from 'react'
 import IconButton from '@mui/material/IconButton'
 import {
-  PatientHealthFacilityDeceaseEditingSchema,
+  PatientHealthFacilityDeceaseExitEditingSchema,
   PatientHealthFacilityEditingForm,
   PatientHealthFacilityEditingSchema,
   PatientHealthFacilityRelocationEditingSchema,
@@ -77,7 +77,7 @@ export const ChangePatientHealthFacility = (props: Props) => {
       },
     },
   })
-  const deceaseErrors: FieldErrors<z.infer<typeof PatientHealthFacilityDeceaseEditingSchema>> = errors
+  const deceaseExitErrors: FieldErrors<z.infer<typeof PatientHealthFacilityDeceaseExitEditingSchema>> = errors
   const relocationErrors: FieldErrors<z.infer<typeof PatientHealthFacilityRelocationEditingSchema>> = errors
   const reason = useWatch({ control: control, name: 'reason' })
 
@@ -121,7 +121,7 @@ export const ChangePatientHealthFacility = (props: Props) => {
               <Typography>現在入居中の退去日は転出先施設入居日の１日前になります</Typography>
             </>
           )}
-          {reason === 'DECEASE' && (
+          {reason !== 'RELOCATION' && (
             <>
               <Typography></Typography>
             </>
@@ -157,15 +157,15 @@ export const ChangePatientHealthFacility = (props: Props) => {
               />
             </>
           )}
-          {reason === 'DECEASE' && (
+          {reason !== 'RELOCATION' && (
             <>
               <ControlDatePicker
                 required
                 label='退去日'
                 name='endDate'
                 control={control}
-                error={!!deceaseErrors}
-                helperText={deceaseErrors?.endDate?.message}
+                error={!!deceaseExitErrors}
+                helperText={deceaseExitErrors?.endDate?.message}
               />
             </>
           )}

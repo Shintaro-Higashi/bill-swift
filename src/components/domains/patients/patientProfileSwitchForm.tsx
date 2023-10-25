@@ -28,6 +28,7 @@ import { Theme } from '@mui/system'
 import { ControlDatePicker } from '@components/core/form/controlDatePicker'
 import { ChangePatientHealthFacility } from '@components/domains/patients/changePatientHealthFacility'
 import { Loading } from '@components/core/content/loading'
+import { getPatientStatusValue } from '@/shared/items/patientStatus'
 
 const BOX_NAME: BoxEditStatus = 'profile'
 
@@ -90,6 +91,9 @@ const PatientProfileView = (props: ViewProps) => {
         <Chip icon={<HowToRegOutlined />} color='success' label='レセコン同期済' size='small' />
       ) : (
         <Chip icon={<SyncProblemOutlined />} color='warning' label='レセコン同期未確認' size='small' />
+      )}
+      {record?.status !== 'INRESIDENCE' && (
+        <Chip icon={<HowToRegOutlined />} color='warning' label={getPatientStatusValue(record?.status)} size='small' />
       )}
       <FieldItem
         label='施設'
