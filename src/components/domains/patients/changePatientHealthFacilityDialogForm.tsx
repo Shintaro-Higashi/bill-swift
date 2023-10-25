@@ -133,7 +133,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
               <Typography>現在入居中の退去日は転出先施設入居日の１日前になります</Typography>
             </>
           )}
-          {reason !== 'RELOCATION' && (
+          {(reason === 'DECEASE' || reason === 'EXIT') && (
             <>
               <Typography></Typography>
             </>
