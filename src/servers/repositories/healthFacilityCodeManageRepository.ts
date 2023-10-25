@@ -24,9 +24,7 @@ export const fetchLatestHealthFacilityCodeManage = depend(
 
 /**
  * 施設コード管理を作成します。
- * @param healthFacilityCodeGroupId
- * @param healthFacilityId
- * @param code
+ * @param 登録情報
  */
 export const createHealthFacilityCodeManage = depend(
   { client: prisma },
@@ -57,6 +55,7 @@ export const incrementHealthFacilityCodeManageSequenceNo = depend(
   async ({ client }, healthFacilityId: string) => {
     const now = getCurrentDate()
     const userId = getAuthorizedUserId()
+    // コードグループIDと施設IDでユニークに特定可
 
     const latestCodeManage = await fetchLatestHealthFacilityCodeManage(healthFacilityId)
     return (await client.healthFacilityCodeManage.update({
