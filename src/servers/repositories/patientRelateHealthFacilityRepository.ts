@@ -18,25 +18,42 @@ export const fetchPatientRelateHealthFacilitiesByPatientId = depend(
   async ({ client }, patientId: string) => {
     return await client.patientRelateHealthFacility.findMany({
       where: { patientId, existence: true },
+      include: {
+        healthFacility: {
+          select: { name: true, nameKana: true },
+          include: {
+            pharmacy: {
+              select: { name: true, nameKana: true },
+              include: { pharmacyGroup: { select: { name: true, nameKana: true } } },
+            },
+          },
+        },
+      },
       orderBy: { id: SortOrder.desc },
     })
   },
 )
 
 /**
- * 指定の患者IDと施設IDに該当する患者関連施設情報を取得します。
+ * 指定の患者ID、施設ID、患者コードに該当する患者関連施設情報を取得します。
+ * <pre>
+ *   患者ID、施設ID、患者コード で一意に情報を特定可能です。
+ * </pre>
  * @param patientId 患者ID
  * @param healthFacilityId 施設ID
+ * @param patientCode 患者コード
  * @return 患者情報
  */
-export const fetchPatientRelateHealthFacilityByPatient = depend(
+export const fetchPatientRelateHealthFacilityByUnique = depend(
   { client: prisma },
   async ({ client }, patientId: string, healthFacilityId: string, patientCode: string) => {
-    return await client.patientRelateHealthFacility.findFirstOrThrow({
+    return await client.patientRelateHealthFacility.findUniqueOrThrow({
       where: {
-        patientId,
-        healthFacilityId,
-        patientCode,
+        patientId_healthFacilityId_patientCode: {
+          patientId,
+          healthFacilityId,
+          patientCode,
+        },
         existence: true,
       },
     })
@@ -52,8 +69,8 @@ export const createPatientRelateHealthFacility = depend(
   async ({ client }, params: PatientHealthFacilityEditingDto) => {
     const now = getCurrentDate()
     const userId = getAuthorizedUserId()
-    if (!params.patientId || !params.healthFacilityId || !params.startDate) {
-      throw new Error('患者IDまたは施設IDが未設定です')
+    if (!params.patientId || !params.healthFacilityId || !params.startDate || !params.patientCode) {
+      throw new Error('患者関連施設作成において必要なパラメータが未設定です')
     }
 
     return await client.patientRelateHealthFacility.create({
@@ -62,6 +79,7 @@ export const createPatientRelateHealthFacility = depend(
         ...params,
         patientId: params.patientId,
         healthFacilityId: params.healthFacilityId,
+        patientCode: params.patientCode,
         startDate: params.startDate,
         endDate: new Date('2100/12/31'),
         createdBy: userId,

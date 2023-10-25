@@ -13,7 +13,7 @@ import {
 } from '@/servers/repositories/patientRepository'
 import {
   fetchPatientRelateHealthFacilitiesByPatientId,
-  fetchPatientRelateHealthFacilityByPatient,
+  fetchPatientRelateHealthFacilityByUnique,
   createPatientRelateHealthFacility,
   updatePatientRelateHealthFacility,
 } from '@/servers/repositories/patientRelateHealthFacilityRepository'
@@ -43,6 +43,18 @@ export const fetchPagedPatients = depend({ fetchPaged }, async ({ fetchPaged }, 
 export const fetchPatient = depend({ fetch }, async ({ fetch }, id: string) => {
   return await fetch(id)
 })
+
+/**
+ * 指定の患者IDに該当する患者関連施設情報を最新順に取得します。
+ * @param id 患者ID
+ * @return 患者関連施設情報
+ */
+export const fetchPatientHealthFacility = depend(
+  { fetchPatientRelateHealthFacilitiesByPatientId },
+  async ({ fetchPatientRelateHealthFacilitiesByPatientId }, id: string) => {
+    return await fetchPatientRelateHealthFacilitiesByPatientId(id)
+  },
+)
 
 // /**
 //  * 患者を作成します。
@@ -100,11 +112,11 @@ export const updatePatient = depend(
  * @param id 患者ID
  * @param params 患者情報
  */
-export const updatePatientHealthFacility = depend(
+export const upsertPatientHealthFacility = depend(
   {
     fetch,
     update,
-    fetchPatientRelateHealthFacilityByPatient,
+    fetchPatientRelateHealthFacilityByUnique,
     updatePatientRelateHealthFacility,
     updatePatientUpdated,
     createPatientRelateHealthFacility,
@@ -116,7 +128,7 @@ export const updatePatientHealthFacility = depend(
     {
       fetch,
       update,
-      fetchPatientRelateHealthFacilityByPatient,
+      fetchPatientRelateHealthFacilityByUnique,
       updatePatientRelateHealthFacility,
       updatePatientUpdated,
       createPatientRelateHealthFacility,
@@ -128,7 +140,7 @@ export const updatePatientHealthFacility = depend(
   ) => {
     return await performTransaction(async (tx: any) => {
       const patient = await fetch(id)
-      const nowRelateHealthFacility = await fetchPatientRelateHealthFacilityByPatient(
+      const nowRelateHealthFacility = await fetchPatientRelateHealthFacilityByUnique(
         patient.id,
         patient.healthFacilityId,
         patient.code,
