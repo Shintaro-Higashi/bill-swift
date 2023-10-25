@@ -305,6 +305,7 @@ model Patient {
   id                          String                        @id @db.VarChar(64)
   healthFacilityId            String                        @map("health_facility_id") @db.VarChar(64)
   code                        String                        @db.Char(8)
+  status                      PatientStatus                 @default(INRESIDENCE) @map("status")
   name                        String                        @db.VarChar(64)
   nameKana                    String                        @map("name_kana") @db.VarChar(128)
   searchName                  String                        @map("search_name") @db.VarChar(255)
@@ -657,16 +658,18 @@ enum InquiryStatus {
   @@map("inquiry_status")
 }
 
-enum PatientGender {
-  UNCERTAIN
-  MALE
-  FEMALE
+enum PatientStatus {
+  INRESIDENCE
+  DECEASE
+  EXIT
+  RELOCATION
 
-  @@map("patient_gender")
+  @@map("patient_status")
 }
 
 enum PatientRelateHealthFacilityReason {
   DECEASE
+  EXIT
   RELOCATION
 
   @@map("patient_relate_health_facility_reason")
@@ -677,6 +680,14 @@ enum AccountManageAccountType {
   CURRENT
 
   @@map("account_manage_account_type")
+}
+
+enum PatientGender {
+  UNCERTAIN
+  MALE
+  FEMALE
+
+  @@map("patient_gender")
 }
 
 enum PatientMedicalInsuranceStatus {
@@ -695,15 +706,6 @@ enum HealthFacilityBillingType {
   @@map("health_facility_billing_type")
 }
 
-enum PatientMedicalShare {
-  ONE
-  TWO
-  THREE
-  NONE
-
-  @@map("patient_medical_share")
-}
-
 enum HealthFacilityPaymentType {
   CASH
   WITHDRAWAL
@@ -711,6 +713,15 @@ enum HealthFacilityPaymentType {
   OTHER
 
   @@map("health_facility_payment_type")
+}
+
+enum PatientMedicalShare {
+  ONE
+  TWO
+  THREE
+  NONE
+
+  @@map("patient_medical_share")
 }
 
 enum PatientNursingInsuranceStatus {

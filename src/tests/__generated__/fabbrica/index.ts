@@ -24,6 +24,7 @@ import type { HealthFacilityPaymentType } from "@prisma/client";
 import type { HealthFacilityPatientSortType } from "@prisma/client";
 import type { HealthFacilityCodeGroupFormatType } from "@prisma/client";
 import type { InquiryStatus } from "@prisma/client";
+import type { PatientStatus } from "@prisma/client";
 import type { PatientGender } from "@prisma/client";
 import type { PatientMedicalInsuranceStatus } from "@prisma/client";
 import type { PatientMedicalShare } from "@prisma/client";
@@ -2228,6 +2229,7 @@ type PatientupdatedUserFactory = {
 type PatientFactoryDefineInput = {
     id?: string;
     code?: string;
+    status?: PatientStatus;
     name?: string;
     nameKana?: string;
     searchName?: string;
