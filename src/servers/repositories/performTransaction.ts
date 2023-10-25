@@ -19,8 +19,8 @@ export const performTransaction = async (callback: Function) => {
  *   performTransaction callback内で利用します。
  * </pre>
  * @param func repository関数
- * @param tx トランザクション開始中prismaClient
+ * @param tx トランザクション開始中のprismaClient
  */
-export const injectTransaction = <T extends Function>(func: T, tx: PrismaClient): T => {
+export const injectTx = <T extends Function>(func: T, tx: PrismaClient): T => {
   return (func as any).inject({ client: tx }) as T
 }

@@ -20,7 +20,7 @@ import {
 import { createPatientChangeHistory } from '@/servers/repositories/patientChangeHistoryRepository'
 import { createManyPatientChangeContent } from '@/servers/repositories/patientChangeContentRepository'
 import depend from '@/core/utils/velona'
-import { injectTransaction, performTransaction } from '@/servers/repositories/performTransaction'
+import { injectTx, performTransaction } from '@/servers/repositories/performTransaction'
 import { createPatientChangeContentList } from '@/servers/services/patientChangeHistoryService'
 import NoContentError from '@/servers/core/errors/noContentError'
 import { isPast, subDays } from 'date-fns'
@@ -137,9 +137,9 @@ export const updatePatientHealthFacility = depend(
       )
       params.patientId = patient.id
 
-      const tUpdate = injectTransaction(update, tx)
-      const tUpdatePatientRelateHealthFacility = injectTransaction(updatePatientRelateHealthFacility, tx)
-      const tUpdatePatientUpdated = injectTransaction(updatePatientUpdated, tx)
+      const tUpdate = injectTx(update, tx)
+      const tUpdatePatientRelateHealthFacility = injectTx(updatePatientRelateHealthFacility, tx)
+      const tUpdatePatientUpdated = injectTx(updatePatientUpdated, tx)
       // [逝去、退去]
       if (params.reason !== 'RELOCATION') {
         if (!params.endDate) throw new Error('患者逝去、退去日未設定')
@@ -157,7 +157,7 @@ export const updatePatientHealthFacility = depend(
       // [転出]
       const newHealthFacilityId = params.healthFacilityId
       if (!newHealthFacilityId) throw new Error('患者転出施設ID未設定')
-      const tCreatePatientRelateHealthFacility = injectTransaction(createPatientRelateHealthFacility, tx)
+      const tCreatePatientRelateHealthFacility = injectTx(createPatientRelateHealthFacility, tx)
       // 既存所属施設の退去日を設定
       if (!params.startDate) throw new Error('患者転出転居日未設定')
       await tUpdatePatientRelateHealthFacility(nowRelateHealthFacility.id, {
@@ -172,15 +172,12 @@ export const updatePatientHealthFacility = depend(
         // ・今の施設コード管理を取得するにはコードで検索すればいい？ つまり施設IDとコードでユニーク?ユニークインデックスを作りたい
         //　※施設IDを指定して最新descで取得すればいいだけか。
         // 施設コード管理のシーケンス番号を+1してかつ値を取得 (lockをかける)
-        const tIncrementHealthFacilityCodeManageSequenceNo = injectTransaction(
-          incrementHealthFacilityCodeManageSequenceNo,
-          tx,
-        )
+        const tIncrementHealthFacilityCodeManageSequenceNo = injectTx(incrementHealthFacilityCodeManageSequenceNo, tx)
 
         const healthFacilityCodeManage = await tIncrementHealthFacilityCodeManageSequenceNo(newHealthFacilityId)
         const newPatientCode = createNewPatientCode(healthFacilityCodeManage)
 
-        const tCreatePatientCodeHistory = injectTransaction(createPatientCodeHistory, tx)
+        const tCreatePatientCodeHistory = injectTx(createPatientCodeHistory, tx)
         // 患者コード履歴を登録
         await tCreatePatientCodeHistory({
           patientId: patient.id,
@@ -203,8 +200,8 @@ export const updatePatientHealthFacility = depend(
           note: params.note,
         })
         if (nowHealthFacilityInfo !== null) {
-          const tCreatePatientChangeHistory = injectTransaction(createPatientChangeHistory, tx)
-          const tCreateManyPatientChangeContent = injectTransaction(createManyPatientChangeContent, tx)
+          const tCreatePatientChangeHistory = injectTx(createPatientChangeHistory, tx)
+          const tCreateManyPatientChangeContent = injectTx(createManyPatientChangeContent, tx)
           const { id: patientChangeHistoryId } = await tCreatePatientChangeHistory({
             patientId: id,
             changeType: 'MANUAL',
@@ -271,13 +268,9 @@ const isBillEnablePatient = (params: PatientEditingDto) => {
  * 対象施設の新規患者番号を払い出します。
  */
 const createNewPatientCode = (healthFacilityCodeManage: HealthFacilityCodeManageModel) => {
-  // 対象施設コードとシーケンス番号を取得
+  // 施設コードの0埋めは対応後に格納されているため処理不要。下４桁は無条件で0埋め
   const { code, sequenceNo, healthFacilityCodeGroup } = healthFacilityCodeManage
-
-  if (healthFacilityCodeGroup?.formatType === 'SIMPLE') {
-    return `${code}${sequenceNo}`
-  }
-  return `${code.padStart(4, '0')}${sequenceNo.toString().padStart(4, '0')}`
+  return `${code}${sequenceNo.toString().padStart(4, '0')}`
 }
 
 // /**

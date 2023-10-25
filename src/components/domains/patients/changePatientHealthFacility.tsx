@@ -37,15 +37,6 @@ const errorNotification = new FormSubmitErrorNotification<PatientHealthFacilityE
 export const ChangePatientHealthFacility = (props: Props) => {
   const { patient, viewBoxEditButton } = props
 
-  const [open, setOpen] = useState(false)
-  const handleOpen = () => {
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-  }
-
   const {
     saveButtonProps,
     refineCore: { formLoading },
@@ -53,6 +44,7 @@ export const ChangePatientHealthFacility = (props: Props) => {
     handleSubmit,
     control,
     formState: { errors },
+    reset,
     setValue,
     setError,
   } = useForm<BaseRecord, HttpError, PatientHealthFacilityEditingForm>({
@@ -81,6 +73,15 @@ export const ChangePatientHealthFacility = (props: Props) => {
   const relocationErrors: FieldErrors<z.infer<typeof PatientHealthFacilityRelocationEditingSchema>> = errors
   const reason = useWatch({ control: control, name: 'reason' })
 
+  const [open, setOpen] = useState(false)
+  const handleOpen = () => {
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+
   errorNotification.error = setError
   const { $confirm } = useConfirm()
 
@@ -101,7 +102,7 @@ export const ChangePatientHealthFacility = (props: Props) => {
       display='flex'
       sx={{ position: 'relative', width: '100%', marginTop: 0, display: viewBoxEditButton ? 'flex' : 'none' }}
     >
-      <Tooltip title='施設の退去、または変更'>
+      <Tooltip title='施設の退去、転居を行う'>
         <IconButton
           color='primary'
           sx={{ position: 'absolute', right: '0px', bottom: 0, zIndex: 100 }}

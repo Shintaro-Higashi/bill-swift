@@ -55,7 +55,12 @@ export const fetchHealthFacility = async (id: string) => {
   return await prisma.healthFacility.findUniqueOrThrow({
     where: { id: id, existence: true },
     include: {
-      pharmacy: { include: { pharmacyGroup: { select: { name: true } } } },
+      pharmacy: {
+        include: {
+          pharmacyGroup: { select: { name: true } },
+          company: { select: { name: true, healthFacilityCodeGroupId: true } },
+        },
+      },
       healthFacilityRelatePharmacy: {
         include: { pharmacy: { include: { pharmacyGroup: { select: { name: true } } } } },
         orderBy: { startDate: 'desc' },

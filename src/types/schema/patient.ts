@@ -13,6 +13,7 @@ import {
   PatientNursingShare,
   PatientPaymentType,
   PatientRelateHealthFacilityReason,
+  PatientStatus,
 } from '@prisma/client'
 import { zNullishDate, zRequiredDate } from '@/types/schema/base/zSchemaDate'
 
@@ -33,6 +34,8 @@ export const PatientQuerySchema = z
       .transform((val) => (!val ? undefined : val))
       .nullish(),
     ...paginationQuerySchema,
+    // ステータス
+    status: z.nativeEnum(PatientStatus).array().nullish(),
     // ソート可能なカラム
     sort: z.union([z.literal('code'), z.literal('name'), z.literal('updatedAt')]),
   })
@@ -94,9 +97,9 @@ export const PatientCreationSchema = z.object({
   // 送付先郵便番号
   deliveryPostalCode: zNullishString().refine(validatePostalCode, validatePostalCodeMessage),
   // 送付先住所1
-  deliveryAddress1: zNullishString(20),
+  deliveryAddress1: zNullishString(40),
   // 送付先住所2
-  deliveryAddress2: zNullishString(20),
+  deliveryAddress2: zNullishString(40),
   // 送付先電話番号
   deliveryTel: zNullishString(16).refine(validateTel, validateTelMessage),
   // 施設情報

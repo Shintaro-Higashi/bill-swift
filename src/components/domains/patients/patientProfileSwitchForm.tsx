@@ -15,6 +15,7 @@ import {
   StoreOutlined,
   SyncProblemOutlined,
   WcOutlined,
+  GroupRemoveOutlined,
 } from '@mui/icons-material'
 import { FieldItem } from '@components/core/content/FieldItem'
 import { RubyItem } from '@components/core/content/rubyItem'
@@ -92,8 +93,13 @@ const PatientProfileView = (props: ViewProps) => {
       ) : (
         <Chip icon={<SyncProblemOutlined />} color='warning' label='レセコン同期未確認' size='small' />
       )}
-      {record?.status !== 'INRESIDENCE' && (
-        <Chip icon={<HowToRegOutlined />} color='warning' label={getPatientStatusValue(record?.status)} size='small' />
+      {record?.status && record.status !== 'INRESIDENCE' && (
+        <Chip
+          icon={<GroupRemoveOutlined />}
+          color='warning'
+          label={getPatientStatusValue(record?.status)}
+          size='small'
+        />
       )}
       <FieldItem
         label='施設'

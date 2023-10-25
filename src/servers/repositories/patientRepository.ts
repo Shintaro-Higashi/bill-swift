@@ -1,10 +1,11 @@
 import { PaginationModel, PatientEditingDto, PatientModel, PatientQueryDto } from '@/types'
-import { Prisma } from '.prisma/client'
+import { $Enums, Prisma } from '.prisma/client'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
 import SortOrder = Prisma.SortOrder
 import depend from '@/core/utils/velona'
 import { getCurrentDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
+import { createSearchName } from '@/core/utils/commonUtil'
 
 /**
  * 患者のページング検索を実施します。
@@ -81,6 +82,7 @@ export const fetchPatient = depend({ client: prisma }, async ({ client }, id: st
 //     data: {
 //       id: createId(),
 //       ...params,
+//       searchName: createSearchName(params?.name, params?.nameKana),
 //       createdBy: userId,
 //       updatedBy: userId,
 //       createdAt: now,
@@ -98,7 +100,40 @@ export const updatePatient = depend({ client: prisma }, async ({ client }, id: s
   const now = getCurrentDate()
   return await client.patient.update({
     data: {
-      ...params,
+      // ...params,
+      healthFacilityId: params?.healthFacilityId,
+      code: params?.code,
+      status: params?.status,
+      name: params?.name,
+      nameKana: params?.nameKana,
+      searchName: createSearchName(params?.name, params?.nameKana),
+      gender: params?.gender,
+      birthday: params?.birthday,
+      billEnableFlag: params?.billEnableFlag,
+      medicalInsuranceStatus: params?.medicalInsuranceStatus,
+      medicalInsuranceStartDate: params?.medicalInsuranceStartDate,
+      medicalInsuranceEndDate: params?.medicalInsuranceEndDate,
+      medicalShareConfirmDate: params?.medicalShareConfirmDate,
+      medicalShare: params?.medicalShare,
+      nursingInsuranceStatus: params?.nursingInsuranceStatus,
+      nursingInsuranceStartDate: params?.nursingInsuranceStartDate,
+      nursingInsuranceEndDate: params?.nursingInsuranceEndDate,
+      nursingShareConfirmDate: params?.nursingShareConfirmDate,
+      nursingShare: params?.nursingShare,
+      publicExpense: params?.publicExpense,
+      consentStatus: params?.consentStatus,
+      consentConfirmDate: params?.consentConfirmDate,
+      paymentType: params?.paymentType,
+      accountConfirmStatus: params?.accountConfirmStatus,
+      accountManageId: params?.accountManageId,
+      receiptSyncFlag: params?.receiptSyncFlag,
+      deliveryName: params?.deliveryName,
+      deliveryPostalCode: params?.deliveryPostalCode,
+      deliveryAddress1: params?.deliveryAddress1,
+      deliveryAddress2: params?.deliveryAddress2,
+      deliveryTel: params?.deliveryTel,
+      healthFacilityInfo: params?.healthFacilityInfo,
+      note: params?.note,
       updatedBy: getAuthorizedUserId(),
       updatedAt: now,
     },

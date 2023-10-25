@@ -1,5 +1,6 @@
-import { PatientCreationRequest, PatientHealthFacilityEditingRequest, PatientQueryRequest } from '@/types'
+import { PatientCreationRequest, PatientQueryRequest } from '@/types'
 import { PatientHealthFacilityChangeReasonKey } from '@/shared/items/patientHealthFacilityChangeReason'
+import { PatientStatus } from '@prisma/client'
 
 // 患者検索Dto
 export type PatientQueryDto = PatientQueryRequest & {}
@@ -10,6 +11,15 @@ export type PatientCreationDto = PatientCreationRequest & {
 }
 // 患者編集Dto
 export type PatientEditingDto = PatientCreationRequest & {
+  status?: PatientStatus
+  // 患者コード
+  code?: string
+  // 検索用名称
+  searchName?: string
+  // 施設ID
+  healthFacilityId?: string
+  // レセコン同期フラグ
+  receiptSyncFlag?: boolean
   // 請求可否フラグ
   billEnableFlag?: boolean
 }

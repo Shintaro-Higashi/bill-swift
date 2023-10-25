@@ -5,20 +5,25 @@ import { getCurrentDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 import { createId } from '@paralleldrive/cuid2'
 import { Prisma } from '.prisma/client'
-import SortOrder = Prisma.SortOrder
+import { fetchHealthFacility } from '@/servers/repositories/healthFacilityRepository'
 
 /**
- * 指定施設IDの最新の施設コード管理情報を取得します。
- * @param healthFacilityId 施設ID
- * @return 最新の施設コード管理情報
+ * 指定の施設コードグループIDで最大の施設コードを取得します。
+ * @param healthFacilityCodeGroupId 施設コードグループID
+ * @param assignableCodes 採番不可コード配列
  */
-export const fetchLatestHealthFacilityCodeManage = depend(
+export const getMaxCode = depend(
   { client: prisma },
-  async ({ client }, healthFacilityId: string) => {
-    return client.healthFacilityCodeManage.findFirstOrThrow({
-      where: { healthFacilityId, existence: true },
-      orderBy: { createdAt: SortOrder.desc },
-    })
+  async ({ client }, healthFacilityCodeGroupId: string, assignableCodes: string[]) => {
+    const resultList: any =
+      await client.$queryRaw`SELECT MAX(CAST(code as SIGNED)) as code FROM health_facility_code_manage WHERE health_facility_code_group_id = ${healthFacilityCodeGroupId} AND code NOT IN (${Prisma.join(
+        assignableCodes,
+      )})`
+    // MAXを取得しているので結果は1件のみとなるため先頭データを返却する
+    if (resultList.length > 0) {
+      return resultList[0]
+    }
+    return null
   },
 )
 
@@ -55,9 +60,25 @@ export const incrementHealthFacilityCodeManageSequenceNo = depend(
   async ({ client }, healthFacilityId: string) => {
     const now = getCurrentDate()
     const userId = getAuthorizedUserId()
-    // コードグループIDと施設IDでユニークに特定可
 
-    const latestCodeManage = await fetchLatestHealthFacilityCodeManage(healthFacilityId)
+    const healthFacility = await fetchHealthFacility(healthFacilityId)
+    const {
+      pharmacy: {
+        company: { healthFacilityCodeGroupId },
+      },
+    } = healthFacility
+    // コードグループIDと施設IDでユニークに特定可
+    const healthFacilityCodeManage = await client.healthFacilityCodeManage.findUniqueOrThrow({
+      where: {
+        healthFacilityId_healthFacilityCodeGroupId: {
+          healthFacilityId,
+          healthFacilityCodeGroupId,
+        },
+        existence: true,
+      },
+    })
+
+    // const latestCodeManage = await fetchLatestHealthFacilityCodeManage(healthFacilityId)
     return (await client.healthFacilityCodeManage.update({
       data: {
         sequenceNo: {
@@ -72,7 +93,7 @@ export const incrementHealthFacilityCodeManageSequenceNo = depend(
         healthFacilityCodeGroup: true,
       },
       where: {
-        id: latestCodeManage.id,
+        id: healthFacilityCodeManage.id,
         existence: true,
       },
     })) as unknown as HealthFacilityCodeManageModel
