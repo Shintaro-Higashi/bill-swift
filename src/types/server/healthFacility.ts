@@ -1,4 +1,4 @@
-import { HealthFacilityCreationRequest, HealthFacilityQueryRequest } from '@/types'
+import { HealthFacilityCreationRequest, HealthFacilityEditingRequest, HealthFacilityQueryRequest } from '@/types'
 
 // 施設検索Dto
 export type HealthFacilityQueryDto = HealthFacilityQueryRequest & {}
@@ -10,4 +10,4 @@ export type HealthFacilityCreationDto = HealthFacilityCreationRequest & {
   searchName?: string
 }
 // 施設編集Dto
-export type HealthFacilityEditingDto = HealthFacilityCreationRequest & {}
+export type HealthFacilityEditingDto = HealthFacilityEditingRequest & {}

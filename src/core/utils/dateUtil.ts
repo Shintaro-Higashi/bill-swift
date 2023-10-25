@@ -63,3 +63,16 @@ export const formatDateTime = (
 export const formatDate = (datetime: Date | undefined | null, options: { timeZone?: string } = {}) => {
   return formatDateTime(datetime, { fmt: 'yyyy-MM-dd', timeZone: options?.timeZone })
 }
+
+/**
+ * 過去日付かどうかを判定します。
+ * @param Date
+ * @return Boolean
+ */
+export const isPastDate = (date: Date) => {
+  if (date.setHours(0, 0, 0, 0) < getCurrentDate().setHours(0, 0, 0, 0)) {
+    return true
+  } else {
+    return false
+  }
+}

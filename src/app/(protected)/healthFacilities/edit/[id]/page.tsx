@@ -3,38 +3,48 @@
 import { Edit } from '@refinedev/mui'
 import { useForm } from '@refinedev/react-hook-form'
 import { HttpError } from '@refinedev/core'
-import { CompanyEditingForm, CompanyEditingSchema, CompanyModel } from '@/types'
-import React from 'react'
+import { HealthFacilityEditingForm, HealthFacilityEditingSchema, HealthFacilityModel } from '@/types'
+import React, { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import useConfirm from '@/core/hooks/useConfirm'
 import { FormSubmitErrorNotification, handleApiError, setTitle } from '@/core/utils/refineUtil'
-import { CompanySaveForm } from '@components/domains/companies/companySaveForm'
+import { HealthFacilitySaveForm } from '@components/domains/healthFacilities/healthFacilitySaveForm'
 
 const EditPage: React.FC = () => {
   setTitle()
-  const errorNotification = new FormSubmitErrorNotification<CompanyEditingForm>()
+  const errorNotification = new FormSubmitErrorNotification<HealthFacilityEditingForm>()
   const {
     saveButtonProps,
     refineCore: { queryResult, formLoading },
     register,
+    setValue,
     handleSubmit,
     control,
     formState: { errors },
     setError,
-  } = useForm<CompanyModel, HttpError, CompanyEditingForm>({
-    resolver: zodResolver(CompanyEditingSchema),
+  } = useForm<HealthFacilityModel, HttpError, HealthFacilityEditingForm>({
+    resolver: zodResolver(HealthFacilityEditingSchema),
   })
 
   if (queryResult) {
     const { error } = queryResult
     handleApiError(error)
   }
+
+  useEffect(() => {
+    const healthFacilityRelatePharmacies = queryResult?.data?.data?.healthFacilityRelatePharmacy ?? []
+    if (healthFacilityRelatePharmacies?.length >= 1) {
+      setValue('startDate', new Date(healthFacilityRelatePharmacies[0].startDate))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryResult?.data?.data?.healthFacilityRelatePharmacy])
+
   errorNotification.error = setError
   const { $confirm } = useConfirm()
 
   const handleEdit = (e: any) => {
     $confirm({
-      message: '会社を編集します。操作を続けてもよろしいですか',
+      message: '施設を編集します。操作を続けてもよろしいですか',
       onConfirm() {
         saveButtonProps.onClick(e)
       },
@@ -47,7 +57,7 @@ const EditPage: React.FC = () => {
       isLoading={formLoading}
       saveButtonProps={{ disabled: saveButtonProps.disabled, onClick: handleSubmit(handleEdit) }}
     >
-      <CompanySaveForm register={register} queryResult={queryResult} control={control} errors={errors} />
+      <HealthFacilitySaveForm register={register} queryResult={queryResult} control={control} errors={errors} />
     </Edit>
   )
 }

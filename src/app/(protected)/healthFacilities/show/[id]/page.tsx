@@ -21,6 +21,9 @@ const ShowPage: React.FC = () => {
   const { queryResult } = useShow<HealthFacilityModel>({ errorNotification: false })
   const { data, isLoading, error } = queryResult
   const record = data?.data
+  const startDate = record?.healthFacilityRelatePharmacy
+    ? new Date(record?.healthFacilityRelatePharmacy[0].startDate)
+    : null
   handleApiError(error)
 
   /** 店舗変更履歴データを取得 */
@@ -53,6 +56,7 @@ const ShowPage: React.FC = () => {
   return (
     <Show isLoading={isLoading && !record}>
       <Stack gap={1} sx={{ mb: 2 }}>
+        <FieldItem label='対応開始日' value={formatDate(startDate)} />
         <FieldItem
           label='担当店舗'
           value={

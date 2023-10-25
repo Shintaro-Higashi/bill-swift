@@ -1,4 +1,10 @@
-import { HealthFacilityCreationDto, HealthFacilityModel, HealthFacilityQueryDto, PaginationModel } from '@/types'
+import {
+  HealthFacilityCreationDto,
+  HealthFacilityEditingDto,
+  HealthFacilityModel,
+  HealthFacilityQueryDto,
+  PaginationModel,
+} from '@/types'
 import { Prisma } from '.prisma/client'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
 import depend from '@/core/utils/velona'
@@ -102,3 +108,45 @@ export const getRelatedEntitiesData = depend({ client: prisma }, async ({ client
     },
   })
 })
+
+/**
+ * 登録されたレコードから最大のコードを取得します（採番不可を除く）。
+ * @param 採番不可コード配列
+ */
+export const getMaxCode = depend({ client: prisma }, async ({ client }, assignableCodes: string[]) => {
+  return await client.healthFacility.findFirst({
+    where: {
+      code: {
+        notIn: assignableCodes,
+      },
+    },
+    orderBy: {
+      code: 'desc',
+    },
+    select: {
+      code: true,
+    },
+  })
+})
+
+/**
+ * 指定の施設情報を更新します。
+ * @param id 施設ID
+ * @param params 施設情報
+ */
+export const updateHealthFacility = depend(
+  { client: prisma },
+  async ({ client }, id: string, params: HealthFacilityEditingDto) => {
+    const now = getCurrentDate()
+    const { startDate, ...healthFacilityParams } = params
+
+    return await client.healthFacility.update({
+      data: {
+        ...healthFacilityParams,
+        updatedBy: getAuthorizedUserId(),
+        updatedAt: now,
+      },
+      where: { id: id, existence: true },
+    })
+  },
+)

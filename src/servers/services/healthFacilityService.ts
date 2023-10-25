@@ -1,6 +1,7 @@
-import { HealthFacilityCreationDto, HealthFacilityQueryDto } from '@/types'
+import { HealthFacilityCreationDto, HealthFacilityEditingDto, HealthFacilityQueryDto } from '@/types'
 import {
   createHealthFacility as rCreateHealthFacility,
+  updateHealthFacility as update,
   fetchHealthFacility as fetch,
   fetchPagedHealthFacilities as fetchPaged,
   getRelatedEntitiesData,
@@ -117,3 +118,27 @@ const createHealthFacilityCode = async (codeGroupId: string, formatType: HealthF
   }
   return newCodeNumber.toString().padStart(4, '0')
 }
+
+/**
+ * 指定の施設情報を更新します。
+ * @param id 施設ID
+ * @param params 施設情報
+ */
+export const updateHealthFacility: any = depend(
+  { update },
+  async ({ update }, id: string, params: HealthFacilityEditingDto) => {
+    // 請求種別が「一括請求」以外は支払い種別と口座管理IDの値をクリアする
+    if (params.billingType !== 'BATCH') {
+      params.paymentType = null
+      params.accountManageId = null
+    }
+    // 支払い種別が「振込」以外は口座管理IDの値をクリアする
+    if (params.paymentType !== 'TRANSFER') {
+      params.accountManageId = null
+    }
+    return await performTransaction(async (tx: any) => {
+      const tUpdate: typeof update = (update as any).inject({ client: tx })
+      return await tUpdate(id, params)
+    })
+  },
+)

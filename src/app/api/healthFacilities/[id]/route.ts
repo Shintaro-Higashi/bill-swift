@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ByIdRequest } from '@/types'
-import { fetchHealthFacility } from '@/servers/services/healthFacilityService'
+import { ByIdRequest, HealthFacilityEditingSchema } from '@/types'
+import { fetchHealthFacility, updateHealthFacility } from '@/servers/services/healthFacilityService'
 import { performRequest } from '@/core/utils/requestUtil'
 
 /**
@@ -11,4 +11,21 @@ export async function GET(_req: NextRequest, { params: { id } }: { params: ByIdR
     const entity = await fetchHealthFacility(id)
     return NextResponse.json(entity)
   })
+}
+
+/**
+ * 施設を編集するAPIです。
+ * @param req リクエスト情報
+ * @param params パスパラメータ
+ */
+export async function PATCH(req: NextRequest, { params }: { params: ByIdRequest }) {
+  return await performRequest(
+    async () => {
+      const editData = await req.json()
+      const parsedEditData = HealthFacilityEditingSchema.parse(editData)
+      const response = await updateHealthFacility(params.id, parsedEditData)
+      return NextResponse.json(response)
+    },
+    { action: 'edit' },
+  )
 }

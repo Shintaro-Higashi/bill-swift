@@ -26,6 +26,9 @@ const CreatePage: React.FC = () => {
     refineCoreProps: {
       errorNotification: errorNotification.notification,
     },
+    defaultValues: {
+      patientSortType: 'NAME',
+    },
   })
   errorNotification.error = setError
   const { $confirm } = useConfirm()

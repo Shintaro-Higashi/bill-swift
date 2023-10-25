@@ -1,7 +1,6 @@
-import { Control, FieldErrors, UseFormRegister, useWatch } from 'react-hook-form'
+import { Control, FieldErrors, UseFormRegister, useWatch, UseFormSetValue } from 'react-hook-form'
 import { HealthFacilityCreationForm, HealthFacilityEditingForm, HealthFacilityModel } from '@/types'
 import { Box, TextField } from '@mui/material'
-import React from 'react'
 import { GetOneResponse } from '@refinedev/core'
 import { QueryObserverResult } from '@tanstack/query-core'
 import { ControlAutocomplete } from '@/components/core/form/controlAutocomplete'
@@ -10,6 +9,9 @@ import { ControlItemAutocomplete } from '@/components/core/form/controlItemAutoc
 import { BILLING_TYPE_LIST } from '@/shared/items/billingType'
 import { HEALTH_FACILITY_PAYMENT_TYPE_LIST } from '@/shared/items/healthFacilityPaymentType'
 import { PATIENT_SORT_TYPE_LIST } from '@/shared/items/patientSortType'
+import { FieldItem } from '@/components/core/content/FieldItem'
+import { RubyItem } from '@/components/core/content/rubyItem'
+import { formatDate } from '@/core/utils/dateUtil'
 
 // 施設作成、編集フォームプロパティ
 type Props = {
@@ -29,32 +31,63 @@ type Props = {
 export const HealthFacilitySaveForm = (props: Props) => {
   const { register, queryResult, control, errors } = props
   const postsData = queryResult ? queryResult.data?.data : undefined
-  const billingType = useWatch({ control: control, name: 'billingType' })
-  const paymentType = useWatch({ control: control, name: 'paymentType' })
+  const startDate = postsData?.healthFacilityRelatePharmacy
+    ? new Date(postsData?.healthFacilityRelatePharmacy[0].startDate)
+    : null
+
+  // 新規作成時のみ表示する条件
+  const isCreateAction = !postsData
+
+  // 支払い種別表示制御
+  const billingType = postsData?.billingType
+  const watchBillingType = useWatch({ control: control, name: 'billingType' })
+  const showPaymentType = (watchBillingType ? watchBillingType : billingType) === 'BATCH'
+
+  // 振込口座の表示制御
+  const paymentType = postsData?.paymentType
+  const watchPaymentType = useWatch({ control: control, name: 'paymentType' })
+  const showAccountManageId = showPaymentType && (watchPaymentType ? watchPaymentType : paymentType) === 'TRANSFER'
 
   return (
     <Box component='form' sx={{ display: 'flex', flexDirection: 'column' }} autoComplete='off'>
-      <ControlDatePicker
-        required
-        label='対応開始日'
-        name='startDate'
-        control={control}
-        error={!!errors.startDate}
-        helperText={errors.startDate?.message}
-      />
-      <ControlAutocomplete
-        required
-        resource='pharmacies'
-        label='店舗名'
-        name='pharmacyId'
-        defaultId={postsData?.pharmacyId}
-        control={control}
-        error={!!errors.pharmacyId}
-        helperText={errors.pharmacyId?.message}
-        optionLabel={(option: any) => {
-          return option?.pharmacyGroup?.name + ' ' + option?.name ?? ''
-        }}
-      />
+      {isCreateAction ? (
+        <>
+          <ControlDatePicker
+            required
+            label='対応開始日'
+            name='startDate'
+            control={control}
+            error={!!errors.startDate}
+            helperText={errors.startDate?.message}
+            disablePast
+          />
+          <ControlAutocomplete
+            required
+            resource='pharmacies'
+            label='店舗名'
+            name='pharmacyId'
+            control={control}
+            error={!!errors.pharmacyId}
+            helperText={errors.pharmacyId?.message}
+            optionLabel={(option: any) => {
+              return option?.pharmacyGroup?.name + ' ' + option?.name ?? ''
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <FieldItem label='対応開始日' value={formatDate(startDate)} />
+          <FieldItem
+            label='担当店舗'
+            value={
+              <Box>
+                {postsData?.pharmacy?.pharmacyGroup?.name + ' ' ?? ''}
+                <RubyItem value={postsData?.pharmacy?.name} ruby={postsData?.pharmacy?.nameKana} />
+              </Box>
+            }
+          />
+        </>
+      )}
       <TextField
         required
         {...register('name')}
@@ -130,7 +163,7 @@ export const HealthFacilitySaveForm = (props: Props) => {
         error={!!errors.billingType}
         helperText={errors.billingType?.message}
       />
-      {billingType === 'BATCH' && (
+      {showPaymentType && (
         <ControlItemAutocomplete
           label='支払い種別'
           name='paymentType'
@@ -140,7 +173,7 @@ export const HealthFacilitySaveForm = (props: Props) => {
           helperText={errors.paymentType?.message}
         />
       )}
-      {paymentType === 'TRANSFER' && (
+      {showAccountManageId && (
         <ControlAutocomplete
           resource='accountManages'
           label='振込口座'
@@ -155,7 +188,6 @@ export const HealthFacilitySaveForm = (props: Props) => {
         required
         label='患者ソート種別'
         name='patientSortType'
-        // TODO: デフォルト値'NAME'の設定は編集画面と合わせて修正します
         options={PATIENT_SORT_TYPE_LIST}
         control={control}
         error={!!errors.patientSortType}

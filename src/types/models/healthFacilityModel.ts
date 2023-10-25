@@ -5,6 +5,6 @@ import { CommonRelateUserModel } from '@/types/models/commonRelateUserModel'
 export type HealthFacilityModel = HealthFacility &
   CommonRelateUserModel & {
     pharmacy: (Pharmacy & { pharmacyGroup: PharmacyGroup | null }) | null
-    healthFacilityRelatePharmacy: HealthFacilityRelatePharmacy | null
+    healthFacilityRelatePharmacy: HealthFacilityRelatePharmacy[] | null
     accountManage: AccountManage | null
   }

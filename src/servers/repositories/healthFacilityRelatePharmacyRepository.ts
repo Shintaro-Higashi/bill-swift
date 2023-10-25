@@ -1,4 +1,4 @@
-import { HealthFacilityRelatePharmacyCreationDto } from '@/types'
+import { HealthFacilityRelatePharmacyCreationDto, HealthFacilityRelatePharmacyEditingDto } from '@/types'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
 import depend from '@/core/utils/velona'
 import { getCurrentDate } from '@/core/utils/dateUtil'
@@ -26,6 +26,26 @@ export const createHealthFacilityRelatePharmacy = depend(
         createdAt: now,
         updatedAt: now,
       },
+    })
+  },
+)
+
+/**
+ * 指定の施設関連薬局を更新します。
+ * @param id 施設関連薬局ID
+ * @param params 施設関連薬局情報
+ */
+export const updateHealthFacilityRelatePharmacy = depend(
+  { client: prisma },
+  async ({ client }, id: string, params: HealthFacilityRelatePharmacyEditingDto) => {
+    const now = getCurrentDate()
+    return await client.healthFacilityRelatePharmacy.update({
+      data: {
+        startDate: params.startDate,
+        updatedBy: getAuthorizedUserId(),
+        updatedAt: now,
+      },
+      where: { id: id, existence: true },
     })
   },
 )

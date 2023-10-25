@@ -15,3 +15,6 @@ export const HealthFacilityRelatePharmacyCreationSchema = z.object({
   // 備考
   note: zNullishString(9999),
 })
+
+// 施設関連薬局編集スキーマ
+export const HealthFacilityRelatePharmacyEditingSchema = HealthFacilityRelatePharmacyCreationSchema.extend({})

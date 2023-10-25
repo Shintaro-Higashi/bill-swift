@@ -1,6 +1,7 @@
 import { Controller, Control } from 'react-hook-form'
 import React from 'react'
 import { DatePicker } from '@mui/x-date-pickers'
+import { formatDate } from '@/core/utils/dateUtil'
 
 /**
  * ControlDatePickerプロパティ
@@ -20,6 +21,10 @@ type Props = {
   helperText: string | undefined
   /** 禁則 */
   disabled?: boolean
+  /** 読み取り専用有無 */
+  readOnly?: boolean
+  /** 過去日を無効に */
+  disablePast?: boolean
 }
 
 /**
@@ -36,36 +41,42 @@ type Props = {
  *     name='startDate'
  *     control={control}
  *     error={!!errors.startDate}
- *     helperText={errors.startDate?.message}
+ *     helperText={'本日以降の日付のみ変更可能 ' + (errors.startDate?.message || '')}
+ *     readOnly={startDateReadOnly}
+ *     disablePast
  *   />
  * </pre>
  */
 
 export const ControlDatePicker = (props: Props) => {
-  const { required, label, name, control, error, helperText, disabled = false } = props
+  const { required, label, name, control, error, helperText, disabled = false, readOnly, disablePast } = props
 
   return (
     <Controller
       control={control}
       name={name}
-      defaultValue={null as any}
-      render={({ field }) => (
-        <DatePicker
-          label={label}
-          disabled={disabled}
-          value={field.value}
-          onChange={(newValue) => {
-            return field.onChange(newValue)
-          }}
-          slotProps={{
-            textField: {
-              required: required,
-              error: error,
-              helperText: helperText,
-            },
-          }}
-        />
-      )}
+      defaultValue={null}
+      render={({ field }) => {
+        return (
+          <DatePicker
+            label={label}
+            disabled={disabled}
+            value={field.value}
+            onChange={(newValue) => {
+              return field.onChange(newValue)
+            }}
+            readOnly={readOnly}
+            disablePast={disablePast}
+            slotProps={{
+              textField: {
+                required: required,
+                error: error,
+                helperText: helperText,
+              },
+            }}
+          />
+        )
+      }}
     />
   )
 }
