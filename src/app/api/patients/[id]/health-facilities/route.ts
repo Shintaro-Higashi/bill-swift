@@ -7,10 +7,10 @@ import {
 } from '@/servers/services/patientRelateHealthFacilityService'
 
 /**
- * 患者の新規所属施設を作成するAPIです。
+ * 患者の所属施設を変更するAPIです。
  * @param req リクエスト情報
  */
-export async function POST(req: NextRequest, { params: { id } }: { params: ByIdRequest }) {
+export async function PATCH(req: NextRequest, { params: { id } }: { params: ByIdRequest }) {
   return await performRequest(
     async () => {
       const editData = await req.json()
