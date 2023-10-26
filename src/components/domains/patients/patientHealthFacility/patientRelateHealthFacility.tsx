@@ -7,7 +7,7 @@
  */
 import React, { Fragment, useState } from 'react'
 import { PatientHealthFacilityEditingForm, PatientModel, PatientRelateHealthFacilityModel } from '@/types'
-import { Box, IconButton } from '@mui/material'
+import { Alert, Box, IconButton } from '@mui/material'
 import { HttpError, useCustom } from '@refinedev/core'
 import { formatDate } from '@/core/utils/dateUtil'
 import { DeleteOutlined, HistoryOutlined } from '@mui/icons-material'
@@ -20,6 +20,7 @@ import EditOutlined from '@mui/icons-material/EditOutlined'
 import { isPast } from 'date-fns'
 import { isFuturePatientRelateHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
 import { ChangePatientHealthFacilityDialogForm } from '@components/domains/patients/patientHealthFacility/changePatientHealthFacilityDialogForm'
+import { DeleteButton } from '@refinedev/mui'
 
 type Props = {
   patient: PatientModel
@@ -29,9 +30,11 @@ type Props = {
 export const PatientRelateHealthFacility = (props: Props) => {
   const { patient } = props
 
+  const url = `/api/patients/${patient.id}/health-facilities`
+
   const { data, isLoading, isError } = useCustom<PatientRelateHealthFacilityModel[], HttpError>({
     method: 'get',
-    url: `/api/patients/${patient.id}/health-facilities`,
+    url,
     config: {
       query: { uid: patient.updatedAt },
     },
@@ -49,6 +52,7 @@ export const PatientRelateHealthFacility = (props: Props) => {
   const onClose = (_isSuccess: boolean) => {
     setOpen(false)
   }
+  const handleDelete = (row: PatientRelateHealthFacilityModel) => {}
 
   const columns = React.useMemo<GridColDef<PatientRelateHealthFacilityModel>[]>(
     () => [
@@ -113,7 +117,6 @@ export const PatientRelateHealthFacility = (props: Props) => {
         flex: 1,
         minWidth: 100,
         maxWidth: 400,
-        // renderCell: RenderCellExpand,
       },
       {
         field: 'actions',
@@ -131,9 +134,10 @@ export const PatientRelateHealthFacility = (props: Props) => {
                 <EditOutlined fontSize='small' />
               </IconButton>
               {isFutureHF && (
-                <IconButton color='error' onClick={() => handleDelete(row)}>
-                  <DeleteOutlined fontSize='small' />
-                </IconButton>
+                // <IconButton color='error' onClick={() => handleDelete(row)}>
+                //   <DeleteOutlined fontSize='small' />
+                // </IconButton>
+                <DeleteButton hideText recordItemId={row.id} resource={url} />
               )}
             </Box>
           )
@@ -144,14 +148,10 @@ export const PatientRelateHealthFacility = (props: Props) => {
     [],
   )
 
-  const handleEdit = (row: PatientRelateHealthFacilityModel) => {}
-
-  const handleDelete = (row: PatientRelateHealthFacilityModel) => {}
-
   const records = data?.data
 
   /**
-   * 施設情報に変更が発生したか否かを判断します。
+   * 施設情報に過去が発生しているかか否かを判断します。
    */
   const isChangedPatientHealthFacility = () => {
     if (!records) return false
@@ -159,6 +159,28 @@ export const PatientRelateHealthFacility = (props: Props) => {
     // 1件でも退出時は表示
     const nowHealthFacility = records[0]
     return nowHealthFacility.reason
+  }
+
+  /**
+   * 施設情報の変更予定があるかを判断します。
+   */
+  const isFutureChangedPatientHealthFacility = () => {
+    if (!records) return false
+    if (records.length > 1) return true
+    const latestPatientHealthFacility = records[0]
+    // 施設変更予定
+    if (!latestPatientHealthFacility.reason && !isPast(latestPatientHealthFacility.startDate)) {
+      return true
+    }
+    // 退去予定
+    if (
+      latestPatientHealthFacility.reason === 'DECEASE' ||
+      latestPatientHealthFacility.reason === 'EXIT' ||
+      !isPast(latestPatientHealthFacility.endDate)
+    ) {
+      return true
+    }
+    return true
   }
 
   /**
@@ -180,6 +202,11 @@ export const PatientRelateHealthFacility = (props: Props) => {
         <Box sx={{ pl: 2 }}>変更はありません</Box>
       ) : (
         <div style={{ width: '100%', padding: '8px' }}>
+          {isFutureChangedPatientHealthFacility() && (
+            <Box sx={{ p: 1, pt: 0 }}>
+              <Alert severity='info'>所得施設情報の変更予約があります</Alert>
+            </Box>
+          )}
           <div style={{ maxHeight: 200, width: '100%', overflowY: 'auto' }}>
             <ChangePatientHealthFacilityDialogForm
               open={open}

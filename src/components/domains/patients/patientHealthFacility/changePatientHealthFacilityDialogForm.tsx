@@ -55,10 +55,6 @@ const getResourceSuffix = (patientRelateHealthFacility: PatientRelateHealthFacil
 export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
   const { open, onClose, patient, patientRelateHealthFacility } = props
 
-  console.log(
-    'これで何度もして動くはず',
-    `patients/${patient?.id}/health-facilities${getResourceSuffix(patientRelateHealthFacility)}`,
-  )
   const {
     saveButtonProps,
     register,
@@ -202,7 +198,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
           label='備考'
           placeholder=''
           multiline
-          rows={2}
+          rows={1}
           error={!!errors.note}
           helperText={errors.note?.message}
         />
