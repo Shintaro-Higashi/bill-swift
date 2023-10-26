@@ -5,8 +5,8 @@ generator client {
 generator fabbrica {
   provider    = "prisma-fabbrica"
   output      = "../src/tests/__generated__/fabbrica"
-  noTranspile = "true"
   tsconfig    = "../tsconfig.local.json"
+  noTranspile = "true"
 }
 
 datasource db {
@@ -16,28 +16,29 @@ datasource db {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model AccountManage {
-  id                                                       String                    @id @db.VarChar(64)
-  name                                                     String                    @db.VarChar(64)
-  transferDate                                             Int?                      @map("transfer_date") @db.SmallInt
-  financialCode                                            String?                   @map("financial_code") @db.Char(4)
-  financialName                                            String?                   @map("financial_name") @db.VarChar(64)
-  branchCode                                               String?                   @map("branch_code") @db.Char(3)
-  branchName                                               String?                   @map("branch_name") @db.VarChar(64)
-  accountType                                              AccountManageAccountType? @map("account_type")
-  accountNo                                                String?                   @map("account_no") @db.VarChar(7)
-  accountName                                              String?                   @map("account_name") @db.VarChar(64)
-  createdAt                                                DateTime?                 @map("created_at") @db.Timestamp(0)
-  createdBy                                                String?                   @map("created_by") @db.VarChar(64)
-  updatedAt                                                DateTime?                 @map("updated_at") @db.Timestamp(0)
-  updatedBy                                                String?                   @map("updated_by") @db.VarChar(64)
-  deletedAt                                                DateTime?                 @map("deleted_at") @db.Timestamp(0)
+  id                                                       String                         @id @db.VarChar(64)
+  name                                                     String                         @db.VarChar(64)
+  transferDate                                             Int?                           @map("transfer_date") @db.SmallInt
+  financialCode                                            String?                        @map("financial_code") @db.Char(4)
+  financialName                                            String?                        @map("financial_name") @db.VarChar(64)
+  branchCode                                               String?                        @map("branch_code") @db.Char(3)
+  branchName                                               String?                        @map("branch_name") @db.VarChar(64)
+  accountType                                              AccountManageAccountType?      @map("account_type")
+  accountNo                                                String?                        @map("account_no") @db.VarChar(7)
+  accountName                                              String?                        @map("account_name") @db.VarChar(64)
+  createdAt                                                DateTime?                      @map("created_at") @db.Timestamp(0)
+  createdBy                                                String?                        @map("created_by") @db.VarChar(64)
+  updatedAt                                                DateTime?                      @map("updated_at") @db.Timestamp(0)
+  updatedBy                                                String?                        @map("updated_by") @db.VarChar(64)
+  deletedAt                                                DateTime?                      @map("deleted_at") @db.Timestamp(0)
   existence                                                Boolean?
-  createdUser                         User?                     @relation("account_manage_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK_created_by")
-  updatedUser                         User?                     @relation("account_manage_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK_updated_by")
+  createdUser                         User?                          @relation("account_manage_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK_created_by")
+  updatedUser                         User?                          @relation("account_manage_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "account_manage_FK_updated_by")
   healthFacility                                           HealthFacility[]
+  healthFacilityRelatePharmacy                             HealthFacilityRelatePharmacy[]
   patient                                                  Patient[]
-  pharmacyTransfer   Pharmacy[]                @relation("pharmacy_transfer_account_manage_idToaccount_manage")
-  pharmacyWithdrawal Pharmacy[]                @relation("pharmacy_withdrawal_account_manage_idToaccount_manage")
+  pharmacyTransfer   Pharmacy[]                     @relation("pharmacy_transfer_account_manage_idToaccount_manage")
+  pharmacyWithdrawal Pharmacy[]                     @relation("pharmacy_withdrawal_account_manage_idToaccount_manage")
 
   @@index([createdBy], map: "account_manage_FK_created_by")
   @@index([updatedBy], map: "account_manage_FK_updated_by")
@@ -206,25 +207,31 @@ model HealthFacilityCodeManage {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model HealthFacilityRelatePharmacy {
-  id                                              String         @id @db.VarChar(64)
-  healthFacilityId                                String         @map("health_facility_id") @db.VarChar(64)
-  pharmacyId                                      String         @map("pharmacy_id") @db.VarChar(64)
-  startDate                                       DateTime       @map("start_date") @db.Date
-  endDate                                         DateTime       @default(dbgenerated("'2100-12-31'")) @map("end_date") @db.Date
-  note                                            String?        @db.Text
-  createdAt                                       DateTime?      @map("created_at") @db.Timestamp(0)
-  createdBy                                       String?        @map("created_by") @db.VarChar(64)
-  updatedAt                                       DateTime?      @map("updated_at") @db.Timestamp(0)
-  updatedBy                                       String?        @map("updated_by") @db.VarChar(64)
-  deletedAt                                       DateTime?      @map("deleted_at") @db.Timestamp(0)
+  id                                              String                                      @id @db.VarChar(64)
+  healthFacilityId                                String                                      @map("health_facility_id") @db.VarChar(64)
+  pharmacyId                                      String                                      @map("pharmacy_id") @db.VarChar(64)
+  startDate                                       DateTime                                    @map("start_date") @db.Date
+  endDate                                         DateTime                                    @default(dbgenerated("'2100-12-31'")) @map("end_date") @db.Date
+  billingType                                     HealthFacilityRelatePharmacyBillingType?    @map("billing_type")
+  paymentType                                     HealthFacilityRelatePharmacyPaymentType?    @map("payment_type")
+  accountManageId                                 String?                                     @map("account_manage_id") @db.VarChar(64)
+  patientSortType                                 HealthFacilityRelatePharmacyPatientSortType @default(NAME) @map("patient_sort_type")
+  note                                            String?                                     @db.Text
+  createdAt                                       DateTime?                                   @map("created_at") @db.Timestamp(0)
+  createdBy                                       String?                                     @map("created_by") @db.VarChar(64)
+  updatedAt                                       DateTime?                                   @map("updated_at") @db.Timestamp(0)
+  updatedBy                                       String?                                     @map("updated_by") @db.VarChar(64)
+  deletedAt                                       DateTime?                                   @map("deleted_at") @db.Timestamp(0)
   existence                                       Boolean?
-  healthFacility                                  HealthFacility @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK1")
-  pharmacy                                        Pharmacy       @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK2")
-  createdUser User?          @relation("health_facility_relate_pharmacy_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK_created_by")
-  updatedUser User?          @relation("health_facility_relate_pharmacy_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK_updated_by")
+  healthFacility                                  HealthFacility                              @relation(fields: [healthFacilityId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK1")
+  pharmacy                                        Pharmacy                                    @relation(fields: [pharmacyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK2")
+  accountManage                                   AccountManage?                              @relation(fields: [accountManageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK3")
+  createdUser User?                                       @relation("health_facility_relate_pharmacy_created_byTouser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK_created_by")
+  updatedUser User?                                       @relation("health_facility_relate_pharmacy_updated_byTouser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "health_facility_relate_pharmacy_FK_updated_by")
 
   @@index([healthFacilityId], map: "health_facility_relate_pharmacy_FK1")
   @@index([pharmacyId], map: "health_facility_relate_pharmacy_FK2")
+  @@index([accountManageId], map: "health_facility_relate_pharmacy_FK3")
   @@index([createdBy], map: "health_facility_relate_pharmacy_FK_created_by")
   @@index([updatedBy], map: "health_facility_relate_pharmacy_FK_updated_by")
   @@map("health_facility_relate_pharmacy")
@@ -639,6 +646,23 @@ enum PatientStatus {
   @@map("patient_status")
 }
 
+enum HealthFacilityRelatePharmacyBillingType {
+  BATCH
+  INDIVIDUAL
+  OTHER
+
+  @@map("health_facility_relate_pharmacy_billing_type")
+}
+
+enum HealthFacilityRelatePharmacyPaymentType {
+  CASH
+  WITHDRAWAL
+  TRANSFER
+  OTHER
+
+  @@map("health_facility_relate_pharmacy_payment_type")
+}
+
 enum AccountManageAccountType {
   SAVINGS
   CURRENT
@@ -661,6 +685,14 @@ enum PatientRelateHealthFacilityReason {
   CHANGE_PHARMACY
 
   @@map("patient_relate_health_facility_reason")
+}
+
+enum HealthFacilityRelatePharmacyPatientSortType {
+  NAME
+  CODE
+  OTHER
+
+  @@map("health_facility_relate_pharmacy_patient_sort_type")
 }
 
 enum PatientMedicalInsuranceStatus {

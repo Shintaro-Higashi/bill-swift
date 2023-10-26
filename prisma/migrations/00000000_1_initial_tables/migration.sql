@@ -198,6 +198,10 @@ CREATE TABLE health_facility_relate_pharmacy (
   , pharmacy_id VARCHAR(64) NOT NULL COMMENT '薬局ID'
   , start_date DATE NOT NULL COMMENT '開始日'
   , end_date DATE DEFAULT '2100-12-31' NOT NULL COMMENT '終了日'
+  , billing_type enum('BATCH', 'INDIVIDUAL', 'OTHER') COMMENT '請求種別:BATCH: 一括請求, INDIVIDUAL: 個人請求, OTHER: その他'
+  , payment_type enum('CASH', 'WITHDRAWAL', 'TRANSFER', 'OTHER') COMMENT '支払い種別:CASH: 現金, WITHDRAWAL: 引落（振替）, TRANSFER: 振込, OTHER: その他'
+  , account_manage_id VARCHAR(64) COMMENT '振込用口座管理ID'
+  , patient_sort_type enum('NAME', 'CODE', 'OTHER') DEFAULT 'NAME' NOT NULL COMMENT '患者ソート種別:NAME=名前順, CODE=患者コード順, OTHER=その他（持っている情報では単純にソートできない場合'
   , note TEXT COMMENT '備考'
   , created_at TIMESTAMP NULL DEFAULT NULL COMMENT '登録日時'
   , created_by VARCHAR(64) COMMENT '登録ユーザーID'
@@ -441,6 +445,8 @@ ALTER TABLE health_facility_relate_pharmacy
   ADD CONSTRAINT health_facility_relate_pharmacy_FK1 FOREIGN KEY (health_facility_id) REFERENCES health_facility(id);
 ALTER TABLE health_facility_relate_pharmacy
   ADD CONSTRAINT health_facility_relate_pharmacy_FK2 FOREIGN KEY (pharmacy_id) REFERENCES pharmacy(id);
+ALTER TABLE health_facility_relate_pharmacy
+  ADD CONSTRAINT health_facility_relate_pharmacy_FK3 FOREIGN KEY (account_manage_id) REFERENCES account_manage(id);
 ALTER TABLE health_facility_relate_pharmacy
   ADD CONSTRAINT health_facility_relate_pharmacy_FK_created_by FOREIGN KEY (created_by) REFERENCES user(id);
 ALTER TABLE health_facility_relate_pharmacy
