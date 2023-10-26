@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Stack } from '@mui/material'
+import { Box, Stack, Button } from '@mui/material'
 import { useShow } from '@refinedev/core'
 import { Show } from '@refinedev/mui'
 import React from 'react'
@@ -15,6 +15,10 @@ import { getBillingTypeValue } from '@/shared/items/billingType'
 import { getHealthFacilityPaymentTypeValue } from '@/shared/items/healthFacilityPaymentType'
 import { joinString } from '@/core/utils/commonUtil'
 import { RubyItem } from '@components/core/content/rubyItem'
+import { BasicDialog } from '@/components/core/content/basicDialog'
+import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined'
+import { AssignedPharmacySaveForm } from '@/components/domains/healthFacilities/assignedPharmacySaveForm'
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined'
 
 const ShowPage: React.FC = () => {
   setTitle()
@@ -26,7 +30,7 @@ const ShowPage: React.FC = () => {
     : null
   handleApiError(error)
 
-  /** 店舗変更履歴データを取得 */
+  // 店舗変更履歴データを取得
   let tableBodyRows: any[] = []
   let highLightRows: number[] = []
   const tableHeadRow = ['店舗名', '開始日', '終了日', '備考']
@@ -60,10 +64,33 @@ const ShowPage: React.FC = () => {
         <FieldItem
           label='担当店舗'
           value={
-            <Box>
-              {record?.pharmacy?.pharmacyGroup?.name + ' ' ?? ''}
-              <RubyItem value={record?.pharmacy?.name} ruby={record?.pharmacy?.nameKana} />
-            </Box>
+            <>
+              <Box>
+                {record?.pharmacy?.pharmacyGroup?.name + ' ' ?? ''}
+                <RubyItem value={record?.pharmacy?.name} ruby={record?.pharmacy?.nameKana} />
+              </Box>
+              <BasicDialog
+                title='担当店舗の変更'
+                content={<AssignedPharmacySaveForm />}
+                renderOpenDialogButton={(openDialog) => (
+                  <Button variant='contained' startIcon={<ModeEditOutlineOutlinedIcon />} onClick={openDialog}>
+                    変更
+                  </Button>
+                )}
+                renderSaveButton={(closeDialog) => (
+                  <Button
+                    variant='contained'
+                    startIcon={<SaveOutlinedIcon />}
+                    onClick={() => {
+                      // 保存処理
+                      closeDialog
+                    }}
+                  >
+                    保存
+                  </Button>
+                )}
+              />
+            </>
           }
         />
         <FieldItem label='コード' value={record?.code} />

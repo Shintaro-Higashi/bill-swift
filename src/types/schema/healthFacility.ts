@@ -64,3 +64,19 @@ export const HealthFacilityCreationSchema = z.object({
 
 // 施設編集スキーマ
 export const HealthFacilityEditingSchema = HealthFacilityCreationSchema.extend({})
+
+// 担当店舗編集スキーマ
+export const AssignedPharmacyEditingSchema = HealthFacilityCreationSchema.pick({
+  // 対応開始日
+  startDate: true,
+  // 店舗ID
+  pharmacyId: true,
+  // 請求種別
+  billingType: true,
+  // 支払い種別
+  paymentType: true,
+  // 口座管理ID
+  accountManageId: true,
+  // 患者ソート種別
+  patientSortType: true,
+})
