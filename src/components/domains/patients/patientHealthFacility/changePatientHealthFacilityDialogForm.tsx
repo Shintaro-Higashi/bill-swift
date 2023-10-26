@@ -109,7 +109,13 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
       flexDirection='row'
       justifyContent='flex-end'
       display='flex'
-      sx={{ position: 'relative', width: '100%', marginTop: 0, display: viewBoxEditButton ? 'flex' : 'none' }}
+      sx={{
+        position: 'relative',
+        width: '100%',
+        marginTop: 0,
+        display: 'flex',
+        visibility: viewBoxEditButton ? 'visible' : 'hidden',
+      }}
     >
       <Tooltip title='施設の退去、転居を行う'>
         <IconButton

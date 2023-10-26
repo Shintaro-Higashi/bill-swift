@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ByIdRequest, PatientHealthFacilityEditingSchema } from '@/types'
 import { performRequest } from '@/core/utils/requestUtil'
-import { fetchPatientHealthFacility, upsertPatientHealthFacility } from '@/servers/services/patientService'
+import {
+  fetchPatientHealthFacility,
+  upsertPatientHealthFacility,
+} from '@/servers/services/patientRelateHealthFacilityService'
 
 /**
  * 患者の新規所属施設を作成するAPIです。
