@@ -21,14 +21,14 @@ type Props = {
 export const ChangePatientHealthFacilityButton = (props: Props) => {
   const { patient, viewBoxEditButton } = props
   const [open, setOpen] = useState(false)
-  const handleOpen = () => {
+  const onClick = () => {
     setOpen(true)
   }
   const onClose = (_isSuccess: boolean) => {
     setOpen(false)
   }
 
-  if (!patient) return <Loading />
+  if (!patient) return null
 
   return (
     <Box
@@ -48,7 +48,7 @@ export const ChangePatientHealthFacilityButton = (props: Props) => {
           color='primary'
           sx={{ position: 'absolute', right: '0px', bottom: 0, zIndex: 100 }}
           aria-label='change-health-facility'
-          onClick={handleOpen}
+          onClick={onClick}
         >
           <LowPriorityOutlined />
         </IconButton>

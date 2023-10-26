@@ -3,11 +3,12 @@ import { ByIdRequest, PatientHealthFacilityEditingSchema } from '@/types'
 import { performRequest } from '@/core/utils/requestUtil'
 import {
   fetchPatientHealthFacility,
+  updatePatientHealthFacility,
   upsertPatientHealthFacility,
 } from '@/servers/services/patientRelateHealthFacilityService'
 
 type Params = ByIdRequest & {
-  // 関連施設ID
+  // 患者関連施設ID
   relateHealthFacilityId: string
 }
 
@@ -23,7 +24,7 @@ export async function PATCH(req: NextRequest, { params: { id, relateHealthFacili
       const editData = await req.json()
       // TODO まだ未処理のデータのみ処理可能とする
       const parsedEditData = PatientHealthFacilityEditingSchema.parse(editData)
-      await upsertPatientHealthFacility(id, parsedEditData)
+      await updatePatientHealthFacility(relateHealthFacilityId, parsedEditData)
       return NextResponse.json({ status: 'ok' })
     },
     { resource: 'patients', action: 'edit', id },

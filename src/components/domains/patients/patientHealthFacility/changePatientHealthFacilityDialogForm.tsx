@@ -1,9 +1,7 @@
 'use client'
 
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Tooltip } from '@mui/material'
-import { LowPriorityOutlined } from '@mui/icons-material'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import IconButton from '@mui/material/IconButton'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material'
+import React, { useEffect, useMemo } from 'react'
 import {
   PatientHealthFacilityDeceaseExitEditingSchema,
   PatientHealthFacilityEditingForm,
@@ -18,16 +16,13 @@ import { BaseRecord, HttpError } from '@refinedev/core'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormSubmitErrorNotification } from '@/core/utils/refineUtil'
 import useConfirm from '@/core/hooks/useConfirm'
-import { Loading } from '@components/core/content/loading'
 import { ControlDatePicker } from '@components/core/form/controlDatePicker'
 import { ControlItemAutocomplete } from '@components/core/form/controlItemAutocomplete'
 import { PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST } from '@/shared/items/patientHealthFacilityChangeReason'
 import { FieldErrors, useWatch } from 'react-hook-form'
 import Typography from '@mui/material/Typography'
 import { z } from 'zod'
-import { GridColDef } from '@mui/x-data-grid'
 import { isFuturePatientRelateHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
-import { isPast } from 'date-fns'
 
 type Props = {
   // ダイアログ開閉状態
@@ -60,9 +55,12 @@ const getResourceSuffix = (patientRelateHealthFacility: PatientRelateHealthFacil
 export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
   const { open, onClose, patient, patientRelateHealthFacility } = props
 
+  console.log(
+    'これで何度もして動くはず',
+    `patients/${patient?.id}/health-facilities${getResourceSuffix(patientRelateHealthFacility)}`,
+  )
   const {
     saveButtonProps,
-    refineCore: { formLoading },
     register,
     handleSubmit,
     control,
@@ -76,7 +74,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
       errorNotification: errorNotification.notification,
       action: 'edit',
       id: '',
-      resource: `patients/${patient?.id}/health-facilities/${getResourceSuffix(patientRelateHealthFacility)}`,
+      resource: `patients/${patient?.id}/health-facilities${getResourceSuffix(patientRelateHealthFacility)}`,
       redirect: false,
       queryOptions: {
         enabled: false,
@@ -87,7 +85,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
         refreshButton.click()
         onClose(true)
       },
-      successNotification: (data, values, resource) => {
+      successNotification: (_data, _values, _resource) => {
         return {
           message: '関連施設情報の変更が完了しました',
           description: '操作完了',
@@ -96,6 +94,8 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
       },
     },
   })
+  errorNotification.error = setError
+  const { $confirm } = useConfirm()
 
   // 過去関連施設は備考のみ修正可能
   const isPastRelateHealthFacility = useMemo(() => {
@@ -121,19 +121,6 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
   const deceaseExitErrors: FieldErrors<z.infer<typeof PatientHealthFacilityDeceaseExitEditingSchema>> = errors
   const relocationErrors: FieldErrors<z.infer<typeof PatientHealthFacilityRelocationEditingSchema>> = errors
   const reason = useWatch({ control: control, name: 'reason' })
-
-  // const [open, setOpen] = useState(false)
-  // const handleOpen = () => {
-  //   setOpen(true)
-  //   reset()
-  // }
-  //
-  // const handleClose = () => {
-  //   setOpen(false)
-  // }
-
-  errorNotification.error = setError
-  const { $confirm } = useConfirm()
 
   const handleEdit = (e: any) => {
     $confirm({
@@ -169,7 +156,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
           label='変更理由'
           name='reason'
           control={control}
-          readOnly={isPastRelateHealthFacility}
+          readOnly={!!patientRelateHealthFacility}
           error={!!errors.reason}
           helperText={errors.reason?.message}
           options={reasonOptions}

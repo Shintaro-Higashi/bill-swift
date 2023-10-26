@@ -8,10 +8,44 @@ import { createId } from '@paralleldrive/cuid2'
 import { PatientHealthFacilityEditingDto } from '@/types'
 
 /**
+ * 指定のIDに該当する患者関連施設情報を取得します。
+ * @param id 患者関連施設ID
+ * @return 患者関連施設情報
+ */
+export const fetchPatientRelateHealthFacility = depend({ client: prisma }, async ({ client }, id: string) => {
+  return await client.patientRelateHealthFacility.findUniqueOrThrow({
+    select: {
+      id: true,
+      healthFacilityId: true,
+      patientId: true,
+      patientCode: true,
+      startDate: true,
+      endDate: true,
+      reason: true,
+      note: true,
+      healthFacility: {
+        select: {
+          name: true,
+          nameKana: true,
+          pharmacy: {
+            select: { name: true, nameKana: true, pharmacyGroup: { select: { name: true, nameKana: true } } },
+          },
+        },
+      },
+      createdAt: true,
+      createdUser: { select: { name: true } },
+      updatedAt: true,
+      updatedUser: { select: { name: true } },
+    },
+    where: { id, existence: true },
+  })
+})
+
+/**
  * 指定の患者IDに該当する患者関連施設情報を最新順に取得します。
  * @param patientId 患者ID
  * @param healthFacilityId 施設ID
- * @return 患者情報
+ * @return 患者関連施設情報
  */
 export const fetchPatientRelateHealthFacilitiesByPatientId = depend(
   { client: prisma },
@@ -53,7 +87,7 @@ export const fetchPatientRelateHealthFacilitiesByPatientId = depend(
  * @param patientId 患者ID
  * @param healthFacilityId 施設ID
  * @param patientCode 患者コード
- * @return 患者情報
+ * @return 患者関連施設情報
  */
 export const fetchPatientRelateHealthFacilityByUnique = depend(
   { client: prisma },
@@ -73,7 +107,7 @@ export const fetchPatientRelateHealthFacilityByUnique = depend(
 
 /**
  * 患者関連施設を作成します。
- * @param params
+ * @param params 患者関連施設情報
  */
 export const createPatientRelateHealthFacility = depend(
   { client: prisma },

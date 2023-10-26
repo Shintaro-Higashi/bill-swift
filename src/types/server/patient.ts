@@ -33,10 +33,3 @@ export type PatientHealthFacilityEditingDto = {
   endDate?: Date
   note?: string | null
 }
-
-// 患者変更履歴作成Dto
-export type PatientCodeHistoryCreationDto = {
-  patientId: string
-  healthFacilityId: string
-  patientCode: string
-}

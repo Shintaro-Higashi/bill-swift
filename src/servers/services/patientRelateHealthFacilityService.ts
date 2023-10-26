@@ -6,6 +6,7 @@ import {
 } from '@/servers/repositories/patientRepository'
 import {
   createPatientRelateHealthFacility,
+  fetchPatientRelateHealthFacility,
   fetchPatientRelateHealthFacilitiesByPatientId,
   fetchPatientRelateHealthFacilityByUnique,
   updatePatientRelateHealthFacility,
@@ -31,7 +32,7 @@ export const fetchPatientHealthFacility = depend(
 )
 
 /**
- * 指定患者の関連施設情報を更新します。
+ * 指定患者の関連施設情報を登録、または更新します。
  * <pre>
  *  [退去時]
  *  現在所属している施設の退去日を設定します
@@ -145,6 +146,42 @@ export const upsertPatientHealthFacility = depend(
       }
 
       return tCreatePatientRelateHealthFacility
+    })
+  },
+)
+
+/**
+ * 指定患者の関連施設情報を更新します。
+ * <pre>
+ *  入居処理、または退去処理がまだ完了していない関連施設のみ更新可能です。
+ * </pre>
+ * @param patientRelateHealthFacilityId 患者関連施設ID
+ * @param params 患者関連施設更新情報
+ */
+export const updatePatientHealthFacility = depend(
+  {
+    fetchPatientRelateHealthFacility,
+    updatePatientRelateHealthFacility,
+    updatePatientUpdated,
+  },
+  async (
+    { fetchPatientRelateHealthFacility, updatePatientRelateHealthFacility, updatePatientUpdated },
+    patientRelateHealthFacilityId: string,
+    params: PatientHealthFacilityEditingDto,
+  ) => {
+    return await performTransaction(async (tx: any) => {
+      const tUpdatePatientRelateHealthFacility = injectTx(updatePatientRelateHealthFacility, tx)
+      const tUpdatePatientUpdated = injectTx(updatePatientUpdated, tx)
+
+      const patientRelateHealthFacility = await fetchPatientRelateHealthFacility(patientRelateHealthFacilityId)
+
+      params.reason = patientRelateHealthFacility.reason
+      // TODO reasonに応じて値更新させないような処理
+
+      const result = await tUpdatePatientRelateHealthFacility(patientRelateHealthFacilityId, params)
+      await tUpdatePatientUpdated(patientRelateHealthFacility.patientId)
+
+      return result
     })
   },
 )
