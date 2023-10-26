@@ -34,6 +34,16 @@ export const toUTCDate = (date: Date, { timeZone = 'Asia/Tokyo' } = {}) => {
 }
 
 /**
+ * 指定のタイムゾーン日時をJST日時に変換します。
+ * @param date 日時
+ * @param timeZone タイムゾーン
+ * @return UTC Date
+ */
+export const toJSTDate = (date: Date | string, { timeZone = 'UTC' } = {}) => {
+  return utcToZonedTime(date, timeZone)
+}
+
+/**
  * 指定の日時を指定書式の文字列に変換します。
  * @param datetime 日時
  * @param options オプション

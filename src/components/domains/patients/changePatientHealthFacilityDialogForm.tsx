@@ -49,9 +49,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
     control,
     formState: { errors },
     reset,
-    setValue,
     setError,
-    clearErrors,
   } = useForm<BaseRecord, HttpError, PatientHealthFacilityEditingForm>({
     resolver: zodResolver(PatientHealthFacilityEditingSchema),
     refineCoreProps: {

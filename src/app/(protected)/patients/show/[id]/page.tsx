@@ -33,6 +33,7 @@ import { PatientDeliverySwitchForm } from '@components/domains/patients/patientD
 import { PatientCheckListSwitchForm } from '@components/domains/patients/patientCheckListSwitchForm'
 import { PatientChangeHistory } from '@components/domains/patients/patientChangeHistory'
 import { PatientHealthFacility } from '@components/domains/patients/patientHealthFacility'
+import { Loading } from '@components/core/content/loading'
 
 const ShowPage = () => {
   setTitle()
@@ -90,6 +91,10 @@ const ShowPage = () => {
     }
   }, [record, setValue])
 
+  if (!record) {
+    return <Loading />
+  }
+
   return (
     <Show isLoading={formLoading} canEdit={false}>
       <FormProvider {...methods}>
@@ -108,7 +113,7 @@ const ShowPage = () => {
               boxEditStatus={boxEditStatus}
               setBoxEditStatus={setBoxEditStatus}
             />
-            <PatientHealthFacility patientId={id?.toString()} updatedAt={record?.updatedAt} />
+            <PatientHealthFacility patient={record} />
             <PatientNoteSwitchForm boxEditStatus={boxEditStatus} setBoxEditStatus={setBoxEditStatus} />
             <PaperBox title='添付資料' icon={<AttachmentOutlined />} sx={{ p: 0, mt: 2 }}>
               <Box sx={{ px: 1 }}>添付したファイル名とメモのリストを表示予定</Box>
