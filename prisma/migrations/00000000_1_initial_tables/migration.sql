@@ -198,6 +198,10 @@ CREATE TABLE health_facility_relate_pharmacy (
   , pharmacy_id VARCHAR(64) NOT NULL COMMENT '薬局ID'
   , start_date DATE NOT NULL COMMENT '開始日'
   , end_date DATE DEFAULT '2100-12-31' NOT NULL COMMENT '終了日'
+  , billing_type enum('BATCH', 'INDIVIDUAL', 'OTHER') COMMENT '請求種別:BATCH: 一括請求, INDIVIDUAL: 個人請求, OTHER: その他'
+  , payment_type enum('CASH', 'WITHDRAWAL', 'TRANSFER', 'OTHER') COMMENT '支払い種別:CASH: 現金, WITHDRAWAL: 引落（振替）, TRANSFER: 振込, OTHER: その他'
+  , account_manage_id VARCHAR(64) COMMENT '振込用口座管理ID'
+  , patient_sort_type enum('NAME', 'CODE', 'OTHER') DEFAULT 'NAME' NOT NULL COMMENT '患者ソート種別:NAME=名前順, CODE=患者コード順, OTHER=その他（持っている情報では単純にソートできない場合'
   , note TEXT COMMENT '備考'
   , created_at TIMESTAMP NULL DEFAULT NULL COMMENT '登録日時'
   , created_by VARCHAR(64) COMMENT '登録ユーザーID'
@@ -260,10 +264,11 @@ CREATE TABLE patient_relate_health_facility (
   id VARCHAR(64) NOT NULL COMMENT 'ID'
   , patient_id VARCHAR(64) NOT NULL COMMENT '患者ID'
   , health_facility_id VARCHAR(64) NOT NULL COMMENT '施設ID'
+  , patient_code CHAR(8) NOT NULL COMMENT '患者コード'
   , start_date DATE NOT NULL COMMENT '入居日'
   , end_date DATE DEFAULT '2100-12-31' NOT NULL COMMENT '退居日'
   , bill_sort INT COMMENT '請求書ソート順:施設単位での請求書に出力する患者のソート順。施設の患者ソート種別がその他以外はデータ登録時に番号を振りなおして更新する'
-  , reason enum('DECEASE', 'EXIT','RELOCATION') COMMENT '退居理由:DECEASE: 逝去,EXIT:退去, RELOCATION: 転居'
+  , reason enum('DECEASE', 'EXIT','RELOCATION','CHANGE_PHARMACY') COMMENT '変更理由:DECEASE: 逝去,EXIT:退去, RELOCATION: 転居, CHANGE_PHARMACY: 薬局変更'
   , note TEXT COMMENT '備考'
   , created_at TIMESTAMP NULL DEFAULT NULL COMMENT '登録日時'
   , created_by VARCHAR(64) COMMENT '登録ユーザーID'
@@ -272,25 +277,10 @@ CREATE TABLE patient_relate_health_facility (
   , deleted_at TIMESTAMP NULL DEFAULT NULL COMMENT '削除日時'
   , existence boolean as (CASE WHEN deleted_at IS NULL THEN 1 ELSE NULL END) COMMENT '削除有無:1:有効 NULL:論理削除'
   , CONSTRAINT patient_relate_health_facility_PKC PRIMARY KEY (id)
-) COMMENT '患者関連施設:施設が入居する患者を管理' ;
+) COMMENT '患者関連施設:患者の施設変更履歴を管理。施設の店舗変更による患者コード変更発生も履歴管理対象' ;
 
-
--- 患者コード履歴
-CREATE TABLE patient_code_history (
-  id VARCHAR(64) NOT NULL COMMENT 'ID'
-  , patient_id VARCHAR(64) NOT NULL COMMENT '患者ID'
-  , health_facility_id VARCHAR(64) NOT NULL COMMENT '施設ID'
-  , patient_code VARCHAR(8) NOT NULL COMMENT '患者コード'
-  , created_at TIMESTAMP NULL DEFAULT NULL COMMENT '登録日時'
-  , created_by VARCHAR(64) COMMENT '登録ユーザーID'
-  , updated_at TIMESTAMP NULL DEFAULT NULL COMMENT '更新日時'
-  , updated_by VARCHAR(64) COMMENT '更新ユーザーID'
-  , deleted_at TIMESTAMP NULL DEFAULT NULL COMMENT '削除日時'
-  , existence boolean as (CASE WHEN deleted_at IS NULL THEN 1 ELSE NULL END) COMMENT '削除有無:1:有効 NULL:論理削除'
-  , CONSTRAINT patient_code_history_PKC PRIMARY KEY (id)
-) COMMENT '患者コード履歴:患者コードの体系は「施設コード（4桁）」＋「各店舗ごとのユニーク番号（4桁）」だが、
-施設移動になったり店舗が変更された場合に別店舗で新たに番号が付与されることもある
-その際に、元の店舗のコードを変更する運用は存在していないため、同一患者で複数のコードを持つ可能性がある' ;
+CREATE UNIQUE INDEX patient_relate_health_facility_IX1
+    ON patient_relate_health_facility(patient_id,health_facility_id,patient_code);
 
 
 -- 患者ファイル
@@ -456,6 +446,8 @@ ALTER TABLE health_facility_relate_pharmacy
 ALTER TABLE health_facility_relate_pharmacy
   ADD CONSTRAINT health_facility_relate_pharmacy_FK2 FOREIGN KEY (pharmacy_id) REFERENCES pharmacy(id);
 ALTER TABLE health_facility_relate_pharmacy
+  ADD CONSTRAINT health_facility_relate_pharmacy_FK3 FOREIGN KEY (account_manage_id) REFERENCES account_manage(id);
+ALTER TABLE health_facility_relate_pharmacy
   ADD CONSTRAINT health_facility_relate_pharmacy_FK_created_by FOREIGN KEY (created_by) REFERENCES user(id);
 ALTER TABLE health_facility_relate_pharmacy
   ADD CONSTRAINT health_facility_relate_pharmacy_FK_updated_by FOREIGN KEY (updated_by) REFERENCES user(id);
@@ -499,16 +491,6 @@ ALTER TABLE patient
   ADD CONSTRAINT patient_FK_created_by FOREIGN KEY (created_by) REFERENCES user(id);
 ALTER TABLE patient
   ADD CONSTRAINT patient_FK_updated_by FOREIGN KEY (updated_by) REFERENCES user(id);
-
--- 患者コード履歴
-ALTER TABLE patient_code_history
-  ADD CONSTRAINT patient_code_history_FK1 FOREIGN KEY (health_facility_id) REFERENCES health_facility(id);
-ALTER TABLE patient_code_history
-  ADD CONSTRAINT patient_code_history_FK2 FOREIGN KEY (patient_id) REFERENCES patient(id);
-ALTER TABLE patient_code_history
-  ADD CONSTRAINT patient_code_history_FK_created_by FOREIGN KEY (created_by) REFERENCES user(id);
-ALTER TABLE patient_code_history
-  ADD CONSTRAINT patient_code_history_FK_updated_by FOREIGN KEY (updated_by) REFERENCES user(id);
 
 -- 患者ファイル
 ALTER TABLE patient_file

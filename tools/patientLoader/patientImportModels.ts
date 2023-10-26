@@ -17,6 +17,7 @@ import {
   PatientNursingInsuranceStatus,
   PatientPaymentType,
   PatientRelateHealthFacilityReason,
+  PatientStatus,
   Pharmacy,
 } from '@prisma/client'
 
@@ -115,6 +116,7 @@ export type PatientInputModel = {
   id: string
   healthFacilityId: string
   code: string
+  status: PatientStatus
   name: string
   nameKana: string
   searchName: string
@@ -145,19 +147,8 @@ export type PatientInputModel = {
   deliveryTel: string | null
   healthFacilityInfo: string | null
   note: string | null
-  patientCodeHistory?: PatientCodeHistoryInput[]
   patientRelateHealthFacility?: PatientRelateHealthFacilityInputModel[]
   tempLastBillDate?: Date | null
-} & CommonColumns
-
-/**
- * 患者コード履歴登録情報
- */
-export type PatientCodeHistoryInput = {
-  id: string
-  patientId: string
-  healthFacilityId: string
-  patientCode: string
 } & CommonColumns
 
 /**
@@ -167,6 +158,7 @@ export type PatientRelateHealthFacilityInputModel = {
   id: string
   patientId: string
   healthFacilityId: string
+  patientCode: string
   startDate: Date
   endDate: Date
   reason?: PatientRelateHealthFacilityReason

@@ -62,7 +62,6 @@ export const fetchPatient = depend({ client: prisma }, async ({ client }, id: st
     include: {
       healthFacility: { select: { code: true, name: true, nameKana: true } },
       patientRelateHealthFacility: { include: { healthFacility: true } },
-      patientCodeHistory: true,
       patientFile: true,
       accountManage: { select: { name: true } },
       createdUser: true,

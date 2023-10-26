@@ -60,9 +60,6 @@ const replacements: { search: string; replace: string }[] = [
   // 患者変更履歴
   { search: 'userPatientChangeHistoryCreatedByTouser', replace: 'createdUser' },
   { search: 'userPatientChangeHistoryUpdatedByTouser', replace: 'updatedUser' },
-  // 患者コード履歴
-  { search: 'userPatientCodeHistoryCreatedByTouser', replace: 'createdUser' },
-  { search: 'userPatientCodeHistoryUpdatedByTouser', replace: 'updatedUser' },
   // 患者ファイル
   { search: 'userPatientFileCreatedByTouser', replace: 'createdUser' },
   { search: 'userPatientFileUpdatedByTouser', replace: 'updatedUser' },

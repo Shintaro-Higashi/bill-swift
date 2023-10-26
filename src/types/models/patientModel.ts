@@ -1,11 +1,4 @@
-import {
-  AccountManage,
-  HealthFacility,
-  Patient,
-  PatientCodeHistory,
-  PatientFile,
-  PatientRelateHealthFacility,
-} from '@prisma/client'
+import { AccountManage, HealthFacility, Patient, PatientFile, PatientRelateHealthFacility } from '@prisma/client'
 import { CommonRelateUserModel } from '@/types/models/commonRelateUserModel'
 import { PatientChangeHistoryModel } from '@/types/models/patientChangeHistory'
 
@@ -15,7 +8,6 @@ export type PatientModel = Patient &
     healthFacility: HealthFacility | null
     accountManage: AccountManage | null
     patientChangeHistory: PatientChangeHistoryModel[] | null
-    patientCodeHistory: PatientCodeHistory[] | null
     patientFile: PatientFile[] | null
     patientRelateHealthFacility: PatientRelateHealthFacility[] | null
   }
