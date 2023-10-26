@@ -2,7 +2,7 @@ import depend from '@/core/utils/velona'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
 import { Prisma } from '.prisma/client'
 import SortOrder = Prisma.SortOrder
-import { getCurrentDate } from '@/core/utils/dateUtil'
+import { getCurrentDate, toJSTDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 import { createId } from '@paralleldrive/cuid2'
 import { PatientHealthFacilityEditingDto } from '@/types'
@@ -19,6 +19,7 @@ export const fetchPatientRelateHealthFacilitiesByPatientId = depend(
     return await client.patientRelateHealthFacility.findMany({
       select: {
         id: true,
+        healthFacilityId: true,
         patientCode: true,
         startDate: true,
         endDate: true,
@@ -91,7 +92,7 @@ export const createPatientRelateHealthFacility = depend(
         healthFacilityId: params.healthFacilityId,
         patientCode: params.patientCode,
         startDate: params.startDate,
-        endDate: new Date('2100/12/31'),
+        endDate: toJSTDate('2100-12-31'),
         createdBy: userId,
         updatedBy: userId,
         createdAt: now,

@@ -23,15 +23,15 @@ export const getCurrentFormatDate = ({ fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = '
   return format(getCurrentDate(), fmt, { timeZone })
 }
 
-/**
- * 指定のタイムゾーン日時をUTC日時に変換します。
- * @param date 日時
- * @param timeZone タイムゾーン
- * @return UTC Date
- */
-export const toUTCDate = (date: Date, { timeZone = 'Asia/Tokyo' } = {}) => {
-  return zonedTimeToUtc(date, timeZone)
-}
+// /**
+//  * 指定のタイムゾーン日時をUTC日時に変換します。
+//  * @param date 日時
+//  * @param timeZone タイムゾーン
+//  * @return UTC Date
+//  */
+// export const toUTCDate = (date: Date, { timeZone = 'Asia/Tokyo' } = {}) => {
+//   return zonedTimeToUtc(date, timeZone)
+// }
 
 /**
  * 指定のタイムゾーン日時をJST日時に変換します。
@@ -40,7 +40,7 @@ export const toUTCDate = (date: Date, { timeZone = 'Asia/Tokyo' } = {}) => {
  * @return UTC Date
  */
 export const toJSTDate = (date: Date | string, { timeZone = 'UTC' } = {}) => {
-  return utcToZonedTime(date, timeZone)
+  return utcToZonedTime(typeof date === 'string' ? new Date(date) : date, timeZone)
 }
 
 /**
@@ -48,19 +48,20 @@ export const toJSTDate = (date: Date | string, { timeZone = 'UTC' } = {}) => {
  * @param datetime 日時
  * @param options オプション
  * @param options.fmt 書式 [yyyy-MM-dd HH:mm:ss]
- * @param options.timeZone タイムゾーン [UTC]
+ * @param options.timeZone タイムゾーン [Asia/Tokyo]
  * @return 指定書式変換後の日時文字列
  */
 export const formatDateTime = (
   datetime: Date | undefined | null,
   options: { fmt?: string; timeZone?: string } = {},
 ) => {
+  if (typeof datetime === 'string') throw new Error(`formatDateTimeに文字列を渡すことはできません:'${datetime}`)
   // "2100-12-31" は関連付けテーブルの有効期間の終了日のデフォルト値のため画面上に日付として表示しないようにする
-  const argDate = datetime ? new Date(datetime) : null
-  const defaultEndDate = new Date('2100-12-31T00:00:00.000Z')
+  const argDate = datetime ?? null
+  const defaultEndDate = toJSTDate('2100-12-31T00:00:00.000Z')
 
   if (!datetime || !argDate || argDate.getTime() === defaultEndDate.getTime()) return ''
-  const { fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = 'UTC' } = options
+  const { fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = 'Asia/Tokyo' } = options
   return formatInTimeZone(datetime, timeZone, fmt)
 }
 

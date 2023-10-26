@@ -159,7 +159,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
               />
               <ControlDatePicker
                 required
-                label='入居日'
+                label='入居(予定)日'
                 name='startDate'
                 control={control}
                 error={!!relocationErrors.startDate}
@@ -171,7 +171,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
             <>
               <ControlDatePicker
                 required
-                label='退出日'
+                label='退出(予定)日'
                 name='endDate'
                 control={control}
                 error={!!deceaseExitErrors}

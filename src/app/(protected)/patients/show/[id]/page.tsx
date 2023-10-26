@@ -32,7 +32,7 @@ import { FormProvider } from 'react-hook-form'
 import { PatientDeliverySwitchForm } from '@components/domains/patients/patientDeliverySwitchForm'
 import { PatientCheckListSwitchForm } from '@components/domains/patients/patientCheckListSwitchForm'
 import { PatientChangeHistory } from '@components/domains/patients/patientChangeHistory'
-import { PatientHealthFacility } from '@components/domains/patients/patientHealthFacility'
+import { PatientRelateHealthFacility } from '@components/domains/patients/patientHealthFacility/patientRelateHealthFacility'
 import { Loading } from '@components/core/content/loading'
 
 const ShowPage = () => {
@@ -113,7 +113,7 @@ const ShowPage = () => {
               boxEditStatus={boxEditStatus}
               setBoxEditStatus={setBoxEditStatus}
             />
-            <PatientHealthFacility patient={record} />
+            <PatientRelateHealthFacility patient={record} />
             <PatientNoteSwitchForm boxEditStatus={boxEditStatus} setBoxEditStatus={setBoxEditStatus} />
             <PaperBox title='添付資料' icon={<AttachmentOutlined />} sx={{ p: 0, mt: 2 }}>
               <Box sx={{ px: 1 }}>添付したファイル名とメモのリストを表示予定</Box>

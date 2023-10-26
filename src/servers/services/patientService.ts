@@ -150,6 +150,8 @@ export const upsertPatientHealthFacility = depend(
       const tUpdate = injectTx(update, tx)
       const tUpdatePatientRelateHealthFacility = injectTx(updatePatientRelateHealthFacility, tx)
       const tUpdatePatientUpdated = injectTx(updatePatientUpdated, tx)
+
+      await tUpdatePatientUpdated(patient.id)
       // [逝去、退去]
       if (params.reason === 'DECEASE' || params.reason === 'EXIT') {
         if (!params.endDate) throw new Error('患者逝去、退去日未設定')
@@ -157,8 +159,6 @@ export const upsertPatientHealthFacility = depend(
         params.healthFacilityId = patient.healthFacilityId
 
         const relateHealthFacilityResult = await tUpdatePatientRelateHealthFacility(nowRelateHealthFacility.id, params)
-        await tUpdatePatientUpdated(patient.id)
-
         if (isPast(params.endDate)) {
           await tUpdate(patient.id, { ...patient, ...{ status: params.reason } })
         }
@@ -174,28 +174,27 @@ export const upsertPatientHealthFacility = depend(
         reason: params.reason,
         endDate: subDays(params.startDate, 1),
       })
-      // TODO 過去日の場合、転出処理を即時に実行
-      if (isPast(params.startDate)) {
-        const tIncrementHealthFacilityCodeManageSequenceNo = injectTx(incrementHealthFacilityCodeManageSequenceNo, tx)
 
-        const healthFacilityCodeManage = await tIncrementHealthFacilityCodeManageSequenceNo(newHealthFacilityId)
-        const newPatientCode = createNewPatientCode(healthFacilityCodeManage)
+      const tIncrementHealthFacilityCodeManageSequenceNo = injectTx(incrementHealthFacilityCodeManageSequenceNo, tx)
+      const healthFacilityCodeManage = await tIncrementHealthFacilityCodeManageSequenceNo(newHealthFacilityId)
+      const newPatientCode = createNewPatientCode(healthFacilityCodeManage)
+      await tCreatePatientRelateHealthFacility({
+        patientId: patient.id,
+        healthFacilityId: newHealthFacilityId,
+        patientCode: newPatientCode,
+        startDate: params.startDate,
+        reason: null,
+        note: params.note,
+      })
+      if (isPast(params.startDate)) {
+        // TODO 過去日の場合、転出処理を即時に実行
         // コードと施設を最新、施設メモを初期化
         const nowHealthFacilityInfo = patient.healthFacilityInfo
-
         patient.healthFacilityId = newHealthFacilityId
         patient.code = newPatientCode
         patient.healthFacilityInfo = null
         await tUpdate(patient.id, patient)
         // TODO 患者関連施設TBLの請求書ソート順を更新(※一覧で並べたいはずなので実装はしておきたい) 基本施設メモでソートなので移動後は最後?
-        await tCreatePatientRelateHealthFacility({
-          patientId: patient.id,
-          healthFacilityId: newHealthFacilityId,
-          patientCode: newPatientCode,
-          startDate: params.startDate,
-          reason: null,
-          note: params.note,
-        })
         if (nowHealthFacilityInfo !== null) {
           const tCreatePatientChangeHistory = injectTx(createPatientChangeHistory, tx)
           const tCreateManyPatientChangeContent = injectTx(createManyPatientChangeContent, tx)

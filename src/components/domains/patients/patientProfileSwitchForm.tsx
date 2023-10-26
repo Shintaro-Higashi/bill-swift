@@ -26,7 +26,7 @@ import useConfirm from '@/core/hooks/useConfirm'
 import { PaperToggleBox } from '@components/domains/patients/paperToggleBox'
 import { Theme } from '@mui/system'
 import { ControlDatePicker } from '@components/core/form/controlDatePicker'
-import { ChangePatientHealthFacilityDialogForm } from '@components/domains/patients/changePatientHealthFacilityDialogForm'
+import { ChangePatientHealthFacilityDialogForm } from '@components/domains/patients/patientHealthFacility/changePatientHealthFacilityDialogForm'
 import { getPatientStatusValue } from '@/shared/items/patientStatus'
 
 const BOX_NAME: BoxEditStatus = 'profile'

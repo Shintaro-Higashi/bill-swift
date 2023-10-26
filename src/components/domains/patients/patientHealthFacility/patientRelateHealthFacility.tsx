@@ -9,34 +9,22 @@ import React, { Fragment } from 'react'
 import { PatientModel, PatientRelateHealthFacilityModel } from '@/types'
 import { Box, IconButton } from '@mui/material'
 import { HttpError, useCustom } from '@refinedev/core'
-import { Loading } from '@components/core/content/loading'
-import { formatDate, formatDateTime, toJSTDate } from '@/core/utils/dateUtil'
+import { formatDate } from '@/core/utils/dateUtil'
 import { DeleteOutlined, HistoryOutlined } from '@mui/icons-material'
 import { PaperBox } from '@components/core/content/paperBox'
 import { DataGrid, GridColDef, GridRowClassNameParams } from '@mui/x-data-grid'
 
 import { RubyItem } from '@components/core/content/rubyItem'
 import { getPatientHealthFacilityChangeReasonValue } from '@/shared/items/patientHealthFacilityChangeReason'
-import { DeleteButton, EditButton } from '@refinedev/mui'
-import Button from '@mui/material/Button'
 import EditOutlined from '@mui/icons-material/EditOutlined'
-import { RefineButtonClassNames, RefineButtonTestIds } from '@refinedev/ui-types'
 import { isPast } from 'date-fns'
 
 type Props = {
   patient: PatientModel
-  // // 変更履歴取得対象の患者ID
-  // patientId: string
-  // // 該当患者IDの最終更新日時(変更が発生したら履歴の再取得を行う判定に利用)
-  // updatedAt: Date | null | undefined
-  // 変更履歴取得完了後のcallBack(主に親に伝播したい場合に利用)
   onFinish?: () => void
 }
 
-/**
- * 患者の所属施設履歴情報を表示します。
- */
-export const PatientHealthFacility = (props: Props) => {
+export const PatientRelateHealthFacility = (props: Props) => {
   const { patient } = props
 
   const { data, isLoading, isError } = useCustom<PatientRelateHealthFacilityModel[], HttpError>({
@@ -87,20 +75,20 @@ export const PatientHealthFacility = (props: Props) => {
       },
       {
         field: 'startDate',
-        headerName: '入居日',
+        headerName: '入居(予定)日',
         sortable: false,
-        width: 95,
+        width: 105,
         renderCell: ({ row }) => {
           return <>{formatDate(row?.startDate)}</>
         },
       },
       {
         field: 'endDate',
-        headerName: '退出日',
+        headerName: '退出(予定)日',
         sortable: false,
-        width: 95,
+        width: 105,
         renderCell: ({ row }) => {
-          return <>{formatDateTime(row.endDate)}</>
+          return <>{formatDate(row.endDate)}</>
         },
       },
       {
@@ -121,7 +109,12 @@ export const PatientHealthFacility = (props: Props) => {
         flex: 1,
         minWidth: 100,
         renderCell: function render({ row }) {
-          const isFutureHF = !isPast(toJSTDate(row.startDate))
+          const isFutureHF =
+            !isPast(row.startDate) ||
+            // 退出予定日設定は削除可
+            (row.patientCode === patient.code &&
+              row.healthFacilityId === patient.healthFacilityId &&
+              !isPast(row.endDate))
           return (
             <Box sx={{ alignItems: 'flex-start' }}>
               <IconButton aria-label='edit' color='primary' onClick={() => handleEdit(row)}>
@@ -147,28 +140,61 @@ export const PatientHealthFacility = (props: Props) => {
 
   const records = data?.data
 
+  /**
+   * 施設情報に変更が発生したか否かを判断します。
+   */
+  const isChangedPatientHealthFacility = () => {
+    if (!records) return false
+    if (records.length > 1) return true
+    // 1件でも退出時は表示
+    const nowHealthFacility = records[0]
+    return nowHealthFacility.reason
+  }
+
+  /**
+   * 現在利用中の施設や変更予定の施設をハイライトします
+   * @param params
+   */
   const addRowClassName = (params: GridRowClassNameParams<PatientRelateHealthFacilityModel>) => {
-    // TODO 予定されてる場合や自分をハイライト
+    if (params.row.healthFacilityId === patient.healthFacilityId && params.row.patientCode === patient.code) {
+      return 'rows-now-health-facility'
+    } else if (!isPast(params.row.startDate)) {
+      return 'rows-future-health-facility'
+    }
     return ''
   }
 
   return (
     <PaperBox title='施設変更履歴' icon={<HistoryOutlined />} sx={{ p: 0, mt: 1 }}>
-      <div style={{ width: '100%', padding: '8px' }}>
-        <div style={{ maxHeight: 200, width: '100%', overflowY: 'auto' }}>
-          <DataGrid
-            columnHeaderHeight={40}
-            rows={records ?? []}
-            columns={columns}
-            hideFooter={true}
-            disableColumnFilter={true}
-            disableColumnSelector={true}
-            disableVirtualization={true}
-            disableDensitySelector={true}
-            getRowClassName={addRowClassName}
-          />
+      {!isChangedPatientHealthFacility() ? (
+        <Box sx={{ pl: 2 }}>変更はありません</Box>
+      ) : (
+        <div style={{ width: '100%', padding: '8px' }}>
+          <div style={{ maxHeight: 200, width: '100%', overflowY: 'auto' }}>
+            <DataGrid
+              columnHeaderHeight={40}
+              autoHeight
+              rows={records ?? []}
+              columns={columns}
+              hideFooter
+              disableColumnFilter
+              disableColumnSelector
+              disableVirtualization
+              disableDensitySelector
+              // TODO https://mui.com/x/react-data-grid/style/#styling-rows darkも意識して対応したい
+              sx={{
+                '& .rows-now-health-facility': {
+                  background: 'rgba(104, 159, 56, 0.08) !important',
+                },
+                '& .rows-future-health-facility': {
+                  background: 'rgb(255, 244, 229) !important',
+                },
+              }}
+              getRowClassName={addRowClassName}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </PaperBox>
   )
 }
