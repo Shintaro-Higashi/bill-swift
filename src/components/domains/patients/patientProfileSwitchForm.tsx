@@ -26,7 +26,7 @@ import useConfirm from '@/core/hooks/useConfirm'
 import { PaperToggleBox } from '@components/domains/patients/paperToggleBox'
 import { Theme } from '@mui/system'
 import { ControlDatePicker } from '@components/core/form/controlDatePicker'
-import { ChangePatientHealthFacilityDialogForm } from '@components/domains/patients/patientHealthFacility/changePatientHealthFacilityDialogForm'
+import { ChangePatientHealthFacilityButton } from '@components/domains/patients/patientHealthFacility/changePatientHealthFacilityButton'
 import { getPatientStatusValue } from '@/shared/items/patientStatus'
 
 const BOX_NAME: BoxEditStatus = 'profile'
@@ -104,7 +104,7 @@ const PatientProfileView = (props: ViewProps) => {
         icon={<StoreOutlined />}
         value={<RubyItem value={record?.healthFacility?.name} ruby={record?.healthFacility?.nameKana} />}
       />
-      <ChangePatientHealthFacilityDialogForm patient={record} viewBoxEditButton={viewBoxEditButton} />
+      <ChangePatientHealthFacilityButton patient={record} viewBoxEditButton={viewBoxEditButton} />
       <FieldItem label='施設メモ' icon={<InfoOutlined />} value={record?.healthFacilityInfo} />
       <FieldItem label='患者番号' icon={<FormatListNumberedOutlined />} value={record?.code} />
       <FieldItem

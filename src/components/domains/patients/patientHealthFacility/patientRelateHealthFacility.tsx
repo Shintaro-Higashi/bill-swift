@@ -5,8 +5,8 @@
  * <pre>
  * </pre>
  */
-import React, { Fragment } from 'react'
-import { PatientModel, PatientRelateHealthFacilityModel } from '@/types'
+import React, { Fragment, useState } from 'react'
+import { PatientHealthFacilityEditingForm, PatientModel, PatientRelateHealthFacilityModel } from '@/types'
 import { Box, IconButton } from '@mui/material'
 import { HttpError, useCustom } from '@refinedev/core'
 import { formatDate } from '@/core/utils/dateUtil'
@@ -18,6 +18,8 @@ import { RubyItem } from '@components/core/content/rubyItem'
 import { getPatientHealthFacilityChangeReasonValue } from '@/shared/items/patientHealthFacilityChangeReason'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import { isPast } from 'date-fns'
+import { isFuturePatientRelateHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
+import { ChangePatientHealthFacilityDialogForm } from '@components/domains/patients/patientHealthFacility/changePatientHealthFacilityDialogForm'
 
 type Props = {
   patient: PatientModel
@@ -34,6 +36,19 @@ export const PatientRelateHealthFacility = (props: Props) => {
       query: { uid: patient.updatedAt },
     },
   })
+
+  const [editPatientRelateHealthFacility, setEditPatientRelateHealthFacility] = useState<
+    PatientRelateHealthFacilityModel | undefined
+  >(undefined)
+
+  const [open, setOpen] = useState(false)
+  const handleOpen = (editModel: PatientRelateHealthFacilityModel) => {
+    setEditPatientRelateHealthFacility(editModel)
+    setOpen(true)
+  }
+  const onClose = (_isSuccess: boolean) => {
+    setOpen(false)
+  }
 
   const columns = React.useMemo<GridColDef<PatientRelateHealthFacilityModel>[]>(
     () => [
@@ -109,15 +124,10 @@ export const PatientRelateHealthFacility = (props: Props) => {
         flex: 1,
         minWidth: 100,
         renderCell: function render({ row }) {
-          const isFutureHF =
-            !isPast(row.startDate) ||
-            // 退出予定日設定は削除可
-            (row.patientCode === patient.code &&
-              row.healthFacilityId === patient.healthFacilityId &&
-              !isPast(row.endDate))
+          const isFutureHF = isFuturePatientRelateHealthFacility(patient, row)
           return (
             <Box sx={{ alignItems: 'flex-start' }}>
-              <IconButton aria-label='edit' color='primary' onClick={() => handleEdit(row)}>
+              <IconButton aria-label='edit' color='primary' onClick={() => handleOpen(row)}>
                 <EditOutlined fontSize='small' />
               </IconButton>
               {isFutureHF && (
@@ -171,6 +181,12 @@ export const PatientRelateHealthFacility = (props: Props) => {
       ) : (
         <div style={{ width: '100%', padding: '8px' }}>
           <div style={{ maxHeight: 200, width: '100%', overflowY: 'auto' }}>
+            <ChangePatientHealthFacilityDialogForm
+              open={open}
+              onClose={onClose}
+              patient={patient}
+              patientRelateHealthFacility={editPatientRelateHealthFacility}
+            />
             <DataGrid
               columnHeaderHeight={40}
               autoHeight

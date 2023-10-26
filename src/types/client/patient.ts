@@ -23,4 +23,6 @@ export type BoxEditProps = {
   setBoxEditStatus: React.Dispatch<React.SetStateAction<BoxEditStatus>>
 }
 // 患者施設変更リクエスト
-export type PatientHealthFacilityEditingForm = PatientHealthFacilityEditingRequest
+export type PatientHealthFacilityEditingForm = PatientHealthFacilityEditingRequest & {
+  patientRelateHealthFacilityId?: string
+}
