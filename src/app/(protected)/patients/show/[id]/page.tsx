@@ -11,6 +11,7 @@ import {
   PatientEditingFormFieldName,
   PatientEditingSchema,
   PatientModel,
+  PatientRelateHealthFacilityModel,
 } from '@/types'
 import { FieldItem } from '@components/core/content/FieldItem'
 import { formatDateTime } from '@/core/utils/dateUtil'
@@ -28,6 +29,7 @@ import { PatientCheckListSwitchForm } from '@components/domains/patients/patient
 import { PatientChangeHistory } from '@components/domains/patients/patientChangeHistory'
 import { PatientRelateHealthFacility } from '@components/domains/patients/patientHealthFacility/patientRelateHealthFacility'
 import { Loading } from '@components/core/content/loading'
+import { isFutureChangedPatientHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
 
 const ShowPage = () => {
   setTitle()
@@ -85,6 +87,12 @@ const ShowPage = () => {
     }
   }, [record, setValue])
 
+  // 変更履歴情報から施設変更操作有無を特定
+  const [enabledChangedHealthFacility, setEnabledChangedHealthFacility] = useState<boolean>(false)
+  const onLoadedPatientRelateHealthFacility = (records: PatientRelateHealthFacilityModel[]) => {
+    setEnabledChangedHealthFacility(!isFutureChangedPatientHealthFacility(records))
+  }
+
   if (!record) {
     return <Loading />
   }
@@ -94,7 +102,11 @@ const ShowPage = () => {
       <FormProvider {...methods}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={4} lg={3}>
-            <PatientProfileSwitchForm boxEditStatus={boxEditStatus} setBoxEditStatus={setBoxEditStatus} />
+            <PatientProfileSwitchForm
+              enabledChangedHealthFacility={enabledChangedHealthFacility}
+              boxEditStatus={boxEditStatus}
+              setBoxEditStatus={setBoxEditStatus}
+            />
             <PatientDeliverySwitchForm
               sx={{ p: 0, mt: 2 }}
               boxEditStatus={boxEditStatus}
@@ -107,7 +119,7 @@ const ShowPage = () => {
               boxEditStatus={boxEditStatus}
               setBoxEditStatus={setBoxEditStatus}
             />
-            <PatientRelateHealthFacility patient={record} />
+            <PatientRelateHealthFacility patient={record} onLoaded={onLoadedPatientRelateHealthFacility} />
             <PatientNoteSwitchForm boxEditStatus={boxEditStatus} setBoxEditStatus={setBoxEditStatus} />
             <PaperBox title='添付資料' icon={<AttachmentOutlined />} sx={{ p: 0, mt: 2 }}>
               <Box sx={{ px: 1 }}>添付したファイル名とメモのリストを表示予定</Box>

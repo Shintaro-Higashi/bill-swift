@@ -33,6 +33,8 @@ const BOX_NAME: BoxEditStatus = 'profile'
 
 type Props = {
   sx?: SxProps<Theme> | undefined
+  // 施設の変更操作が可能か否か
+  enabledChangedHealthFacility: boolean
 } & BoxEditProps
 
 /**
@@ -43,7 +45,7 @@ export const PatientProfileSwitchForm = (props: Props) => {
     refineCore: { queryResult },
   } = useFormContext<PatientModel, HttpError, PatientEditingForm>()
   const patient = queryResult ? queryResult.data?.data : undefined
-  const { boxEditStatus, setBoxEditStatus } = props
+  const { boxEditStatus, setBoxEditStatus, enabledChangedHealthFacility } = props
   const [viewBoxEditButton, setViewBoxEditButton] = useState<boolean>(false)
   const handleShowEditButton = () => {
     setViewBoxEditButton(true)
@@ -62,7 +64,11 @@ export const PatientProfileSwitchForm = (props: Props) => {
       handleHide={handleHideEditButton}
     >
       {boxEditStatus !== BOX_NAME ? (
-        <PatientProfileView record={patient} viewBoxEditButton={viewBoxEditButton} />
+        <PatientProfileView
+          record={patient}
+          viewBoxEditButton={viewBoxEditButton}
+          enabledChangedHealthFacility={enabledChangedHealthFacility}
+        />
       ) : (
         <PatientProfileForm
           handleCancelButtonClick={() => setBoxEditStatus(null)}
@@ -77,13 +83,15 @@ export const PatientProfileSwitchForm = (props: Props) => {
 type ViewProps = {
   record: PatientModel | undefined
   viewBoxEditButton: boolean
+  // 施設の変更操作が可能か否か
+  enabledChangedHealthFacility: boolean
 }
 
 /**
  * 患者基本情報表示コンポーネントです。
  */
 const PatientProfileView = (props: ViewProps) => {
-  const { record, viewBoxEditButton } = props
+  const { record, viewBoxEditButton, enabledChangedHealthFacility } = props
   return (
     <Stack alignItems='flex-start' spacing={1} sx={{ ml: 1 }}>
       {record?.receiptSyncFlag ? (
@@ -104,7 +112,10 @@ const PatientProfileView = (props: ViewProps) => {
         icon={<StoreOutlined />}
         value={<RubyItem value={record?.healthFacility?.name} ruby={record?.healthFacility?.nameKana} />}
       />
-      <ChangePatientHealthFacilityButton patient={record} viewBoxEditButton={viewBoxEditButton} />
+      {enabledChangedHealthFacility && (
+        <ChangePatientHealthFacilityButton patient={record} viewBoxEditButton={viewBoxEditButton} />
+      )}
+
       <FieldItem label='施設メモ' icon={<InfoOutlined />} value={record?.healthFacilityInfo} />
       <FieldItem label='患者番号' icon={<FormatListNumberedOutlined />} value={record?.code} />
       <FieldItem

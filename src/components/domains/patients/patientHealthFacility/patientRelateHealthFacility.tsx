@@ -1,13 +1,6 @@
 'use client'
 
-/**
- * 患者関連施設履歴Listを表示および操作します。
- * <pre>
- *  ・運用上レコード数が10を超えることもないためページネーション表示はしません。
- *  ・レコードに対しての編集及び削除機能も提供します。
- * </pre>
- */
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { PatientModel, PatientRelateHealthFacilityModel } from '@/types'
 import { Alert, Box, IconButton } from '@mui/material'
 import { HttpError, useCustom } from '@refinedev/core'
@@ -27,21 +20,36 @@ import { getRefineRefreshButton } from '@/core/utils/refineUtil'
 
 type Props = {
   patient: PatientModel
-  onFinish?: () => void
+  // 変更履歴リスト取得完了時のcallback
+  onLoaded?: (records: PatientRelateHealthFacilityModel[]) => void
 }
 
+/**
+ * 患者関連施設履歴Listを表示および操作を提供します
+ * <pre>
+ *  ・運用上レコード数が10を超えることもないためページネーション表示はしません。
+ *  ・レコードに対しての編集及び削除機能も提供します。
+ * </pre>
+ */
 export const PatientRelateHealthFacility = (props: Props) => {
-  const { patient } = props
+  const { patient, onLoaded } = props
 
   const resourceUrl = `patients/${patient.id}/health-facilities`
 
-  const { data, isLoading, isError } = useCustom<PatientRelateHealthFacilityModel[], HttpError>({
+  const { data, isLoading, isSuccess } = useCustom<PatientRelateHealthFacilityModel[], HttpError>({
     method: 'get',
     url: `/api/${resourceUrl}`,
     config: {
       query: { uid: patient.updatedAt },
     },
   })
+
+  useEffect(() => {
+    if (data?.data && onLoaded) {
+      onLoaded(data?.data)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.data])
 
   const [editPatientRelateHealthFacility, setEditPatientRelateHealthFacility] = useState<
     PatientRelateHealthFacilityModel | undefined
