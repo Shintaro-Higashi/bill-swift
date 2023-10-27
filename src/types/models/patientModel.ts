@@ -17,4 +17,5 @@ export type PatientModel = Patient &
 export type PatientRelateHealthFacilityModel = PatientRelateHealthFacility &
   CommonRelateUserModel & {
     healthFacility?: HealthFacilityModel | null
+    patient?: PatientModel | null
   }

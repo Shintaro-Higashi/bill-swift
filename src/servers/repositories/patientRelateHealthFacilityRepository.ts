@@ -1,12 +1,13 @@
 import depend from '@/core/utils/velona'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
-import { Prisma } from '.prisma/client'
+import { $Enums, Prisma } from '.prisma/client'
 import SortOrder = Prisma.SortOrder
 import { getCurrentDate, getEndMaxDate, toJSTDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 import { createId } from '@paralleldrive/cuid2'
 import { PatientHealthFacilityEditingDto, PatientRelateHealthFacilityModel } from '@/types'
 import { PatientRelateHealthFacilityReason, PatientStatus } from '@prisma/client'
+import { undefined } from 'zod'
 
 /**
  * 指定のIDに該当する患者関連施設情報を取得します。
@@ -116,21 +117,54 @@ export const fetchPatientRelateHealthFacilityByUnique = depend(
 export const fetchRequiredAffiliationChangeFacilities = depend(
   { client: prisma },
   async ({ client }, lessThanDate: Date) => {
-    console.log('lessThanDate', lessThanDate)
-    return await client.$queryRaw<PatientRelateHealthFacilityModel[]>`
+    const resultList = await client.$queryRaw`
         SELECT
-              patient_relate_health_facility.id                  id         
-            , patient_relate_health_facility.patient_id          patientId
-            , patient_relate_health_facility.health_facility_id  healthFacilityId
-            , patient_code        patientCode
-            , start_date          startDate
-            , end_date            endDate
-            , bill_sort           billSort
-            , reason              reason
+            /** relate_health_facility */
+              patient_relate_health_facility.id     
+            , patient_id 
+            , patient_relate_health_facility.health_facility_id
+            , patient_code        
+            , start_date          
+            , end_date            
+            , bill_sort           
+            , reason
+            /** patient */
+            ,patient.health_facility_id    patient_health_facility_id
+            ,status                        patient_status
+            ,name                          patient_name
+            ,name_kana                     patient_name_kana
+            ,search_name                   patient_search_name
+            ,gender                        patient_gender
+            ,birthday                      patient_birthday
+            ,bill_enable_flag              patient_bill_enable_flag
+            ,medical_insurance_status      patient_medical_insurance_status
+            ,medical_insurance_start_date  patient_medical_insurance_start_date
+            ,medical_insurance_end_date    patient_medical_insurance_end_date
+            ,medical_share_confirm_date    patient_medical_share_confirm_date
+            ,medical_share                 patient_medical_share
+            ,nursing_insurance_status      patient_nursing_insurance_status
+            ,nursing_insurance_start_date  patient_nursing_insurance_start_date
+            ,nursing_insurance_end_date    patient_nursing_insurance_end_date
+            ,nursing_share_confirm_date    patient_nursing_share_confirm_date
+            ,nursing_share                 patient_nursing_share
+            ,public_expense                patient_public_expense
+            ,consent_status                patient_consent_status
+            ,consent_confirm_date          patient_consent_confirm_date
+            ,payment_type                  patient_payment_type
+            ,account_confirm_status        patient_account_confirm_status
+            ,account_manage_id             patient_account_manage_id
+            ,receipt_sync_flag             patient_receipt_sync_flag
+            ,delivery_name                 patient_delivery_name
+            ,delivery_postal_code          patient_delivery_postal_code
+            ,delivery_address1             patient_delivery_address1
+            ,delivery_address2             patient_delivery_address2
+            ,delivery_tel                  patient_delivery_tel
+            ,health_facility_info          patient_health_facility_info
+            ,patient.note                  patient_note
         FROM
             patient_relate_health_facility
                 JOIN patient ON (
-                patient.id = patient_relate_health_facility.patient_id
+                    patient.id = patient_relate_health_facility.patient_id
                 )
         WHERE
             reason IS NULL
@@ -146,7 +180,12 @@ export const fetchRequiredAffiliationChangeFacilities = depend(
               AND patient.code = patient_relate_health_facility.patient_code
         )
         ORDER BY
-            created_at`
+            patient_relate_health_facility.created_at`
+
+    const entities = resultList as unknown as any[]
+    const modelList: PatientRelateHealthFacilityModel[] = toModelListForQueryRaw(entities)
+
+    return modelList
   },
 )
 
@@ -160,11 +199,55 @@ export const fetchRequiredAffiliationChangeFacilities = depend(
 export const fetchRequiredChangeStatusPatientRelateHealthFacilities = depend(
   { client: prisma },
   async ({ client }, lessThanDate: Date) => {
-    return await client.$queryRaw<PatientRelateHealthFacilityModel[]>`
+    const resultList = await client.$queryRaw<PatientRelateHealthFacilityModel[]>`
       SELECT
-           *
+          /** relate_health_facility */
+          patient_relate_health_facility.id
+           , patient_id
+           , patient_relate_health_facility.health_facility_id
+           , patient_code
+           , start_date
+           , end_date
+           , bill_sort
+           , reason
+          /** patient */
+           ,patient.health_facility_id    patient_health_facility_id
+           ,status                        patient_status
+           ,name                          patient_name
+           ,name_kana                     patient_name_kana
+           ,search_name                   patient_search_name
+           ,gender                        patient_gender
+           ,birthday                      patient_birthday
+           ,bill_enable_flag              patient_bill_enable_flag
+           ,medical_insurance_status      patient_medical_insurance_status
+           ,medical_insurance_start_date  patient_medical_insurance_start_date
+           ,medical_insurance_end_date    patient_medical_insurance_end_date
+           ,medical_share_confirm_date    patient_medical_share_confirm_date
+           ,medical_share                 patient_medical_share
+           ,nursing_insurance_status      patient_nursing_insurance_status
+           ,nursing_insurance_start_date  patient_nursing_insurance_start_date
+           ,nursing_insurance_end_date    patient_nursing_insurance_end_date
+           ,nursing_share_confirm_date    patient_nursing_share_confirm_date
+           ,nursing_share                 patient_nursing_share
+           ,public_expense                patient_public_expense
+           ,consent_status                patient_consent_status
+           ,consent_confirm_date          patient_consent_confirm_date
+           ,payment_type                  patient_payment_type
+           ,account_confirm_status        patient_account_confirm_status
+           ,account_manage_id             patient_account_manage_id
+           ,receipt_sync_flag             patient_receipt_sync_flag
+           ,delivery_name                 patient_delivery_name
+           ,delivery_postal_code          patient_delivery_postal_code
+           ,delivery_address1             patient_delivery_address1
+           ,delivery_address2             patient_delivery_address2
+           ,delivery_tel                  patient_delivery_tel
+           ,health_facility_info          patient_health_facility_info
+           ,patient.note                  patient_note
        FROM
            patient_relate_health_facility
+               JOIN patient ON (
+                patient.id = patient_relate_health_facility.patient_id
+               )
        WHERE
            reason IN (${PatientRelateHealthFacilityReason.DECEASE}, ${PatientRelateHealthFacilityReason.EXIT})
          AND end_date < ${lessThanDate}
@@ -180,9 +263,81 @@ export const fetchRequiredChangeStatusPatientRelateHealthFacilities = depend(
              AND patient.status = ${PatientStatus.INRESIDENCE}
        )
        ORDER BY
-           created_at`
+          patient_relate_health_facility.created_at`
+
+    const entities = resultList as unknown as any[]
+    const modelList: PatientRelateHealthFacilityModel[] = toModelListForQueryRaw(entities)
+
+    return modelList
   },
 )
+
+const toModelListForQueryRaw = (entities: any[]) => {
+  const modelList: PatientRelateHealthFacilityModel[] = []
+  entities.forEach((record: any) => {
+    modelList.push({
+      id: record.id,
+      patientId: record['patient_id'],
+      healthFacilityId: record['health_facility_id'],
+      patientCode: record['patient_code'],
+      startDate: record['start_date'],
+      endDate: record['end_date'],
+      billSort: record['bill_sort'],
+      reason: record['reason'],
+      note: record['id'],
+      createdAt: null,
+      createdBy: null,
+      deletedAt: null,
+      updatedAt: null,
+      updatedBy: null,
+      existence: true,
+      patient: {
+        id: record['patient_id'],
+        healthFacilityId: record['patient_health_facility_id'],
+        code: record['patient_code'],
+        status: record['patient_status'],
+        name: record['patient_name'],
+        nameKana: record['patient_name_kana'],
+        searchName: record['patient_search_name'],
+        gender: record['patient_gender'],
+        birthday: record['patient_birthday'],
+        billEnableFlag: record['patient_bill_enable_flag'],
+        medicalInsuranceStatus: record['patient_medical_insurance_status'],
+        medicalInsuranceStartDate: record['patient_medical_insurance_start_date'],
+        medicalInsuranceEndDate: record['patient_medical_insurance_end_date'],
+        medicalShareConfirmDate: record['patient_medical_share_confirm_date'],
+        medicalShare: record['patient_medical_share'],
+        nursingInsuranceStatus: record['patient_nursing_insurance_status'],
+        nursingInsuranceStartDate: record['patient_nursing_insurance_start_date'],
+        nursingInsuranceEndDate: record['patient_nursing_insurance_end_date'],
+        nursingShareConfirmDate: record['patient_nursing_share_confirm_date'],
+        nursingShare: record['patient_nursing_share'],
+        publicExpense: record['patient_public_expense'],
+        consentStatus: record['patient_consent_status'],
+        consentConfirmDate: record['patient_consent_confirm_date'],
+        paymentType: record['patient_payment_type'],
+        accountConfirmStatus: record['patient_account_confirm_status'],
+        accountManageId: record['patient_account_manage_id'],
+        receiptSyncFlag: record['patient_receipt_sync_flag'],
+        deliveryName: record['patient_delivery_name'],
+        deliveryPostalCode: record['patient_delivery_postal_code'],
+        deliveryAddress1: record['patient_delivery_address1'],
+        deliveryAddress2: record['patient_delivery_address2'],
+        deliveryTel: record['patient_delivery_tel'],
+        healthFacilityInfo: record['patient_health_facility_info'],
+        note: record['patient_note'],
+        createdAt: record['patient_created_at'],
+        createdBy: record['patient_created_by'],
+        deletedAt: record['patient_deleted_at'],
+        updatedAt: record['patient_updated_at'],
+        updatedBy: record['patient_updated_by'],
+        existence: true,
+      },
+    })
+  })
+  return modelList
+}
+
 /**
  * 患者関連施設を作成します。
  * @param params 患者関連施設情報

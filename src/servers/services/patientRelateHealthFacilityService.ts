@@ -94,11 +94,13 @@ export const upsertPatientHealthFacility = depend(
       // [逝去、退去]
       if (iChangeHealthFacilityDeceaseExitReason(params.reason)) {
         if (!params.endDate) throw new Error('患者逝去、退去日未設定')
-        const patientStatus = toPatientStatusByHealthFacilityReason(params.reason)
+
         params.healthFacilityId = patient.healthFacilityId
 
         const relateHealthFacilityResult = await tUpdatePatientRelateHealthFacility(nowRelateHealthFacility.id, params)
+        // 過去日の場合、逝去、退去処理を即時に実行
         if (isPast(params.endDate)) {
+          const patientStatus = toPatientStatusByHealthFacilityReason(params.reason)
           await tUpdate(patient.id, { ...patient, ...{ status: patientStatus } })
         }
         return relateHealthFacilityResult
@@ -125,8 +127,8 @@ export const upsertPatientHealthFacility = depend(
         reason: null,
         note: params.note,
       })
+      // 過去日の場合、転出処理を即時に実行
       if (isPast(params.startDate)) {
-        // 過去日の場合、転出処理を即時に実行
         await changePatientHealthFacility.inject({
           update: tUpdate,
           createPatientChangeHistory: injectTx(createPatientChangeHistory, tx),
@@ -140,34 +142,13 @@ export const upsertPatientHealthFacility = depend(
 )
 
 /**
- * 患者の施設変更予約情報を処理します。
- */
-export const updatePatientFacilitiesOnReservation = depend(
-  {
-    update,
-    createPatientChangeHistory,
-    createManyPatientChangeContent,
-  },
-  async ({ update, createPatientChangeHistory, createManyPatientChangeContent }) => {
-    // 施設変更一覧を抽出。reasonがNULLなのにまだ施設とコードの変更が適用されていない
-    // await performTransaction(async (tx: any) => {
-    //   await changePatientHealthFacility.inject({
-    //     update: injectTx(update, tx),
-    //     createPatientChangeHistory: injectTx(createPatientChangeHistory, tx),
-    //     createManyPatientChangeContent: injectTx(createManyPatientChangeContent, tx),
-    //   })(patient, newPatientRelateHealthFacility)
-    // })
-  },
-)
-
-/**
  * 患者の現在の所属施設を切り替えます。
  * <pre>
  *  即時変更、予約変更 からの利用を想定しています。
  *  ヘルパー関数になるため各依存RepositoryはTransaction開始済である必要があります。
  * </pre>
  */
-const changePatientHealthFacility = depend(
+export const changePatientHealthFacility = depend(
   {
     update,
     createPatientChangeHistory,
