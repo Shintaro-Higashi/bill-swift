@@ -2,7 +2,7 @@ import depend from '@/core/utils/velona'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
 import { Prisma } from '.prisma/client'
 import SortOrder = Prisma.SortOrder
-import { getCurrentDate, toJSTDate } from '@/core/utils/dateUtil'
+import { getCurrentDate, getEndMaxDate, toJSTDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 import { createId } from '@paralleldrive/cuid2'
 import { PatientHealthFacilityEditingDto } from '@/types'
@@ -126,7 +126,7 @@ export const createPatientRelateHealthFacility = depend(
         healthFacilityId: params.healthFacilityId,
         patientCode: params.patientCode,
         startDate: params.startDate,
-        endDate: toJSTDate('2100-12-31'),
+        endDate: getEndMaxDate(),
         createdBy: userId,
         updatedBy: userId,
         createdAt: now,

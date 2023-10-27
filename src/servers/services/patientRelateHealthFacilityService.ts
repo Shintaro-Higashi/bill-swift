@@ -19,7 +19,8 @@ import { injectTx, performTransaction } from '@/servers/repositories/performTran
 import { isPast, subDays } from 'date-fns'
 import { incrementHealthFacilityCodeManageSequenceNo } from '@/servers/repositories/healthFacilityCodeManageRepository'
 import { createNewPatientCode } from '@/servers/services/patientService'
-import { toJSTDate } from '@/core/utils/dateUtil'
+import { getEndMaxDate, toJSTDate } from '@/core/utils/dateUtil'
+import { iChangeHealthFacilityDeceaseExitReason } from '@/shared/services/patientRelateHealthFacilityService'
 
 /**
  * 指定の患者IDに該当する患者関連施設情報を最新順に取得します。
@@ -187,14 +188,14 @@ export const updatePatientHealthFacility = depend(
 )
 
 /**
- * 指定患者の関連施設情報を削除します。
+ * 指定患者の関連施設情報予約を取消します。
  * <pre>
  *  入居処理、または退去処理がまだ完了していない関連施設のみ削除可能です。
  * </pre>
  * @param patientRelateHealthFacilityId 患者関連施設ID
  * @param params 患者関連施設更新情報
  */
-export const deletePatientHealthFacility = depend(
+export const cancelFuturePatientHealthFacility = depend(
   {
     fetchPatientRelateHealthFacility,
     fetchPatientRelateHealthFacilitiesByPatientId,
@@ -219,19 +220,24 @@ export const deletePatientHealthFacility = depend(
 
       const patientRelateHealthFacility = await fetchPatientRelateHealthFacility(patientRelateHealthFacilityId)
       // TODO 削除可能か判定
-      // 施設変更の場合、一つ前のreasonと退去日を差し戻す
+      // 施設変更取消時:一つ前のreasonと退去日を差し戻し、自身も削除
       if (patientRelateHealthFacility.reason === null) {
         const relateHealthFacilities = await fetchPatientRelateHealthFacilitiesByPatientId(
           patientRelateHealthFacility.patientId,
         )
         const prevRelateHealthFacilities = relateHealthFacilities[1]
         prevRelateHealthFacilities.reason = null
-        prevRelateHealthFacilities.endDate = toJSTDate('2100-12-31')
+        prevRelateHealthFacilities.endDate = getEndMaxDate()
         await tUpdatePatientRelateHealthFacility(prevRelateHealthFacilities.id, prevRelateHealthFacilities)
+        await tDeletePatientRelateHealthFacility(patientRelateHealthFacilityId)
+      } else if (iChangeHealthFacilityDeceaseExitReason(patientRelateHealthFacility.reason)) {
+        // 退出取消時: 自身のreason と退出日を初期化
+        patientRelateHealthFacility.reason = null
+        patientRelateHealthFacility.endDate = getEndMaxDate()
+        await tUpdatePatientRelateHealthFacility(patientRelateHealthFacilityId, patientRelateHealthFacility)
       }
-      const result = await tDeletePatientRelateHealthFacility(patientRelateHealthFacilityId)
-      await tUpdatePatientUpdated(patientRelateHealthFacility.patientId)
 
+      const result = await tUpdatePatientUpdated(patientRelateHealthFacility.patientId)
       return result
     })
   },

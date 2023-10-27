@@ -23,6 +23,13 @@ export const getCurrentFormatDate = ({ fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = '
   return format(getCurrentDate(), fmt, { timeZone })
 }
 
+/**
+ * アプリケーション上で扱っている最大範囲日時をJST日時で取得します。
+ */
+export const getEndMaxDate = () => {
+  return toJSTDate('2100-12-31')
+}
+
 // /**
 //  * 指定のタイムゾーン日時をUTC日時に変換します。
 //  * @param date 日時
@@ -58,9 +65,8 @@ export const formatDateTime = (
   if (typeof datetime === 'string') throw new Error(`formatDateTimeに文字列を渡すことはできません:'${datetime}`)
   // "2100-12-31" は関連付けテーブルの有効期間の終了日のデフォルト値のため画面上に日付として表示しないようにする
   const argDate = datetime ?? null
-  const defaultEndDate = toJSTDate('2100-12-31T00:00:00.000Z')
 
-  if (!datetime || !argDate || argDate.getTime() === defaultEndDate.getTime()) return ''
+  if (!datetime || !argDate || argDate.getTime() === getEndMaxDate().getTime()) return ''
   const { fmt = 'yyyy-MM-dd HH:mm:ss', timeZone = 'Asia/Tokyo' } = options
   return formatInTimeZone(datetime, timeZone, fmt)
 }

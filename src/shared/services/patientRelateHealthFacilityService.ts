@@ -1,5 +1,14 @@
 import { isPast } from 'date-fns'
 import { PatientModel, PatientRelateHealthFacilityModel } from '@/types'
+import { PatientHealthFacilityChangeReasonKey } from '@/shared/items/patientHealthFacilityChangeReason'
+
+/**
+ * 患者関連施設変更理由が退出(逝去、および退去)かを判定します。
+ *
+ */
+export const iChangeHealthFacilityDeceaseExitReason = (reason: PatientHealthFacilityChangeReasonKey | null) => {
+  return reason === 'DECEASE' || reason === 'EXIT'
+}
 
 /**
  * 患者関連施設がまだ予定状態であるかを判定します。
