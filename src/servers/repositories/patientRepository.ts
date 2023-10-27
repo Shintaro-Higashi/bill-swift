@@ -1,11 +1,11 @@
 import { PaginationModel, PatientEditingDto, PatientModel, PatientQueryDto } from '@/types'
-import { $Enums, Prisma } from '.prisma/client'
+import { Prisma } from '.prisma/client'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
-import SortOrder = Prisma.SortOrder
 import depend from '@/core/utils/velona'
 import { getCurrentDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 import { createSearchName } from '@/core/utils/commonUtil'
+import SortOrder = Prisma.SortOrder
 
 /**
  * 患者のページング検索を実施します。
@@ -105,8 +105,8 @@ export const updatePatient = depend({ client: prisma }, async ({ client }, id: s
       code: params?.code,
       status: params?.status,
       name: params?.name,
-      nameKana: params?.nameKana,
-      searchName: createSearchName(params?.name, params?.nameKana),
+      nameKana: params?.nameKana || '',
+      searchName: createSearchName(params?.name, params?.nameKana || ''),
       gender: params?.gender,
       birthday: params?.birthday,
       billEnableFlag: params?.billEnableFlag,

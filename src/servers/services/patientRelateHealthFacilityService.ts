@@ -150,14 +150,13 @@ export const updatePatientFacilitiesOnReservation = depend(
   },
   async ({ update, createPatientChangeHistory, createManyPatientChangeContent }) => {
     // 施設変更一覧を抽出。reasonがNULLなのにまだ施設とコードの変更が適用されていない
-
-    await performTransaction(async (tx: any) => {
-      await changePatientHealthFacility.inject({
-        update: injectTx(update, tx),
-        createPatientChangeHistory: injectTx(createPatientChangeHistory, tx),
-        createManyPatientChangeContent: injectTx(createManyPatientChangeContent, tx),
-      })(patient, newPatientRelateHealthFacility)
-    })
+    // await performTransaction(async (tx: any) => {
+    //   await changePatientHealthFacility.inject({
+    //     update: injectTx(update, tx),
+    //     createPatientChangeHistory: injectTx(createPatientChangeHistory, tx),
+    //     createManyPatientChangeContent: injectTx(createManyPatientChangeContent, tx),
+    //   })(patient, newPatientRelateHealthFacility)
+    // })
   },
 )
 
@@ -179,7 +178,7 @@ const changePatientHealthFacility = depend(
     patient: PatientModel,
     newPatientRelateHealthFacility: PatientRelateHealthFacilityModel,
   ) => {
-    // コードと施設を最新、施設メモを初期化
+    // 施設メモは古い情報になるためクリアする
     const nowHealthFacilityInfo = patient.healthFacilityInfo
     patient.healthFacilityId = newPatientRelateHealthFacility.healthFacilityId
     patient.code = newPatientRelateHealthFacility.patientCode

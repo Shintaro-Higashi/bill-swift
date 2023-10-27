@@ -116,14 +116,25 @@ export const fetchPatientRelateHealthFacilityByUnique = depend(
 export const fetchRequiredAffiliationChangeFacilities = depend(
   { client: prisma },
   async ({ client }, lessThanDate: Date) => {
+    console.log('lessThanDate', lessThanDate)
     return await client.$queryRaw<PatientRelateHealthFacilityModel[]>`
         SELECT
-            *
+              patient_relate_health_facility.id                  id         
+            , patient_relate_health_facility.patient_id          patientId
+            , patient_relate_health_facility.health_facility_id  healthFacilityId
+            , patient_code        patientCode
+            , start_date          startDate
+            , end_date            endDate
+            , bill_sort           billSort
+            , reason              reason
         FROM
             patient_relate_health_facility
+                JOIN patient ON (
+                patient.id = patient_relate_health_facility.patient_id
+                )
         WHERE
             reason IS NULL
-          AND start_date < '${lessThanDate}'
+          AND start_date < ${lessThanDate}
           AND NOT EXISTS (
             SELECT
                 *
@@ -155,8 +166,8 @@ export const fetchRequiredChangeStatusPatientRelateHealthFacilities = depend(
        FROM
            patient_relate_health_facility
        WHERE
-           reason IN ('${PatientRelateHealthFacilityReason.DECEASE}', '${PatientRelateHealthFacilityReason.EXIT}')
-         AND end_date < '${lessThanDate}'
+           reason IN (${PatientRelateHealthFacilityReason.DECEASE}, ${PatientRelateHealthFacilityReason.EXIT})
+         AND end_date < ${lessThanDate}
          AND EXISTS (
            SELECT
                *
@@ -166,7 +177,7 @@ export const fetchRequiredChangeStatusPatientRelateHealthFacilities = depend(
                patient.id = patient_relate_health_facility.patient_id
              AND patient.health_facility_id = patient_relate_health_facility.health_facility_id
              AND patient.code = patient_relate_health_facility.patient_code
-             AND patient.status = '${PatientStatus.INRESIDENCE}'
+             AND patient.status = ${PatientStatus.INRESIDENCE}
        )
        ORDER BY
            created_at`
