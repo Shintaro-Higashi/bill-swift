@@ -7,7 +7,7 @@
  *  ・レコードに対しての編集及び削除機能も提供します。
  * </pre>
  */
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 import { PatientModel, PatientRelateHealthFacilityModel } from '@/types'
 import { Alert, Box, IconButton } from '@mui/material'
 import { HttpError, useCustom } from '@refinedev/core'
