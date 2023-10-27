@@ -22,7 +22,7 @@ import { PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST } from '@/shared/items/patie
 import { FieldErrors, useWatch } from 'react-hook-form'
 import Typography from '@mui/material/Typography'
 import { z } from 'zod'
-import { isFuturePatientRelateHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
+import { isFutureChangedPatientHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
 
 type Props = {
   // ダイアログ開閉状態
@@ -94,7 +94,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
   // 過去関連施設は備考のみ修正可能
   const isPastRelateHealthFacility = useMemo(() => {
     if (!patient || !patientRelateHealthFacility) return false
-    return !isFuturePatientRelateHealthFacility(patient, patientRelateHealthFacility)
+    return !isFutureChangedPatientHealthFacility(patientRelateHealthFacility)
   }, [patient, patientRelateHealthFacility])
 
   useEffect(() => {

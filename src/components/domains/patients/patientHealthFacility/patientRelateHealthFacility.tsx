@@ -8,11 +8,11 @@
  * </pre>
  */
 import React, { Fragment, useState } from 'react'
-import { PatientHealthFacilityEditingForm, PatientModel, PatientRelateHealthFacilityModel } from '@/types'
+import { PatientModel, PatientRelateHealthFacilityModel } from '@/types'
 import { Alert, Box, IconButton } from '@mui/material'
 import { HttpError, useCustom } from '@refinedev/core'
 import { formatDate } from '@/core/utils/dateUtil'
-import { DeleteOutlined, HistoryOutlined } from '@mui/icons-material'
+import { HistoryOutlined } from '@mui/icons-material'
 import { PaperBox } from '@components/core/content/paperBox'
 import { DataGrid, GridColDef, GridRowClassNameParams } from '@mui/x-data-grid'
 
@@ -20,7 +20,7 @@ import { RubyItem } from '@components/core/content/rubyItem'
 import { getPatientHealthFacilityChangeReasonValue } from '@/shared/items/patientHealthFacilityChangeReason'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import { isPast } from 'date-fns'
-import { isFuturePatientRelateHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
+import { isFutureChangedPatientHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
 import { ChangePatientHealthFacilityDialogForm } from '@components/domains/patients/patientHealthFacility/changePatientHealthFacilityDialogForm'
 import { DeleteButton } from '@refinedev/mui'
 import { getRefineRefreshButton } from '@/core/utils/refineUtil'
@@ -67,7 +67,7 @@ export const PatientRelateHealthFacility = (props: Props) => {
         flex: 1,
         minWidth: 100,
         renderCell: function render({ row }) {
-          const isFutureHF = isFuturePatientRelateHealthFacility(patient, row)
+          const isFutureHF = isFutureChangedPatientHealthFacility(row)
           return (
             <Box sx={{ alignItems: 'flex-start' }}>
               <IconButton aria-label='edit' color='primary' onClick={() => handleOpen(row)}>
@@ -182,28 +182,6 @@ export const PatientRelateHealthFacility = (props: Props) => {
   }
 
   /**
-   * 施設情報の変更予定があるかを判断します。
-   */
-  const isFutureChangedPatientHealthFacility = () => {
-    if (!records) return false
-    if (records.length > 1) return true
-    const latestPatientHealthFacility = records[0]
-    // 施設変更予定
-    if (!latestPatientHealthFacility.reason && !isPast(latestPatientHealthFacility.startDate)) {
-      return true
-    }
-    // 退去予定
-    if (
-      latestPatientHealthFacility.reason === 'DECEASE' ||
-      latestPatientHealthFacility.reason === 'EXIT' ||
-      !isPast(latestPatientHealthFacility.endDate)
-    ) {
-      return true
-    }
-    return true
-  }
-
-  /**
    * 現在利用中の施設や変更予定の施設をハイライトします
    * @param params
    */
@@ -222,7 +200,7 @@ export const PatientRelateHealthFacility = (props: Props) => {
         <Box sx={{ pl: 2 }}>変更はありません</Box>
       ) : (
         <div style={{ width: '100%', padding: '8px' }}>
-          {isFutureChangedPatientHealthFacility() && (
+          {isFutureChangedPatientHealthFacility(records) && (
             <Box sx={{ p: 1, pt: 0 }}>
               <Alert severity='info'>所得施設情報の変更予約があります</Alert>
             </Box>

@@ -11,31 +11,24 @@ export const iChangeHealthFacilityDeceaseExitReason = (reason: PatientHealthFaci
 }
 
 /**
- * 患者関連施設がまだ予定状態であるかを判定します。
- * @param patient 患者情報
- * @param patientRelateHealthFacility 患者関連施設
+ * 患者関連施設Listから施設情報の変更予定があるかを判定します。
+ * @param records 患者関連施設情報(複数指定時は先頭1件の情報から判断します)
  */
-export const isFuturePatientRelateHealthFacility = (
-  patient: PatientModel,
-  patientRelateHealthFacility: PatientRelateHealthFacilityModel,
+export const isFutureChangedPatientHealthFacility = (
+  records: PatientRelateHealthFacilityModel[] | PatientRelateHealthFacilityModel | undefined,
 ) => {
-  // 適用前の施設変更
-  if (!isPast(patientRelateHealthFacility.startDate) && !patientRelateHealthFacility.reason) {
+  if (!records) return false
+  const latestPatientHealthFacility = Array.isArray(records) ? records[0] : records
+  // 施設変更予定
+  if (!latestPatientHealthFacility.reason && !isPast(latestPatientHealthFacility.startDate)) {
     return true
   }
-  // 退出予定
+  // 退去予定
   if (
-    patientRelateHealthFacility.reason === 'DECEASE' ||
-    (patientRelateHealthFacility.reason === 'EXIT' && !isPast(patientRelateHealthFacility.endDate))
+    iChangeHealthFacilityDeceaseExitReason(latestPatientHealthFacility.reason) &&
+    !isPast(latestPatientHealthFacility.endDate)
   ) {
     return true
   }
-  // // 既に適用済
-  // if (
-  //   patientRelateHealthFacility.patientCode === patient.code &&
-  //   patientRelateHealthFacility.healthFacilityId === patient.healthFacilityId
-  // ) {
-  //   return false
-  // }
   return false
 }
