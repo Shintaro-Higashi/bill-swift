@@ -15,13 +15,7 @@ import {
 import { FieldItem } from '@components/core/content/FieldItem'
 import { formatDateTime } from '@/core/utils/dateUtil'
 import Grid from '@mui/material/Grid'
-import {
-  AttachmentOutlined,
-  ConnectWithoutContactOutlined,
-  HistoryOutlined,
-  InfoOutlined,
-  MessageOutlined,
-} from '@mui/icons-material'
+import { AttachmentOutlined, ConnectWithoutContactOutlined, InfoOutlined, MessageOutlined } from '@mui/icons-material'
 import Divider from '@mui/material/Divider'
 import { PaperBox } from '@components/core/content/paperBox'
 import { PatientProfileSwitchForm } from '@components/domains/patients/patientProfileSwitchForm'

@@ -56,16 +56,21 @@ export const PatientRelateHealthFacility = (props: Props) => {
     setOpen(false)
   }
 
+  const commonColumnsProperties = {
+    sortable: false,
+    filterable: false,
+    hideable: false,
+    flex: 1,
+  }
+
   const columns = React.useMemo<GridColDef<PatientRelateHealthFacilityModel>[]>(
     () => [
       {
         field: 'actions',
         headerName: '操作',
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        flex: 1,
-        minWidth: 100,
+        minWidth: 95,
+        maxWidth: 95,
+        ...commonColumnsProperties,
         renderCell: function render({ row }) {
           const isFutureHF = isFutureChangedPatientHealthFacility(row)
           return (
@@ -77,6 +82,7 @@ export const PatientRelateHealthFacility = (props: Props) => {
                 <Box component='div' sx={{ display: 'inline-block' }}>
                   <DeleteButton
                     hideText
+                    accessControl={{ enabled: false }}
                     recordItemId={row.id}
                     resource={`/${resourceUrl}`}
                     successNotification={() => {
@@ -104,10 +110,9 @@ export const PatientRelateHealthFacility = (props: Props) => {
       {
         field: 'pharmacy',
         headerName: '店舗',
-        sortable: false,
         minWidth: 200,
         maxWidth: 300,
-        flex: 1,
+        ...commonColumnsProperties,
         renderCell: ({ row }) => {
           return (
             <Box>
@@ -120,10 +125,9 @@ export const PatientRelateHealthFacility = (props: Props) => {
       {
         field: 'healthFacility',
         headerName: '施設',
-        sortable: false,
         minWidth: 200,
         maxWidth: 300,
-        flex: 1,
+        ...commonColumnsProperties,
         renderCell: ({ row }) => {
           return <RubyItem value={row.healthFacility.name} ruby={row.healthFacility.nameKana} />
         },
@@ -132,7 +136,9 @@ export const PatientRelateHealthFacility = (props: Props) => {
       {
         field: 'reason',
         headerName: '退出理由',
-        sortable: false,
+        minWidth: 90,
+        maxWidth: 90,
+        ...commonColumnsProperties,
         renderCell: ({ row }) => {
           return <>{getPatientHealthFacilityChangeReasonValue(row?.reason)}</>
         },
@@ -140,8 +146,9 @@ export const PatientRelateHealthFacility = (props: Props) => {
       {
         field: 'startDate',
         headerName: '入居(予定)日',
-        sortable: false,
-        width: 105,
+        minWidth: 105,
+        maxWidth: 105,
+        ...commonColumnsProperties,
         renderCell: ({ row }) => {
           return <>{formatDate(row?.startDate)}</>
         },
@@ -149,8 +156,9 @@ export const PatientRelateHealthFacility = (props: Props) => {
       {
         field: 'endDate',
         headerName: '退出(予定)日',
-        sortable: false,
-        width: 105,
+        minWidth: 105,
+        maxWidth: 105,
+        ...commonColumnsProperties,
         renderCell: ({ row }) => {
           return <>{formatDate(row.endDate)}</>
         },
@@ -158,10 +166,9 @@ export const PatientRelateHealthFacility = (props: Props) => {
       {
         field: 'note',
         headerName: '備考',
-        sortable: false,
-        flex: 1,
         minWidth: 100,
         maxWidth: 400,
+        ...commonColumnsProperties,
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -201,11 +208,11 @@ export const PatientRelateHealthFacility = (props: Props) => {
       ) : (
         <div style={{ width: '100%', padding: '8px' }}>
           {isFutureChangedPatientHealthFacility(records) && (
-            <Box sx={{ p: 1, pt: 0 }}>
-              <Alert severity='info'>所得施設情報の変更予約があります</Alert>
+            <Box sx={{ pb: 1 }}>
+              <Alert severity='info'>所属施設の変更予約があります</Alert>
             </Box>
           )}
-          <div style={{ maxHeight: 200, width: '100%', overflowY: 'auto' }}>
+          <div style={{ maxHeight: 300, width: '100%', overflowY: 'auto' }}>
             <ChangePatientHealthFacilityDialogForm
               open={open}
               onClose={onClose}
@@ -222,13 +229,15 @@ export const PatientRelateHealthFacility = (props: Props) => {
               disableColumnSelector
               disableVirtualization
               disableDensitySelector
-              // TODO https://mui.com/x/react-data-grid/style/#styling-rows darkも意識して対応したい
+              // TODO theme color を追加したほうがよさそう
               sx={{
                 '& .rows-now-health-facility': {
-                  background: 'rgba(104, 159, 56, 0.08) !important',
+                  background: (theme) => theme.palette.info.light,
+                  '&:hover': { background: (theme) => theme.palette.info.light },
                 },
                 '& .rows-future-health-facility': {
-                  background: 'rgb(255, 244, 229) !important',
+                  background: (theme) => theme.palette.warning.light,
+                  '&:hover': { background: (theme) => theme.palette.warning.light },
                 },
               }}
               getRowClassName={addRowClassName}

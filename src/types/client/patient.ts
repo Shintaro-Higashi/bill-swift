@@ -18,11 +18,12 @@ export type PatientEditingFormFieldName = keyof typeof PatientEditingSchema.shap
 // 患者詳細画面で現在編集中のBox状態(nullはどれも未編集)
 export type BoxEditStatus = 'profile' | 'delivery' | 'checkList' | 'note' | 'files' | null
 
+// 患者詳細各情報のどのPaperBoxが編集中かを示すステータス情報
 export type BoxEditProps = {
   boxEditStatus: BoxEditStatus
   setBoxEditStatus: React.Dispatch<React.SetStateAction<BoxEditStatus>>
 }
-// 患者施設変更リクエスト
+// 患者関連施設変更Form
 export type PatientHealthFacilityEditingForm = PatientHealthFacilityEditingRequest & {
   patientRelateHealthFacilityId?: string
 }

@@ -175,7 +175,7 @@ export const PatientChangeHistory = (props: Props) => {
   return (
     <PaperBox title='患者情報変更履歴' icon={<HistoryOutlined />} sx={{ p: 0, mt: 2 }}>
       <List sx={{ width: '100%', py: 0, maxHeight: 200, overflowY: 'auto' }}>
-        <Alert severity='info'>施設と患者番号以外の変更情報を確認可能です</Alert>
+        <Alert severity='info'>施設、患者番号の変更履歴は`施設変更履歴`から確認します</Alert>
         {records.length === 0 && <Box sx={{ pl: 3 }}>変更はありません</Box>}
         <DiffContentDialogProvider>
           {records.map((record) => {
