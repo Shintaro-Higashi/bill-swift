@@ -1,13 +1,29 @@
 import { isPast } from 'date-fns'
 import { PatientModel, PatientRelateHealthFacilityModel } from '@/types'
 import { PatientHealthFacilityChangeReasonKey } from '@/shared/items/patientHealthFacilityChangeReason'
+import { PatientStatus } from '@prisma/client'
 
 /**
  * 患者関連施設変更理由が退出(逝去、および退去)かを判定します。
  *
  */
-export const iChangeHealthFacilityDeceaseExitReason = (reason: PatientHealthFacilityChangeReasonKey | null) => {
+export const iChangeHealthFacilityDeceaseExitReason = (
+  reason: PatientHealthFacilityChangeReasonKey | null | undefined,
+) => {
   return reason === 'DECEASE' || reason === 'EXIT'
+}
+
+/**
+ * 患者関連施設変更理由から患者ステータスに変換します。
+ *
+ * @param reason
+ */
+export const toPatientStatusByHealthFacilityReason = (
+  reason: PatientHealthFacilityChangeReasonKey | null | undefined,
+): PatientStatus => {
+  if (reason === 'CHANGE_PHARMACY' || reason === 'RELOCATION') throw new Error('患者ステータスに変更できないReasonEnum')
+  if (!reason) return 'INRESIDENCE'
+  return reason
 }
 
 /**

@@ -137,10 +137,10 @@ export const PatientRelateHealthFacility = (props: Props) => {
         maxWidth: 300,
         ...commonColumnsProperties,
         renderCell: ({ row }) => {
-          return <RubyItem value={row.healthFacility.name} ruby={row.healthFacility.nameKana} />
+          return <RubyItem value={row?.healthFacility?.name} ruby={row?.healthFacility?.nameKana} />
         },
       },
-      { field: 'patientCode', headerName: 'コード', sortable: false, width: 80 },
+      { field: 'patientCode', headerName: '患者番号', minWidth: 90, maxWidth: 90, ...commonColumnsProperties },
       {
         field: 'reason',
         headerName: '退出理由',

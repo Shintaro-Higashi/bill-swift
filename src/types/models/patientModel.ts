@@ -6,15 +6,15 @@ import { HealthFacilityModel } from '@/types'
 // 患者Entity
 export type PatientModel = Patient &
   CommonRelateUserModel & {
-    healthFacility: HealthFacility | null
-    accountManage: AccountManage | null
-    patientChangeHistory: PatientChangeHistoryModel[] | null
-    patientFile: PatientFile[] | null
-    patientRelateHealthFacility: PatientRelateHealthFacility[] | null
+    healthFacility?: HealthFacility | null
+    accountManage?: AccountManage | null
+    patientChangeHistory?: PatientChangeHistoryModel[] | null
+    patientFile?: PatientFile[] | null
+    patientRelateHealthFacility?: PatientRelateHealthFacility[] | null
   }
 
 // 患者関連施設Entity
 export type PatientRelateHealthFacilityModel = PatientRelateHealthFacility &
   CommonRelateUserModel & {
-    healthFacility: HealthFacilityModel
+    healthFacility?: HealthFacilityModel | null
   }

@@ -5,7 +5,8 @@ import SortOrder = Prisma.SortOrder
 import { getCurrentDate, getEndMaxDate, toJSTDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 import { createId } from '@paralleldrive/cuid2'
-import { PatientHealthFacilityEditingDto } from '@/types'
+import { PatientHealthFacilityEditingDto, PatientRelateHealthFacilityModel } from '@/types'
+import { PatientRelateHealthFacilityReason, PatientStatus } from '@prisma/client'
 
 /**
  * 指定のIDに該当する患者関連施設情報を取得します。
@@ -105,6 +106,72 @@ export const fetchPatientRelateHealthFacilityByUnique = depend(
   },
 )
 
+/**
+ * 患者の所属施設の切り替えが必要な患者関連施設情報を取得します。
+ * <pre>
+ *  入居予定日が過ぎているが、まだ該当の施設及び患者番号になっていない患者の関連施設を対象に取得します。
+ * </pre>
+ * @param lessThanDate 処理が必須の判定規準日(基本現在日時を指定。指定日以下の入居日を対象)
+ */
+export const fetchRequiredAffiliationChangeFacilities = depend(
+  { client: prisma },
+  async ({ client }, lessThanDate: Date) => {
+    return await client.$queryRaw<PatientRelateHealthFacilityModel[]>`
+        SELECT
+            *
+        FROM
+            patient_relate_health_facility
+        WHERE
+            reason IS NULL
+          AND start_date < '${lessThanDate}'
+          AND NOT EXISTS (
+            SELECT
+                *
+            FROM
+                patient
+            WHERE
+                patient.id = patient_relate_health_facility.patient_id
+              AND patient.health_facility_id = patient_relate_health_facility.health_facility_id
+              AND patient.code = patient_relate_health_facility.patient_code
+        )
+        ORDER BY
+            created_at`
+  },
+)
+
+/**
+ * 逝去、または退去に患者ステータスの切り替えが必要な患者関連施設情報を取得します。
+ * <pre>
+ *  退出予定日が過ぎているが、まだ退去、退出ステータスになっていない患者の関連施設を対象に取得します。
+ * </pre>
+ * @param lessThanDate 処理が必須の判定規準日(基本現在日時を指定。指定日以下の退出日を対象)
+ */
+export const fetchRequiredChangeStatusPatientRelateHealthFacilities = depend(
+  { client: prisma },
+  async ({ client }, lessThanDate: Date) => {
+    return await client.$queryRaw<PatientRelateHealthFacilityModel[]>`
+      SELECT
+           *
+       FROM
+           patient_relate_health_facility
+       WHERE
+           reason IN ('${PatientRelateHealthFacilityReason.DECEASE}', '${PatientRelateHealthFacilityReason.EXIT}')
+         AND end_date < '${lessThanDate}'
+         AND EXISTS (
+           SELECT
+               *
+           FROM
+               patient
+           where
+               patient.id = patient_relate_health_facility.patient_id
+             AND patient.health_facility_id = patient_relate_health_facility.health_facility_id
+             AND patient.code = patient_relate_health_facility.patient_code
+             AND patient.status = '${PatientStatus.INRESIDENCE}'
+       )
+       ORDER BY
+           created_at`
+  },
+)
 /**
  * 患者関連施設を作成します。
  * @param params 患者関連施設情報

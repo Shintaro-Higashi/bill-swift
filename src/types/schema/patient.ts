@@ -45,8 +45,9 @@ export const PatientQuerySchema = z
 export const PatientCreationSchema = z.object({
   // 患者名
   name: zRequiredString(64),
+  // TODO　DB上もNULL許可にするべきかも
   // 患者名カナ
-  nameKana: zRequiredString(128),
+  nameKana: zNullishString(128),
   // 性別
   gender: z.nativeEnum(PatientGender),
   // 生年月日

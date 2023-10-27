@@ -58,7 +58,7 @@ export const fetchPagedPatients = async (params: PatientQueryDto): Promise<Pagin
  * @return 患者情報
  */
 export const fetchPatient = depend({ client: prisma }, async ({ client }, id: string) => {
-  return await client.patient.findUniqueOrThrow({
+  return (await client.patient.findUniqueOrThrow({
     where: { id: id, existence: true },
     include: {
       healthFacility: { select: { code: true, name: true, nameKana: true } },
@@ -68,7 +68,7 @@ export const fetchPatient = depend({ client: prisma }, async ({ client }, id: st
       createdUser: true,
       updatedUser: true,
     },
-  })
+  })) as unknown as PatientModel
 })
 
 // /**

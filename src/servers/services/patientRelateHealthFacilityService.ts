@@ -1,4 +1,4 @@
-import { PatientHealthFacilityEditingDto } from '@/types'
+import { PatientHealthFacilityEditingDto, PatientModel, PatientRelateHealthFacilityModel } from '@/types'
 import {
   fetchPatient as fetch,
   updatePatient as update,
@@ -20,7 +20,10 @@ import { isPast, subDays } from 'date-fns'
 import { incrementHealthFacilityCodeManageSequenceNo } from '@/servers/repositories/healthFacilityCodeManageRepository'
 import { createNewPatientCode } from '@/servers/services/patientService'
 import { getEndMaxDate, toJSTDate } from '@/core/utils/dateUtil'
-import { iChangeHealthFacilityDeceaseExitReason } from '@/shared/services/patientRelateHealthFacilityService'
+import {
+  iChangeHealthFacilityDeceaseExitReason,
+  toPatientStatusByHealthFacilityReason,
+} from '@/shared/services/patientRelateHealthFacilityService'
 
 /**
  * 指定の患者IDに該当する患者関連施設情報を最新順に取得します。
@@ -68,6 +71,7 @@ export const upsertPatientHealthFacility = depend(
       updatePatientUpdated,
       createPatientRelateHealthFacility,
       incrementHealthFacilityCodeManageSequenceNo,
+      createPatientChangeHistory,
       createManyPatientChangeContent,
     },
     id: string,
@@ -88,14 +92,14 @@ export const upsertPatientHealthFacility = depend(
 
       await tUpdatePatientUpdated(patient.id)
       // [逝去、退去]
-      if (params.reason === 'DECEASE' || params.reason === 'EXIT') {
+      if (iChangeHealthFacilityDeceaseExitReason(params.reason)) {
         if (!params.endDate) throw new Error('患者逝去、退去日未設定')
-
+        const patientStatus = toPatientStatusByHealthFacilityReason(params.reason)
         params.healthFacilityId = patient.healthFacilityId
 
         const relateHealthFacilityResult = await tUpdatePatientRelateHealthFacility(nowRelateHealthFacility.id, params)
         if (isPast(params.endDate)) {
-          await tUpdate(patient.id, { ...patient, ...{ status: params.reason } })
+          await tUpdate(patient.id, { ...patient, ...{ status: patientStatus } })
         }
         return relateHealthFacilityResult
       }
@@ -113,7 +117,7 @@ export const upsertPatientHealthFacility = depend(
       const tIncrementHealthFacilityCodeManageSequenceNo = injectTx(incrementHealthFacilityCodeManageSequenceNo, tx)
       const healthFacilityCodeManage = await tIncrementHealthFacilityCodeManageSequenceNo(newHealthFacilityId)
       const newPatientCode = createNewPatientCode(healthFacilityCodeManage)
-      await tCreatePatientRelateHealthFacility({
+      const newPatientRelateHealthFacility = await tCreatePatientRelateHealthFacility({
         patientId: patient.id,
         healthFacilityId: newHealthFacilityId,
         patientCode: newPatientCode,
@@ -122,34 +126,82 @@ export const upsertPatientHealthFacility = depend(
         note: params.note,
       })
       if (isPast(params.startDate)) {
-        // TODO 過去日の場合、転出処理を即時に実行
-        // コードと施設を最新、施設メモを初期化
-        const nowHealthFacilityInfo = patient.healthFacilityInfo
-        patient.healthFacilityId = newHealthFacilityId
-        patient.code = newPatientCode
-        patient.healthFacilityInfo = null
-        await tUpdate(patient.id, patient)
-        // TODO 患者関連施設TBLの請求書ソート順を更新(※一覧で並べたいはずなので実装はしておきたい) 基本施設メモでソートなので移動後は最後?
-        if (nowHealthFacilityInfo !== null) {
-          const tCreatePatientChangeHistory = injectTx(createPatientChangeHistory, tx)
-          const tCreateManyPatientChangeContent = injectTx(createManyPatientChangeContent, tx)
-          const { id: patientChangeHistoryId } = await tCreatePatientChangeHistory({
-            patientId: id,
-            changeType: 'MANUAL',
-          })
-          await tCreateManyPatientChangeContent(patientChangeHistoryId, [
-            {
-              itemKey: 'healthFacilityInfo',
-              childItemName: null,
-              beforeValue: nowHealthFacilityInfo,
-              afterValue: null,
-            },
-          ])
-        }
+        // 過去日の場合、転出処理を即時に実行
+        await changePatientHealthFacility.inject({
+          update: tUpdate,
+          createPatientChangeHistory: injectTx(createPatientChangeHistory, tx),
+          createManyPatientChangeContent: injectTx(createManyPatientChangeContent, tx),
+        })(patient, newPatientRelateHealthFacility)
       }
 
       return tCreatePatientRelateHealthFacility
     })
+  },
+)
+
+/**
+ * 患者の施設変更予約情報を処理します。
+ */
+export const updatePatientFacilitiesOnReservation = depend(
+  {
+    update,
+    createPatientChangeHistory,
+    createManyPatientChangeContent,
+  },
+  async ({ update, createPatientChangeHistory, createManyPatientChangeContent }) => {
+    // 施設変更一覧を抽出。reasonがNULLなのにまだ施設とコードの変更が適用されていない
+
+    await performTransaction(async (tx: any) => {
+      await changePatientHealthFacility.inject({
+        update: injectTx(update, tx),
+        createPatientChangeHistory: injectTx(createPatientChangeHistory, tx),
+        createManyPatientChangeContent: injectTx(createManyPatientChangeContent, tx),
+      })(patient, newPatientRelateHealthFacility)
+    })
+  },
+)
+
+/**
+ * 患者の現在の所属施設を切り替えます。
+ * <pre>
+ *  即時変更、予約変更 からの利用を想定しています。
+ *  ヘルパー関数になるため各依存RepositoryはTransaction開始済である必要があります。
+ * </pre>
+ */
+const changePatientHealthFacility = depend(
+  {
+    update,
+    createPatientChangeHistory,
+    createManyPatientChangeContent,
+  },
+  async (
+    { update, createPatientChangeHistory, createManyPatientChangeContent },
+    patient: PatientModel,
+    newPatientRelateHealthFacility: PatientRelateHealthFacilityModel,
+  ) => {
+    // コードと施設を最新、施設メモを初期化
+    const nowHealthFacilityInfo = patient.healthFacilityInfo
+    patient.healthFacilityId = newPatientRelateHealthFacility.healthFacilityId
+    patient.code = newPatientRelateHealthFacility.patientCode
+    patient.healthFacilityInfo = null
+    await update(patient.id, patient)
+    // TODO 患者関連施設TBLの請求書ソート順を更新(※一覧で並べたいはずなので実装はしておきたい) 基本施設メモでソートなので移動後は最後?
+    if (nowHealthFacilityInfo !== null) {
+      // const tCreatePatientChangeHistory = injectTx(createPatientChangeHistory, tx)
+      // const tCreateManyPatientChangeContent = injectTx(createManyPatientChangeContent, tx)
+      const { id: patientChangeHistoryId } = await createPatientChangeHistory({
+        patientId: patient.id,
+        changeType: 'MANUAL',
+      })
+      await createManyPatientChangeContent(patientChangeHistoryId, [
+        {
+          itemKey: 'healthFacilityInfo',
+          childItemName: null,
+          beforeValue: nowHealthFacilityInfo,
+          afterValue: null,
+        },
+      ])
+    }
   },
 )
 
