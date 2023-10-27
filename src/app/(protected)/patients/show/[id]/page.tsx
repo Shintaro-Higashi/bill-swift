@@ -98,7 +98,7 @@ const ShowPage = () => {
   }
 
   return (
-    <Show isLoading={formLoading} canEdit={false}>
+    <Show isLoading={formLoading} canEdit={false} canDelete={false}>
       <FormProvider {...methods}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={4} lg={3}>

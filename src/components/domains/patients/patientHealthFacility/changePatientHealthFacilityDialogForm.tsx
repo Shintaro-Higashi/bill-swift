@@ -133,11 +133,13 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>所属施設情報の変更</DialogTitle>
       <DialogContent>
-        {reason === 'RELOCATION' && (
+        {reason && (
           <>
-            <Typography>転出予定の場合は入居日に未来の日付を指定してください</Typography>
-            <Typography>予定日深夜に患者番号が新しい施設の番号に切り替わります</Typography>
-            <Typography>すでに転出済の場合は転出した過去日を指定すると患者番号はすぐに切り替わります</Typography>
+            <Typography>[入居日、または退出日に未来を設定した場合]</Typography>
+            <Typography>・変更予約扱いになります。変更予約は指定日深夜に変更が適用されます。</Typography>
+            <Typography>・該当日を迎えるまでは予約内容の取消及び変更が可能です。</Typography>
+            <Typography>[入居日、または退出日に過去を設定した場合]</Typography>
+            <Typography>・変更は即時に反映されます</Typography>
           </>
         )}
         {(reason === 'DECEASE' || reason === 'EXIT') && (

@@ -14,6 +14,13 @@ type Option = {
   status: number
 }
 
+// TODO 改装中..
+export function logInfo(...args: any[]) {
+  // argsを結合してメッセージを作成
+  const message = args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg)).join(' ')
+  logger.info(message)
+}
+
 /**
  * エラーログを出力します。
  * @param message

@@ -1,11 +1,9 @@
 'use client'
 
-import { Box, Tooltip } from '@mui/material'
+import { Box, Button, Tooltip } from '@mui/material'
 import { LowPriorityOutlined } from '@mui/icons-material'
 import React, { useState } from 'react'
-import IconButton from '@mui/material/IconButton'
 import { PatientModel } from '@/types'
-import { Loading } from '@components/core/content/loading'
 import { ChangePatientHealthFacilityDialogForm } from '@components/domains/patients/patientHealthFacility/changePatientHealthFacilityDialogForm'
 
 type Props = {
@@ -43,15 +41,16 @@ export const ChangePatientHealthFacilityButton = (props: Props) => {
         visibility: viewBoxEditButton ? 'visible' : 'hidden',
       }}
     >
-      <Tooltip title='施設の退去、転居を操作'>
-        <IconButton
-          color='primary'
-          sx={{ position: 'absolute', right: '0px', bottom: 0, zIndex: 100 }}
+      <Tooltip title='施設の変更、または退出を行う'>
+        <Button
           aria-label='change-health-facility'
+          variant='contained'
           onClick={onClick}
+          sx={{ position: 'absolute', right: '0px', bottom: 0, zIndex: 100, paddingX: 0 }}
+          size='small'
         >
           <LowPriorityOutlined />
-        </IconButton>
+        </Button>
       </Tooltip>
       <ChangePatientHealthFacilityDialogForm open={open} onClose={onClose} patient={patient} />
     </Box>
