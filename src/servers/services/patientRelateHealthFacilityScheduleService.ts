@@ -47,9 +47,7 @@ export const executeRequiredChangePatientHealthFacilityTasks = depend(
     loggerInfo(
       `executeRequiredChangePatientHealthFacilityTasks:end:${awaitChangeHealthFacilityList.length} 件中 成功${success}件、失敗${error}件`,
     )
-
-    const awaitChangePatientStatusList = await fetchRequiredChangeStatusPatientRelateHealthFacilities(getCurrentDate())
-    console.log('患者ステータス変更待', awaitChangePatientStatusList)
+    return { success, error }
   },
 )
 
@@ -86,5 +84,6 @@ export const executeRequiredChangePatientStatusTasks = depend(
     loggerInfo(
       `executeRequiredChangePatientStatusTasks:end:${awaitChangePatientStatusList.length} 件中 成功${success}件、失敗${error}件`,
     )
+    return { success, error }
   },
 )
