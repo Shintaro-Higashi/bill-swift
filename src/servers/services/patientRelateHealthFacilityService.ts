@@ -10,6 +10,7 @@ import {
   fetchPatientRelateHealthFacilitiesByPatientId,
   fetchPatientRelateHealthFacilityByUnique,
   updatePatientRelateHealthFacility,
+  deletePatientRelateHealthFacility,
 } from '@/servers/repositories/patientRelateHealthFacilityRepository'
 import { createPatientChangeHistory } from '@/servers/repositories/patientChangeHistoryRepository'
 import { createManyPatientChangeContent } from '@/servers/repositories/patientChangeContentRepository'
@@ -18,6 +19,7 @@ import { injectTx, performTransaction } from '@/servers/repositories/performTran
 import { isPast, subDays } from 'date-fns'
 import { incrementHealthFacilityCodeManageSequenceNo } from '@/servers/repositories/healthFacilityCodeManageRepository'
 import { createNewPatientCode } from '@/servers/services/patientService'
+import { toJSTDate } from '@/core/utils/dateUtil'
 
 /**
  * 指定の患者IDに該当する患者関連施設情報を最新順に取得します。
@@ -152,9 +154,7 @@ export const upsertPatientHealthFacility = depend(
 
 /**
  * 指定患者の関連施設情報を更新します。
- * <pre>
- *  入居処理、または退去処理がまだ完了していない関連施設のみ更新可能です。
- * </pre>
+ *
  * @param patientRelateHealthFacilityId 患者関連施設ID
  * @param params 患者関連施設更新情報
  */
@@ -179,6 +179,57 @@ export const updatePatientHealthFacility = depend(
       // TODO reasonに応じて値更新させないような処理
 
       const result = await tUpdatePatientRelateHealthFacility(patientRelateHealthFacilityId, params)
+      await tUpdatePatientUpdated(patientRelateHealthFacility.patientId)
+
+      return result
+    })
+  },
+)
+
+/**
+ * 指定患者の関連施設情報を削除します。
+ * <pre>
+ *  入居処理、または退去処理がまだ完了していない関連施設のみ削除可能です。
+ * </pre>
+ * @param patientRelateHealthFacilityId 患者関連施設ID
+ * @param params 患者関連施設更新情報
+ */
+export const deletePatientHealthFacility = depend(
+  {
+    fetchPatientRelateHealthFacility,
+    fetchPatientRelateHealthFacilitiesByPatientId,
+    updatePatientRelateHealthFacility,
+    deletePatientRelateHealthFacility,
+    updatePatientUpdated,
+  },
+  async (
+    {
+      fetchPatientRelateHealthFacility,
+      fetchPatientRelateHealthFacilitiesByPatientId,
+      updatePatientRelateHealthFacility,
+      deletePatientRelateHealthFacility,
+      updatePatientUpdated,
+    },
+    patientRelateHealthFacilityId: string,
+  ) => {
+    return await performTransaction(async (tx: any) => {
+      const tDeletePatientRelateHealthFacility = injectTx(deletePatientRelateHealthFacility, tx)
+      const tUpdatePatientRelateHealthFacility = injectTx(updatePatientRelateHealthFacility, tx)
+      const tUpdatePatientUpdated = injectTx(updatePatientUpdated, tx)
+
+      const patientRelateHealthFacility = await fetchPatientRelateHealthFacility(patientRelateHealthFacilityId)
+      // TODO 削除可能か判定
+      // 施設変更の場合、一つ前のreasonと退去日を差し戻す
+      if (patientRelateHealthFacility.reason === null) {
+        const relateHealthFacilities = await fetchPatientRelateHealthFacilitiesByPatientId(
+          patientRelateHealthFacility.patientId,
+        )
+        const prevRelateHealthFacilities = relateHealthFacilities[1]
+        prevRelateHealthFacilities.reason = null
+        prevRelateHealthFacilities.endDate = toJSTDate('2100-12-31')
+        await tUpdatePatientRelateHealthFacility(prevRelateHealthFacilities.id, prevRelateHealthFacilities)
+      }
+      const result = await tDeletePatientRelateHealthFacility(patientRelateHealthFacilityId)
       await tUpdatePatientUpdated(patientRelateHealthFacility.patientId)
 
       return result

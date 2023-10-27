@@ -10,13 +10,6 @@ export const isFuturePatientRelateHealthFacility = (
   patient: PatientModel,
   patientRelateHealthFacility: PatientRelateHealthFacilityModel,
 ) => {
-  // 既に適用済
-  if (
-    patientRelateHealthFacility.patientCode === patient.code &&
-    patientRelateHealthFacility.healthFacilityId === patient.healthFacilityId
-  ) {
-    return false
-  }
   // 適用前の施設変更
   if (!isPast(patientRelateHealthFacility.startDate) && !patientRelateHealthFacility.reason) {
     return true
@@ -28,6 +21,12 @@ export const isFuturePatientRelateHealthFacility = (
   ) {
     return true
   }
-
+  // // 既に適用済
+  // if (
+  //   patientRelateHealthFacility.patientCode === patient.code &&
+  //   patientRelateHealthFacility.healthFacilityId === patient.healthFacilityId
+  // ) {
+  //   return false
+  // }
   return false
 }

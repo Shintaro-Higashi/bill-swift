@@ -1,8 +1,10 @@
 'use client'
 
 /**
- * 患者情報変更履歴を表示するコンポーネント定義です。
+ * 患者関連施設履歴Listを表示および操作します。
  * <pre>
+ *  ・運用上レコード数が10を超えることもないためページネーション表示はしません。
+ *  ・レコードに対しての編集及び削除機能も提供します。
  * </pre>
  */
 import React, { Fragment, useState } from 'react'
@@ -21,6 +23,7 @@ import { isPast } from 'date-fns'
 import { isFuturePatientRelateHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
 import { ChangePatientHealthFacilityDialogForm } from '@components/domains/patients/patientHealthFacility/changePatientHealthFacilityDialogForm'
 import { DeleteButton } from '@refinedev/mui'
+import { getRefineRefreshButton } from '@/core/utils/refineUtil'
 
 type Props = {
   patient: PatientModel
@@ -30,11 +33,11 @@ type Props = {
 export const PatientRelateHealthFacility = (props: Props) => {
   const { patient } = props
 
-  const url = `/api/patients/${patient.id}/health-facilities`
+  const resourceUrl = `patients/${patient.id}/health-facilities`
 
   const { data, isLoading, isError } = useCustom<PatientRelateHealthFacilityModel[], HttpError>({
     method: 'get',
-    url,
+    url: `/api/${resourceUrl}`,
     config: {
       query: { uid: patient.updatedAt },
     },
@@ -52,10 +55,52 @@ export const PatientRelateHealthFacility = (props: Props) => {
   const onClose = (_isSuccess: boolean) => {
     setOpen(false)
   }
-  const handleDelete = (row: PatientRelateHealthFacilityModel) => {}
 
   const columns = React.useMemo<GridColDef<PatientRelateHealthFacilityModel>[]>(
     () => [
+      {
+        field: 'actions',
+        headerName: '操作',
+        sortable: false,
+        filterable: false,
+        hideable: false,
+        flex: 1,
+        minWidth: 100,
+        renderCell: function render({ row }) {
+          const isFutureHF = isFuturePatientRelateHealthFacility(patient, row)
+          return (
+            <Box sx={{ alignItems: 'flex-start' }}>
+              <IconButton aria-label='edit' color='primary' onClick={() => handleOpen(row)}>
+                <EditOutlined fontSize='small' />
+              </IconButton>
+              {isFutureHF && (
+                <Box component='div' sx={{ display: 'inline-block' }}>
+                  <DeleteButton
+                    hideText
+                    recordItemId={row.id}
+                    resource={`/${resourceUrl}`}
+                    successNotification={() => {
+                      getRefineRefreshButton()?.click()
+                      return {
+                        message: '関連施設情報の予約を取り消しました',
+                        description: '取消完了',
+                        type: 'success',
+                      }
+                    }}
+                    errorNotification={() => {
+                      return {
+                        message: '関連施設情報の予約取消ができませんでした',
+                        description: '取消失敗',
+                        type: 'error',
+                      }
+                    }}
+                  />
+                </Box>
+              )}
+            </Box>
+          )
+        },
+      },
       {
         field: 'pharmacy',
         headerName: '店舗',
@@ -117,31 +162,6 @@ export const PatientRelateHealthFacility = (props: Props) => {
         flex: 1,
         minWidth: 100,
         maxWidth: 400,
-      },
-      {
-        field: 'actions',
-        headerName: '操作',
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        flex: 1,
-        minWidth: 100,
-        renderCell: function render({ row }) {
-          const isFutureHF = isFuturePatientRelateHealthFacility(patient, row)
-          return (
-            <Box sx={{ alignItems: 'flex-start' }}>
-              <IconButton aria-label='edit' color='primary' onClick={() => handleOpen(row)}>
-                <EditOutlined fontSize='small' />
-              </IconButton>
-              {isFutureHF && (
-                // <IconButton color='error' onClick={() => handleDelete(row)}>
-                //   <DeleteOutlined fontSize='small' />
-                // </IconButton>
-                <DeleteButton hideText recordItemId={row.id} resource={url} />
-              )}
-            </Box>
-          )
-        },
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps

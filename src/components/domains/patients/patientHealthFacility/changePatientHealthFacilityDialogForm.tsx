@@ -14,7 +14,7 @@ import { ControlAutocomplete } from '@components/core/form/controlAutocomplete'
 import { useForm } from '@refinedev/react-hook-form'
 import { BaseRecord, HttpError } from '@refinedev/core'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FormSubmitErrorNotification } from '@/core/utils/refineUtil'
+import { FormSubmitErrorNotification, getRefineRefreshButton } from '@/core/utils/refineUtil'
 import useConfirm from '@/core/hooks/useConfirm'
 import { ControlDatePicker } from '@components/core/form/controlDatePicker'
 import { ControlItemAutocomplete } from '@components/core/form/controlItemAutocomplete'
@@ -76,9 +76,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
         enabled: false,
       },
       onMutationSuccess: (_data, _variables, _context, _isAutoSave) => {
-        const buttons = document.querySelectorAll('.MuiCardHeader-action button') as NodeListOf<HTMLButtonElement>
-        const refreshButton = buttons[buttons.length - 1]
-        refreshButton.click()
+        getRefineRefreshButton()?.click()
         onClose(true)
       },
       successNotification: (_data, _values, _resource) => {

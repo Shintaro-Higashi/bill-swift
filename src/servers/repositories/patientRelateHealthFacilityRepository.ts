@@ -147,7 +147,13 @@ export const updatePatientRelateHealthFacility = depend(
     const now = getCurrentDate()
     return await client.patientRelateHealthFacility.update({
       data: {
-        ...params,
+        patientId: params.patientId,
+        healthFacilityId: params.healthFacilityId,
+        patientCode: params.patientCode,
+        startDate: params.startDate,
+        endDate: params.endDate,
+        reason: params.reason,
+        note: params.note,
         updatedBy: getAuthorizedUserId(),
         updatedAt: now,
       },
@@ -155,3 +161,13 @@ export const updatePatientRelateHealthFacility = depend(
     })
   },
 )
+
+/**
+ * 指定の患者関連施設情報を物理削除します。
+ * @param id 患者関連施設ID
+ */
+export const deletePatientRelateHealthFacility = depend({ client: prisma }, async ({ client }, id: string) => {
+  return await client.patientRelateHealthFacility.delete({
+    where: { id: id },
+  })
+})
