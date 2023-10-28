@@ -338,6 +338,7 @@ const toModelListForQueryRaw = (entities: any[]) => {
   return modelList
 }
 
+// queryRaw結果がbool型が数値になるためboolに補正
 const toBooleanColumn = (value: any) => {
   if (value == null) return null
   return !!value

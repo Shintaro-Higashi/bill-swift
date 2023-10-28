@@ -9,7 +9,7 @@ import { injectTx, performTransaction } from '../repositories/performTransaction
 import { updatePatient } from '@/servers/repositories/patientRepository'
 import { createPatientChangeHistory } from '@/servers/repositories/patientChangeHistoryRepository'
 import { createManyPatientChangeContent } from '@/servers/repositories/patientChangeContentRepository'
-import { logger, loggerError, loggerInfo } from '@/core/configs/log'
+import { loggerError, loggerInfo } from '@/core/configs/log'
 import { toPatientStatusByHealthFacilityReason } from '@/shared/services/patientRelateHealthFacilityService'
 
 type TasksResult = {

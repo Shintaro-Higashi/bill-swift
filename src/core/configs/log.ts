@@ -1,4 +1,5 @@
 import pino from 'pino'
+import { getCurrentDate, getCurrentFormatDate } from '@/core/utils/dateUtil'
 
 const pinoConfig = {
   level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
@@ -33,7 +34,7 @@ type Option<T = any> = {
 export const loggerError = (message: string, option?: Option) => {
   if (!logger.isLevelEnabled('error')) return
   // return logger.error(option, message)
-  console.log(message, option ?? '')
+  writeLog('ERROR', message, option)
 }
 
 /**
@@ -44,7 +45,7 @@ export const loggerError = (message: string, option?: Option) => {
 export const loggerWarn = (message: string, option?: Option) => {
   if (!logger.isLevelEnabled('warn')) return
   // return logger.warn(option, message)
-  console.log(message, option ?? '')
+  writeLog('WARN', message, option)
 }
 
 /**
@@ -55,7 +56,7 @@ export const loggerWarn = (message: string, option?: Option) => {
 export const loggerInfo = (message: string, option?: Option) => {
   if (!logger.isLevelEnabled('info')) return
   // return logger.info(option, message)
-  console.log(message, option ?? '')
+  writeLog('INFO', message, option)
 }
 
 /**
@@ -65,5 +66,11 @@ export const loggerInfo = (message: string, option?: Option) => {
  */
 export const loggerDebug = (message: string, option?: Option) => {
   if (!logger.isLevelEnabled('debug')) return
-  return logger.debug(message, option ?? '')
+  // return logger.debug(message, option ?? '')
+  writeLog('DEBUG', message, option)
+}
+
+const writeLog = (logLevel: 'ERROR' | 'WARN' | 'INFO' | 'DEBUG', message: string, option?: Option) => {
+  const now = getCurrentFormatDate({ fmt: 'yyyy/MM/dd HH:mm:ss.SSS' })
+  console.log(`[${now}] ${logLevel} ${message}`, option ?? '')
 }
