@@ -9,23 +9,30 @@ import { injectTx, performTransaction } from '../repositories/performTransaction
 import { updatePatient } from '@/servers/repositories/patientRepository'
 import { createPatientChangeHistory } from '@/servers/repositories/patientChangeHistoryRepository'
 import { createManyPatientChangeContent } from '@/servers/repositories/patientChangeContentRepository'
-import { loggerError, loggerInfo } from '@/core/configs/log'
+import { logger, loggerError, loggerInfo } from '@/core/configs/log'
 import { toPatientStatusByHealthFacilityReason } from '@/shared/services/patientRelateHealthFacilityService'
+
+type TasksResult = {
+  // 成功件数
+  successfulTaskCount: number
+  // エラー件数
+  errorTaskCount: number
+}
 
 /**
  * 患者所属施設変更スケジュールタスクを処理します。
  * @param id 患者ID
- * @return 患者関連施設情報
+ * @return タスク処理結果
  */
 export const executeRequiredChangePatientHealthFacilityTasks = depend(
   { fetchRequiredAffiliationChangeFacilities },
-  async ({ fetchRequiredAffiliationChangeFacilities }) => {
+  async ({ fetchRequiredAffiliationChangeFacilities }): Promise<TasksResult> => {
     const awaitChangeHealthFacilityList = await fetchRequiredAffiliationChangeFacilities(getCurrentDate())
     loggerInfo(
       `executeRequiredChangePatientHealthFacilityTasks:start:${awaitChangeHealthFacilityList.length} 名の患者施設変更開始`,
     )
-    let success = 0
-    let error = 0
+    let successfulTaskCount = 0
+    let errorTaskCount = 0
     for (const awaitChangeHealthFacility of awaitChangeHealthFacilityList) {
       try {
         // 患者都度コミット
@@ -37,34 +44,34 @@ export const executeRequiredChangePatientHealthFacilityTasks = depend(
             createManyPatientChangeContent: injectTx(createManyPatientChangeContent, tx),
           })(awaitChangeHealthFacility.patient, awaitChangeHealthFacility)
         })
-        success++
+        successfulTaskCount++
         loggerInfo(`患者ID ${awaitChangeHealthFacility.patientId} の施設変更が完了しました`)
       } catch (e) {
-        error++
-        loggerError(`患者ID ${awaitChangeHealthFacility.patientId} の施設変更に失敗しました`)
+        errorTaskCount++
+        loggerError(`患者ID ${awaitChangeHealthFacility.patientId} の施設変更に失敗しました`, { error: e })
       }
     }
     loggerInfo(
-      `executeRequiredChangePatientHealthFacilityTasks:end:${awaitChangeHealthFacilityList.length} 件中 成功${success}件、失敗${error}件`,
+      `executeRequiredChangePatientHealthFacilityTasks:end:${awaitChangeHealthFacilityList.length} 件中 成功${successfulTaskCount}件、失敗${errorTaskCount}件`,
     )
-    return { success, error }
+    return { successfulTaskCount, errorTaskCount }
   },
 )
 
 /**
  * 患者ステータス変更(逝去・退出)スケジュールタスクを処理します。
  * @param id 患者ID
- * @return 患者関連施設情報
+ * @return タスク処理結果
  */
 export const executeRequiredChangePatientStatusTasks = depend(
   { fetchRequiredChangeStatusPatientRelateHealthFacilities, updatePatient },
-  async ({ fetchRequiredChangeStatusPatientRelateHealthFacilities, updatePatient }) => {
+  async ({ fetchRequiredChangeStatusPatientRelateHealthFacilities, updatePatient }): Promise<TasksResult> => {
     const awaitChangePatientStatusList = await fetchRequiredChangeStatusPatientRelateHealthFacilities(getCurrentDate())
     loggerInfo(
       `executeRequiredChangePatientStatusTasks:start:${awaitChangePatientStatusList.length} 名の患者ステータス変更開始`,
     )
-    let success = 0
-    let error = 0
+    let successfulTaskCount = 0
+    let errorTaskCount = 0
     for (const awaitChangePatientStatus of awaitChangePatientStatusList) {
       try {
         // 患者都度コミット
@@ -74,16 +81,16 @@ export const executeRequiredChangePatientStatusTasks = depend(
           const patientStatus = toPatientStatusByHealthFacilityReason(awaitChangePatientStatus.reason)
           await injectTx(updatePatient, tx)(patient.id, { ...patient, ...{ status: patientStatus } })
         })
-        success++
+        successfulTaskCount++
         loggerInfo(`患者ID ${awaitChangePatientStatus.patientId} のステータス変更が完了しました`)
       } catch (e) {
-        error++
+        errorTaskCount++
         loggerError(`患者ID ${awaitChangePatientStatus.patientId} のステータス変更に失敗しました`)
       }
     }
     loggerInfo(
-      `executeRequiredChangePatientStatusTasks:end:${awaitChangePatientStatusList.length} 件中 成功${success}件、失敗${error}件`,
+      `executeRequiredChangePatientStatusTasks:end:${awaitChangePatientStatusList.length} 件中 成功${successfulTaskCount}件、失敗${errorTaskCount}件`,
     )
-    return { success, error }
+    return { successfulTaskCount, errorTaskCount }
   },
 )

@@ -301,7 +301,7 @@ const toModelListForQueryRaw = (entities: any[]) => {
         searchName: record['patient_search_name'],
         gender: record['patient_gender'],
         birthday: record['patient_birthday'],
-        billEnableFlag: record['patient_bill_enable_flag'],
+        billEnableFlag: toBooleanColumn(record['patient_bill_enable_flag']) ?? false,
         medicalInsuranceStatus: record['patient_medical_insurance_status'],
         medicalInsuranceStartDate: record['patient_medical_insurance_start_date'],
         medicalInsuranceEndDate: record['patient_medical_insurance_end_date'],
@@ -312,13 +312,13 @@ const toModelListForQueryRaw = (entities: any[]) => {
         nursingInsuranceEndDate: record['patient_nursing_insurance_end_date'],
         nursingShareConfirmDate: record['patient_nursing_share_confirm_date'],
         nursingShare: record['patient_nursing_share'],
-        publicExpense: record['patient_public_expense'],
+        publicExpense: toBooleanColumn(record['patient_public_expense']),
         consentStatus: record['patient_consent_status'],
         consentConfirmDate: record['patient_consent_confirm_date'],
         paymentType: record['patient_payment_type'],
         accountConfirmStatus: record['patient_account_confirm_status'],
         accountManageId: record['patient_account_manage_id'],
-        receiptSyncFlag: record['patient_receipt_sync_flag'],
+        receiptSyncFlag: toBooleanColumn(record['patient_receipt_sync_flag']) ?? false,
         deliveryName: record['patient_delivery_name'],
         deliveryPostalCode: record['patient_delivery_postal_code'],
         deliveryAddress1: record['patient_delivery_address1'],
@@ -336,6 +336,11 @@ const toModelListForQueryRaw = (entities: any[]) => {
     })
   })
   return modelList
+}
+
+const toBooleanColumn = (value: any) => {
+  if (value == null) return null
+  return !!value
 }
 
 /**
