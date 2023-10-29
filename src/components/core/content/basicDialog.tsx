@@ -6,18 +6,18 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 
 /**
- * プロパティ型定義
+ * プロップス型定義
  */
 type Props = {
-  /** ダイアログを開くためのボタンをレンダリングする関数 */
+  // ダイアログを開くためのボタンをレンダリングする関数
   renderOpenDialogButton: (openDialog: () => void) => React.ReactElement
-  /** ダイアログのタイトル */
+  // ダイアログのタイトル
   title: string
-  /** ダイアログのコンテンツ */
+  // ダイアログのコンテンツ
   content: React.ReactElement
-  /** 保存ボタンをレンダリングする関数 */
+  // 保存ボタンをレンダリングする関数
   renderSaveButton: (closeDialog: () => void) => React.ReactElement
-  /** キャンセルボタンをレンダリングする関数 */
+  // キャンセルボタンをレンダリングする関数
   renderCancelButton?: (closeDialog: () => void) => React.ReactElement
 }
 
@@ -28,23 +28,24 @@ type Props = {
  * 使用例：施設で利用する担当店舗変更ダイアログを展開するボタンを設置
  * <pre>
  *   <BasicDialog
+ *     key={key}
  *     title='担当店舗の変更'
- *     content={<AssignedPharmacySaveForm />}
- *     renderOpenDialogButton={(openDialog) => (
- *       <Button variant='contained' startIcon={<ModeEditOutlineOutlinedIcon />} onClick={() => {
- *         ...something save action
- *         openDialog
- *       }}>
- *         変更
- *       </Button>
- *     )}
- *     renderSaveButton={(closeDialog) => (
- *       <Button variant='contained' startIcon={<SaveOutlinedIcon />} onClick={closeDialog}>
+ *     content={<HealthFacilityRelatePharmacySaveForm />}
+ *     renderOpenDialogButton={renderOpenDialogButton}
+ *     renderSaveButton={(handleCloseDialog) => (
+ *       <Button
+ *         variant='contained'
+ *         startIcon={<SaveOutlinedIcon />}
+ *         onClick={(e) => {
+ *           handleCloseDialog()
+ *           handleSave(e)
+ *         }}
+ *       >
  *         保存
  *       </Button>
  *     )}
  *   />
- *  </pre>
+ * </pre>
  */
 
 export const BasicDialog = (props: Props) => {
@@ -54,24 +55,24 @@ export const BasicDialog = (props: Props) => {
     content,
     renderSaveButton,
     renderCancelButton = (closeDialog) => (
-      <Button variant='outlined' onClick={closeDialog}>
+      <Button variant='text' onClick={closeDialog}>
         キャンセル
       </Button>
     ),
   } = props
 
-  const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [dialogStatus, setDialogStatus] = React.useState(false)
   const handleOpenDialog = () => {
-    setDialogOpen(true)
+    setDialogStatus(true)
   }
   const handleCloseDialog = () => {
-    setDialogOpen(false)
+    setDialogStatus(false)
   }
 
   return (
     <div>
       {renderOpenDialogButton(handleOpenDialog)}
-      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+      <Dialog open={dialogStatus} onClose={handleCloseDialog}>
         <DialogTitle>{title}</DialogTitle>
         <DialogContent>{content}</DialogContent>
         <DialogActions>

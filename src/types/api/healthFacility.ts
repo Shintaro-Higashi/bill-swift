@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import {
-  AssignedPharmacyEditingSchema,
   HealthFacilityCreationSchema,
   HealthFacilityEditingSchema,
   HealthFacilityQuerySchema,
@@ -12,5 +11,3 @@ export type HealthFacilityQueryRequest = z.infer<typeof HealthFacilityQuerySchem
 export type HealthFacilityCreationRequest = z.infer<typeof HealthFacilityCreationSchema>
 // 施設編集リクエスト
 export type HealthFacilityEditingRequest = z.infer<typeof HealthFacilityEditingSchema>
-// 担当店舗編集リクエスト
-export type AssignedPharmacyEditingRequest = z.infer<typeof AssignedPharmacyEditingSchema>
