@@ -1,5 +1,5 @@
 import { isPast } from 'date-fns'
-import { PatientModel, PatientRelateHealthFacilityModel } from '@/types'
+import { PatientRelateHealthFacilityModel } from '@/types'
 import { PatientHealthFacilityChangeReasonKey } from '@/shared/items/patientHealthFacilityChangeReason'
 import { PatientStatus } from '@prisma/client'
 
@@ -36,8 +36,8 @@ export const isFutureChangedPatientHealthFacility = (
   if (!records) return false
   const latestPatientHealthFacility = Array.isArray(records) ? records[0] : records
   // 施設変更予定
-  if (!latestPatientHealthFacility.reason && !isPast(latestPatientHealthFacility.startDate)) {
-    return true
+  if (!latestPatientHealthFacility.reason) {
+    return !isPast(latestPatientHealthFacility.startDate)
   }
   // 退去予定
   if (

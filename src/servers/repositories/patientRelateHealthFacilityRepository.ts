@@ -44,7 +44,7 @@ export const fetchPatientRelateHealthFacility = depend({ client: prisma }, async
 })
 
 /**
- * 指定の患者IDに該当する患者関連施設情報を最新順に取得します。
+ * 指定の患者IDに該当する患者関連施設情報を入居(予定)日最新順に取得します。
  * @param patientId 患者ID
  * @param healthFacilityId 施設ID
  * @return 患者関連施設情報
@@ -52,7 +52,7 @@ export const fetchPatientRelateHealthFacility = depend({ client: prisma }, async
 export const fetchPatientRelateHealthFacilitiesByPatientId = depend(
   { client: prisma },
   async ({ client }, patientId: string) => {
-    return await client.patientRelateHealthFacility.findMany({
+    return (await client.patientRelateHealthFacility.findMany({
       select: {
         id: true,
         healthFacilityId: true,
@@ -77,7 +77,7 @@ export const fetchPatientRelateHealthFacilitiesByPatientId = depend(
       },
       where: { patientId, existence: true },
       orderBy: { createdAt: SortOrder.desc },
-    })
+    })) as unknown as PatientRelateHealthFacilityModel[]
   },
 )
 

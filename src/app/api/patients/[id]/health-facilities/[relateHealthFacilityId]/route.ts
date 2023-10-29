@@ -26,7 +26,7 @@ export async function PATCH(req: NextRequest, { params: { id, relateHealthFacili
       await updatePatientHealthFacility(relateHealthFacilityId, parsedEditData)
       return NextResponse.json({ status: 'ok' })
     },
-    { resource: 'patients', action: 'edit', id },
+    { action: 'change-health-facilities' },
   )
 }
 
@@ -42,6 +42,6 @@ export async function DELETE(_req: NextRequest, { params: { id, relateHealthFaci
       const response = await cancelFuturePatientHealthFacility(relateHealthFacilityId)
       return NextResponse.json({ id, relateHealthFacilityId })
     },
-    { resource: 'patients', action: 'edit', id },
+    { action: 'change-health-facilities' },
   )
 }

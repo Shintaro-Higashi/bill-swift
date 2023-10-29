@@ -26,11 +26,11 @@ import {
 } from '@/shared/services/patientRelateHealthFacilityService'
 
 /**
- * 指定の患者IDに該当する患者関連施設情報を最新順に取得します。
+ * 指定の患者IDに該当する患者関連施設情報を入居(予定)日最新順に取得します。
  * @param id 患者ID
  * @return 患者関連施設情報
  */
-export const fetchPatientHealthFacility = depend(
+export const fetchPatientHealthFacilities = depend(
   { fetchPatientRelateHealthFacilitiesByPatientId },
   async ({ fetchPatientRelateHealthFacilitiesByPatientId }, id: string) => {
     return await fetchPatientRelateHealthFacilitiesByPatientId(id)
