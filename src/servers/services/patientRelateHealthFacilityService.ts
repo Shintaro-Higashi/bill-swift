@@ -321,7 +321,9 @@ export const cancelFuturePatientHealthFacility = depend(
       const tUpdatePatientUpdated = injectTx(updatePatientUpdated, tx)
 
       const patientRelateHealthFacility = await fetchPatientRelateHealthFacility(patientRelateHealthFacilityId)
-      // TODO 削除可能か判定
+      if (isPast(patientRelateHealthFacility.startDate)) {
+        throw new Error('すでに入居済の患者関連施設を削除することはできません')
+      }
       // 施設変更取消時:一つ前のreasonと退去日を差し戻し、自身も削除
       if (patientRelateHealthFacility.reason === null) {
         const relateHealthFacilities = await fetchPatientRelateHealthFacilitiesByPatientId(
