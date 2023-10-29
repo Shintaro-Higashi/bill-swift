@@ -18,13 +18,19 @@ type Props = {
   /** テーブルヘッダーデータ */
   tableHeadRow: string[]
   /** テーブルボディデータ */
-  tableBodyRows: any[]
+  tableBodyRows: (string | JSX.Element)[][]
   /** 列の幅 */
-  columnWidth?: string[]
+  columnWidth?: number[]
   /** アイコンコンポーネント */
   icon?: any
   /** ハイライトする行 */
   highLightRows?: number[]
+  /** フォントサイズ */
+  fontSize?: number
+  /** セルのパディング */
+  padding?: string
+  /** テーブルの最大の高さ */
+  maxHeight?: number
 }
 
 /**
@@ -34,35 +40,53 @@ type Props = {
  * @param title タイトルテキスト
  * @param tableHeadRow テーブルヘッダーデータ
  * @param tableBodyRows テーブルボディデータ
- * @param columnWidth 列の幅：指定しない場合は自動調整
+ * @param columnWidth pxで各列の幅を指定し、テーブルの最小幅を調整。指定しない場合は自動調整
  * @param icon タイトル横のアイコン
  * @param highLightRows ハイライトする行
+ * @param fontSize フォントサイズ
+ * @param padding セルのパディング
+ * @param maxHeight テーブルの最大の高さ
  */
 
 export const BasicTable = (props: Props) => {
-  const { title, tableHeadRow, tableBodyRows, columnWidth, icon, highLightRows } = props
+  const {
+    title,
+    tableHeadRow,
+    tableBodyRows,
+    columnWidth,
+    icon,
+    highLightRows,
+    fontSize = 16,
+    padding = '6px 16px',
+    maxHeight = 400,
+  } = props
+  const minWidth = columnWidth ? columnWidth.reduce((a, b) => a + b) : 0
 
   return (
     <Paper>
       {title ? (
-        <Typography sx={{ pt: 2, pl: 2, pb: 1 }} variant='h6' component='div'>
-          {icon ? <Box sx={{ display: 'inline', verticalAlign: '-4px', mr: '10px' }}>{icon}</Box> : null}
+        <Typography sx={{ pt: 2, pl: 2, pb: 1 }} variant='h5' component='div'>
+          {icon ? <Box sx={{ display: 'inline', verticalAlign: '-6px', mr: '12px' }}>{icon}</Box> : null}
           {title}
         </Typography>
       ) : null}
-      <TableContainer>
-        <Table>
+      <TableContainer style={{ maxHeight: maxHeight }}>
+        <Table stickyHeader sx={{ minWidth: minWidth }}>
           <TableHead>
             <TableRow>
               {tableHeadRow.map((row, i) => (
-                <TableCell key={i} style={columnWidth ? { width: columnWidth[i] } : {}}>
+                <TableCell
+                  sx={{ fontSize: fontSize, padding: padding, textAlign: 'center' }}
+                  key={i}
+                  style={columnWidth ? { width: columnWidth[i] } : {}}
+                >
                   {row}
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {tableBodyRows.map((row: string[], i: number) => (
+            {tableBodyRows.map((row, i: number) => (
               <TableRow
                 key={i}
                 sx={{
@@ -70,8 +94,10 @@ export const BasicTable = (props: Props) => {
                   '&:last-child td, &:last-child th': { border: 0 },
                 }}
               >
-                {row.map((cell: string, j: number) => (
-                  <TableCell key={j}>{cell}</TableCell>
+                {row.map((cell, j: number) => (
+                  <TableCell sx={{ fontSize: fontSize, padding: padding }} key={j}>
+                    {cell}
+                  </TableCell>
                 ))}
               </TableRow>
             ))}

@@ -6,6 +6,21 @@ import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 import { createId } from '@paralleldrive/cuid2'
 
 /**
+ * 指定IDの施設関連薬局情報を取得します。
+ * @param id 施設関連薬局ID
+ * @return 施設関連薬局情報
+ */
+export const fetchHealthFacilityRelatePharmacy = async (id: string) => {
+  return await prisma.healthFacilityRelatePharmacy.findUniqueOrThrow({
+    where: { id: id, existence: true },
+    include: {
+      createdUser: true,
+      updatedUser: true,
+    },
+  })
+}
+
+/**
  * 施設関連薬局を作成します。
  * @param healthFacilityId
  * @param pharmacyId
