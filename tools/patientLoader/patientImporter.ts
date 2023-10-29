@@ -820,8 +820,8 @@ const addPatientRelateHealthFacility = (
     const ph = `${tempPatient.deptName}(${tempPatient.pharmacyId})`
     const f = `${tempPatient.healthFacilityName}(${tempPatient.healthFacilityCode})`
     const p = `${tempPatient.patientName}(${tempPatient.patientCode})`
-    logging('DBG', `施設関連薬局が見つからないため患者関連施設は作成しません\t${ph}\t${f}\t${p}`)
-    return
+    logging('WRN', `施設関連薬局が見つからないため患者関連施設は作成しません\t${ph}\t${f}\t${p}`)
+    return false
   }
 
   // デフォルトの開始・終了日を施設関連薬局より設定
@@ -866,6 +866,7 @@ const addPatientRelateHealthFacility = (
       'yyyy/MM/dd',
     )})`,
   )
+  return true
 }
 
 /**
@@ -964,9 +965,30 @@ const doSamePatient = (
   lastPatient: PatientInputModel,
   facilityRelateList: FacilityRelateData[],
 ) => {
+  // 施設IDと患者コードの組み合わせが該当患者の関連施設にない場合は患者関連施設を追加
+  let addResult = true
+  if (
+    lastPatient.patientRelateHealthFacility?.find(
+      (r) => r.healthFacilityId === tempPatient.healthFacilityId && r.patientCode === tempPatient.patientCode,
+    ) === undefined
+  ) {
+    addResult = addPatientRelateHealthFacility(lastPatient, tempPatient, facilityRelateList)
+  }
+  // 施設関連薬局が見つからない場合は患者関連施設は作成しないので、施設IDや患者コードは更新しない
+  if (!addResult) {
+    // 施設ID
+    lastPatient.healthFacilityId = tempPatient.healthFacilityId
+    // 施設情報（備考）
+    if (isFacilityComment(tempPatient.note)) {
+      lastPatient.healthFacilityInfo = tempPatient.note
+    }
+    // 最新の患者コードに変更（古いコードは患者コード履歴に存在）
+    lastPatient.code = tempPatient.patientCode
+    return
+  }
   // 古い順にソートされているので更新すべき内容を置き換える
-  // 氏名カナ
-  if (tempPatient.patientKana !== '') {
+  // 氏名カナ（元が連携されていないか対象が連携されている場合）
+  if (tempPatient.patientKana !== '' && (!lastPatient.receiptSyncFlag || tempPatient.birthDate)) {
     const nameKana = convertKanaHanToZen(tempPatient.patientKana)
     lastPatient.nameKana = nameKana
     lastPatient.searchName = convertSearchName(tempPatient.trimName, nameKana)
@@ -1006,12 +1028,6 @@ const doSamePatient = (
     lastPatient.deliveryAddress2 = tempPatient.address2
     lastPatient.deliveryTel = tempPatient.tel
   }
-  // 施設ID
-  lastPatient.healthFacilityId = tempPatient.healthFacilityId
-  // 施設情報（備考）
-  if (isFacilityComment(tempPatient.note)) {
-    lastPatient.healthFacilityInfo = tempPatient.note
-  }
 
   // 備考（申し送り）を連結
   const comment = getNote(tempPatient.note, tempPatient.comment)
@@ -1022,8 +1038,6 @@ const doSamePatient = (
       lastPatient.note = `${lastPatient.note}\n${comment}`
     }
   }
-  // 古い順にソートされているのでコードを新しいものに変更（古いコードは患者コード履歴に存在）
-  lastPatient.code = tempPatient.patientCode
   // 逝去されている場合はステータスを変更
   if (tempPatient.note.includes('逝去') || tempPatient.comment.includes('逝去')) {
     lastPatient.status = PatientStatus.DECEASE
@@ -1035,14 +1049,6 @@ const doSamePatient = (
     } else {
       lastPatient.status = PatientStatus.INRESIDENCE
     }
-  }
-  // 施設IDと患者コードの組み合わせが該当患者の関連施設にない場合は患者関連施設を追加
-  if (
-    lastPatient.patientRelateHealthFacility?.find(
-      (r) => r.healthFacilityId === tempPatient.healthFacilityId && r.patientCode === tempPatient.patientCode,
-    ) === undefined
-  ) {
-    addPatientRelateHealthFacility(lastPatient, tempPatient, facilityRelateList)
   }
 }
 
