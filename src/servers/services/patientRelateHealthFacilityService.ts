@@ -6,29 +6,31 @@ import {
 } from '@/servers/repositories/patientRepository'
 import {
   createPatientRelateHealthFacility,
-  fetchPatientRelateHealthFacility,
+  deletePatientRelateHealthFacility,
   fetchPatientRelateHealthFacilitiesByPatientId,
+  fetchPatientRelateHealthFacility,
   fetchPatientRelateHealthFacilityByUnique,
   updatePatientRelateHealthFacility,
-  deletePatientRelateHealthFacility,
 } from '@/servers/repositories/patientRelateHealthFacilityRepository'
 import { createPatientChangeHistory } from '@/servers/repositories/patientChangeHistoryRepository'
 import { createManyPatientChangeContent } from '@/servers/repositories/patientChangeContentRepository'
 import depend from '@/core/utils/velona'
 import { injectTx, performTransaction } from '@/servers/repositories/performTransaction'
-import { isPast, subDays } from 'date-fns'
+import { isAfter, isPast, subDays } from 'date-fns'
 import { incrementHealthFacilityCodeManageSequenceNo } from '@/servers/repositories/healthFacilityCodeManageRepository'
-import { createNewPatientCode } from '@/servers/services/patientService'
-import { getEndMaxDate, toJSTDate } from '@/core/utils/dateUtil'
+import { createNewPatientCode, fetchPatient } from '@/servers/services/patientService'
+import { getEndMaxDate } from '@/core/utils/dateUtil'
 import {
   iChangeHealthFacilityDeceaseExitReason,
+  isFutureChangedPatientHealthFacility,
   toPatientStatusByHealthFacilityReason,
 } from '@/shared/services/patientRelateHealthFacilityService'
+import { z } from 'zod'
 
 /**
  * 指定の患者IDに該当する患者関連施設情報を入居(予定)日最新順に取得します。
  * @param id 患者ID
- * @return 患者関連施設情報
+ * @return 患者関連施設情報リスト
  */
 export const fetchPatientHealthFacilities = depend(
   { fetchPatientRelateHealthFacilitiesByPatientId },
@@ -36,6 +38,74 @@ export const fetchPatientHealthFacilities = depend(
     return await fetchPatientRelateHealthFacilitiesByPatientId(id)
   },
 )
+
+/**
+ * 指定のIDに該当する患者関連施設情報を取得します。
+ * @param id 患者関連施設ID
+ * @return 患者関連施設情報
+ */
+export const fetchPatientHealthFacility = depend(
+  { fetchPatientRelateHealthFacility },
+  async ({ fetchPatientRelateHealthFacility }, id: string) => {
+    return await fetchPatientRelateHealthFacility(id)
+  },
+)
+
+/**
+ * 施設変更入力情報に対してバックエンド側でしか処理できない独自の検証を行います。
+ * @param patientId 患者ID
+ * @param parsedEditData 入力パラメータ
+ * @param relateHealthFacilityId 更新対象患者関連施設ID(※修正更新の時のみ指定)
+ * @thorw ZodError バリデーションエラー発生時
+ */
+export const validateChangeHealthFacilityByExtendsSchema = async (
+  patientId: string,
+  parsedEditData: PatientHealthFacilityEditingDto,
+  relateHealthFacilityId?: string,
+) => {
+  // 共通: すでに予約がある場合はNG
+  const patientHealthFacilities = await fetchPatientHealthFacilities(patientId)
+
+  // 修正更新時は修正対象を除外してバリデーション継続
+  if (relateHealthFacilityId) {
+    if (patientHealthFacilities[0].id !== relateHealthFacilityId) {
+      throw new Error('修正可能な施設関連IDが履歴最新にない状態があるため操作を継続することができません')
+    }
+    patientHealthFacilities.splice(0, 1)
+  }
+  const refineValidationBaseSchema = z.object({
+    reason: z.string().refine(() => {
+      return !isFutureChangedPatientHealthFacility(patientHealthFacilities)
+    }, 'すでに施設情報の変更予約があるため操作を継続できません'),
+  })
+  // 以降は可変
+  if (iChangeHealthFacilityDeceaseExitReason(parsedEditData.reason)) {
+    // 退出時
+    await refineValidationBaseSchema
+      .extend({
+        endDate: z.date().refine(async (endDate: Date) => {
+          const nowPatientHealthFacility = patientHealthFacilities[0]
+          return isAfter(endDate, nowPatientHealthFacility.startDate)
+        }, '現在所属中の施設入居日より後の日付を入力してください'),
+      })
+      .parseAsync(parsedEditData)
+  } else {
+    // 施設変更時
+    await refineValidationBaseSchema
+      .extend({
+        // 同一施設NG
+        healthFacilityId: z.string().refine(async () => {
+          const patient = await fetchPatient(patientId)
+          return patient.healthFacilityId !== parsedEditData.healthFacilityId
+        }, '現在所属中の施設とは異なる施設を選択してください'),
+        startDate: z.date().refine(async (startDate: Date) => {
+          const nowPatientHealthFacility = patientHealthFacilities[0]
+          return isAfter(startDate, nowPatientHealthFacility.startDate)
+        }, '現在所属中の施設入居日より後の日付を入力してください'),
+      })
+      .parseAsync(parsedEditData)
+  }
+}
 
 /**
  * 指定患者の関連施設情報を登録、または更新します。
