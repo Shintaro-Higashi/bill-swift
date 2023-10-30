@@ -8,6 +8,7 @@ import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import { Typography } from '@mui/material'
 import Box from '@mui/material/Box'
+import { PaperBox } from './paperBox'
 
 /**
  * プロパティ型定義
@@ -63,13 +64,7 @@ export const BasicTable = (props: Props) => {
   const minWidth = columnWidth ? columnWidth.reduce((a, b) => a + b) : 0
 
   return (
-    <Paper>
-      {title ? (
-        <Typography sx={{ pt: 2, pl: 2, pb: 1 }} variant='h5' component='div'>
-          {icon ? <Box sx={{ display: 'inline', verticalAlign: '-6px', mr: '12px' }}>{icon}</Box> : null}
-          {title}
-        </Typography>
-      ) : null}
+    <PaperBox icon={icon} title={title ?? ''}>
       <TableContainer style={{ maxHeight: maxHeight }}>
         <Table stickyHeader sx={{ minWidth: minWidth }}>
           <TableHead>
@@ -104,6 +99,6 @@ export const BasicTable = (props: Props) => {
           </TableBody>
         </Table>
       </TableContainer>
-    </Paper>
+    </PaperBox>
   )
 }
