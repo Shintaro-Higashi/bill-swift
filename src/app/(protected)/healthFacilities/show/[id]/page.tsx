@@ -82,9 +82,7 @@ const ShowPage: React.FC = () => {
   const { queryResult } = useShow<HealthFacilityModel>({ errorNotification: false })
   const { data, isLoading, error } = queryResult
   const record = data?.data
-  const startDate = record?.healthFacilityRelatePharmacy
-    ? new Date(record?.healthFacilityRelatePharmacy[0].startDate)
-    : null
+  const startDate = record?.healthFacilityRelatePharmacy ? record?.healthFacilityRelatePharmacy[0].startDate : null
   handleApiError(error)
 
   const { $confirm } = useConfirm()
