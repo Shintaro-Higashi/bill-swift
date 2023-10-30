@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ByIdRequest, HealthFacilityEditingSchema } from '@/types'
-import { fetchHealthFacility, updateHealthFacility } from '@/servers/services/healthFacilityService'
+import {
+  archiveHealthFacility,
+  fetchHealthFacility,
+  updateHealthFacility,
+} from '@/servers/services/healthFacilityService'
 import { performRequest } from '@/core/utils/requestUtil'
 
 /**
@@ -27,5 +31,18 @@ export async function PATCH(req: NextRequest, { params }: { params: ByIdRequest 
       return NextResponse.json(response)
     },
     { action: 'edit' },
+  )
+}
+
+/**
+ * 施設を削除するAPIです。
+ */
+export async function DELETE(_req: NextRequest, { params: { id } }: { params: ByIdRequest }) {
+  return await performRequest(
+    async () => {
+      const entity = await archiveHealthFacility(id)
+      return NextResponse.json({ id: entity.id })
+    },
+    { action: 'archive' },
   )
 }

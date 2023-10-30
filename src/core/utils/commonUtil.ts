@@ -104,3 +104,15 @@ export const trimUnicode = (value: string | null | undefined, replaceEmptyValue:
 export const joinString = (values: (string | null | undefined)[], separate = '\n') => {
   return values.filter((item): item is NonNullable<typeof item> => item != null && item !== '').join(separate)
 }
+
+/**
+ * 一部テーブルに存在する検索用名称の値を生成します。
+ * <pre>
+ *  余計な空白等の文字を取り除いて名前とカナを連結した値を検索用名称として扱います。
+ * </pre>
+ * @param name 名前
+ * @param nameKana 名前カナ
+ */
+export const createSearchName = (name: string, nameKana: string) => {
+  return name.replace(/[\s\u3000]+/g, '') + nameKana.replace(/[\s\u3000]+/g, '')
+}
