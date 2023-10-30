@@ -18,6 +18,7 @@ import { PATIENT_SORT_TYPE_LIST } from '@/shared/items/patientSortType'
 import { useEffect, useState } from 'react'
 import { TextField } from '@mui/material'
 import { Box } from '@mui/material'
+import Typography from '@mui/material/Typography'
 
 // 施設関連薬局作成、編集フォームプロパティ
 type Props = {
@@ -124,7 +125,10 @@ export const HealthFacilityRelatePharmacySaveForm = (props: Props) => {
             name='startDate'
             control={control}
             error={!!errors.startDate}
-            helperText={errors.startDate?.message}
+            helperText={
+              '変更予約を設定します。指定日深夜に変更が適用されます。該当日を迎えるまでは予約内容の取消及び変更が可能です。 ' +
+              (errors.startDate?.message || '')
+            }
             disablePast
           />
           <ControlAutocomplete
