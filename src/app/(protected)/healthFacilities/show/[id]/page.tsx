@@ -113,7 +113,7 @@ const ShowPage: React.FC = () => {
     })
   }
 
-  // 変更予定アラートを表示するための変数
+  // 店舗変更予定があるかどうか：アラート・変更ボタン表示に利用
   let isChangingAssignedPharmacy: boolean = false
 
   // 店舗変更履歴テーブルヘッダー、幅定義
@@ -173,7 +173,7 @@ const ShowPage: React.FC = () => {
       if (value.pharmacy.id === record?.pharmacy?.id) {
         highLightRows = [...highLightRows, Number(key) + 1]
       }
-      // 変更予定アラート表示設定
+      // 店舗変更予定がある場合
       if (!isPastStartDate) {
         isChangingAssignedPharmacy = true
       }
@@ -199,14 +199,15 @@ const ShowPage: React.FC = () => {
                   ' '
                 )}
               </Box>
-              {createOpenDialogButton({
-                renderOpenDialogButton: (handleOpenDialog) => (
-                  <Button variant='contained' startIcon={<ModeEditOutlineOutlinedIcon />} onClick={handleOpenDialog}>
-                    変更
-                  </Button>
-                ),
-                submit: handleCreate,
-              })}
+              {!isChangingAssignedPharmacy &&
+                createOpenDialogButton({
+                  renderOpenDialogButton: (handleOpenDialog) => (
+                    <Button variant='contained' startIcon={<ModeEditOutlineOutlinedIcon />} onClick={handleOpenDialog}>
+                      変更
+                    </Button>
+                  ),
+                  submit: handleCreate,
+                })}
             </>
           }
         />
