@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material'
-import React, { useEffect, useMemo } from 'react'
+import React, { MouseEventHandler, PropsWithChildren, useEffect, useMemo } from 'react'
 import {
   PatientHealthFacilityDeceaseExitEditingSchema,
   PatientHealthFacilityEditingForm,
@@ -18,11 +18,17 @@ import { FormSubmitErrorNotification, getRefineRefreshButton } from '@/core/util
 import useConfirm from '@/core/hooks/useConfirm'
 import { ControlDatePicker } from '@components/core/form/controlDatePicker'
 import { ControlItemAutocomplete } from '@components/core/form/controlItemAutocomplete'
-import { PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST } from '@/shared/items/patientHealthFacilityChangeReason'
+import {
+  getPatientHealthFacilityChangeReasonValue,
+  PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST,
+} from '@/shared/items/patientHealthFacilityChangeReason'
 import { FieldErrors, useWatch } from 'react-hook-form'
 import Typography from '@mui/material/Typography'
 import { z } from 'zod'
 import { isFutureChangedPatientHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
+import { FieldItem } from '@components/core/content/FieldItem'
+import { RubyItem } from '@components/core/content/rubyItem'
+import { formatDate, formatDateTime } from '@/core/utils/dateUtil'
 
 type Props = {
   // ダイアログ開閉状態
@@ -43,6 +49,32 @@ const errorNotification = new FormSubmitErrorNotification<PatientHealthFacilityE
 const getResourceSuffix = (patientRelateHealthFacility: PatientRelateHealthFacilityModel | undefined) => {
   if (patientRelateHealthFacility?.id) return `/${patientRelateHealthFacility.id}`
   return ''
+}
+
+type DialogProps = {
+  // ダイアログ開閉状態
+  open: boolean
+  // ダイアログClose時のハンドラ(b: true時は更新完了時)
+  onClose: (b: boolean) => void
+  // form submit
+  onClick: MouseEventHandler<HTMLButtonElement>
+}
+
+const BaseDialog = (props: DialogProps & PropsWithChildren) => {
+  const { open, onClose, onClick, children } = props
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>所属施設情報の変更</DialogTitle>
+      <DialogContent>{children}</DialogContent>
+      <DialogActions>
+        <Button onClick={() => onClose(false)}>施設の変更をやめる</Button>
+        <Button variant='contained' onClick={onClick}>
+          施設を変更
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
 }
 
 /**
@@ -92,7 +124,7 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
   const { $confirm } = useConfirm()
 
   // 過去関連施設は備考のみ修正可能
-  const isPastRelateHealthFacility = useMemo(() => {
+  const isPastEditForm = useMemo(() => {
     if (!patient || !patientRelateHealthFacility) return false
     return !isFutureChangedPatientHealthFacility(patientRelateHealthFacility)
   }, [patient, patientRelateHealthFacility])
@@ -125,90 +157,105 @@ export const ChangePatientHealthFacilityDialogForm = (props: Props) => {
     })
   }
 
+  // 店舗変更は自動化のみのため除外
   const reasonOptions = PATIENT_HEALTH_FACILITY_CHANGE_REASON_LIST.filter(
     (keyValue) => keyValue.key !== 'CHANGE_PHARMACY',
   )
 
-  return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>所属施設情報の変更</DialogTitle>
-      <DialogContent>
-        {reason && (
-          <>
-            <Typography>[入居日、または退出日に未来を設定した場合]</Typography>
-            <Typography>・変更予約扱いになります。変更予約は指定日深夜に変更が適用されます。</Typography>
-            <Typography>・該当日を迎えるまでは予約内容の取消及び変更が可能です。</Typography>
-            <Typography>[入居日、または退出日に過去を設定した場合]</Typography>
-            <Typography>・変更は即時に反映されます</Typography>
-          </>
-        )}
-        {(reason === 'DECEASE' || reason === 'EXIT') && (
-          <>
-            <Typography></Typography>
-          </>
-        )}
-        <ControlItemAutocomplete
-          required
+  const NoteTextField = (
+    <TextField
+      {...register('note')}
+      label='備考'
+      placeholder=''
+      error={!!errors.note}
+      helperText={errors.note?.message}
+    />
+  )
+
+  // 備考のみ編集可
+  if (isPastEditForm) {
+    return (
+      <BaseDialog open={open} onClose={onClose} onClick={handleSubmit(handleEdit)}>
+        <Typography>入居(予定)日が当日より前のため備考のみ修正可能です</Typography>
+        <FieldItem
           label='変更理由'
-          name='reason'
-          control={control}
-          readOnly={!!patientRelateHealthFacility}
-          error={!!errors.reason}
-          helperText={errors.reason?.message}
-          options={reasonOptions}
+          value={getPatientHealthFacilityChangeReasonValue(patientRelateHealthFacility?.reason)}
         />
-        {reason && reason === 'RELOCATION' && (
-          <>
-            <ControlAutocomplete
-              required
-              resource='healthFacilities'
-              label='施設'
-              name='healthFacilityId'
-              control={control}
-              readOnly={isPastRelateHealthFacility}
-              error={!!relocationErrors?.healthFacilityId}
-              helperText={relocationErrors.healthFacilityId?.message}
+        <FieldItem
+          label='施設'
+          value={
+            <RubyItem
+              value={patientRelateHealthFacility?.healthFacility?.name}
+              ruby={patientRelateHealthFacility?.healthFacility?.nameKana}
             />
-            <ControlDatePicker
-              required
-              label='入居(予定)日'
-              name='startDate'
-              control={control}
-              readOnly={isPastRelateHealthFacility}
-              error={!!relocationErrors.startDate}
-              helperText={relocationErrors.startDate?.message}
-            />
-          </>
-        )}
-        {reason && reason !== 'RELOCATION' && (
-          <>
-            <ControlDatePicker
-              required
-              label='退出(予定)日'
-              name='endDate'
-              control={control}
-              readOnly={isPastRelateHealthFacility}
-              error={!!deceaseExitErrors.endDate}
-              helperText={deceaseExitErrors?.endDate?.message}
-            />
-          </>
-        )}
-        <TextField
-          {...register('note')}
-          label='備考'
-          placeholder=''
-          multiline
-          rows={1}
-          error={!!errors.note}
-          helperText={errors.note?.message}
+          }
         />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => onClose(false)}>施設の変更をやめる</Button>
-        <Button variant='contained' onClick={handleSubmit(handleEdit)}>
-          施設を変更
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <FieldItem label='患者番号' value={patientRelateHealthFacility?.patientCode} />
+        <FieldItem label='入居(予定)日' value={formatDate(patientRelateHealthFacility?.startDate)} />
+        <FieldItem label='退出(予定)日' value={formatDate(patientRelateHealthFacility?.endDate)} />
+        {NoteTextField}
+      </BaseDialog>
+    )
+  }
+
+  return (
+    <BaseDialog open={open} onClose={onClose} onClick={handleSubmit(handleEdit)}>
+      {reason && (
+        <>
+          <Typography>[入居日、または退出日に未来を設定した場合]</Typography>
+          <Typography>・変更予約扱いになります。変更予約は指定日深夜に変更が適用されます。</Typography>
+          <Typography>・該当日を迎えるまでは予約内容の取消及び変更が可能です。</Typography>
+          <Typography>[入居日、または退出日に過去を設定した場合]</Typography>
+          <Typography>・変更は即時に反映されます</Typography>
+        </>
+      )}
+      <ControlItemAutocomplete
+        required
+        label='変更理由'
+        name='reason'
+        control={control}
+        disabled={!!patientRelateHealthFacility}
+        error={!!errors.reason}
+        helperText={errors.reason?.message}
+        options={reasonOptions}
+      />
+      {reason && reason === 'RELOCATION' && (
+        <>
+          <ControlAutocomplete
+            required
+            resource='healthFacilities'
+            label='施設'
+            name='healthFacilityId'
+            control={control}
+            disabled={isPastEditForm}
+            error={!!relocationErrors?.healthFacilityId}
+            helperText={relocationErrors.healthFacilityId?.message}
+          />
+          <ControlDatePicker
+            required
+            label='入居(予定)日'
+            name='startDate'
+            control={control}
+            disabled={isPastEditForm}
+            error={!!relocationErrors.startDate}
+            helperText={relocationErrors.startDate?.message}
+          />
+        </>
+      )}
+      {reason && reason !== 'RELOCATION' && (
+        <>
+          <ControlDatePicker
+            required
+            label='退出(予定)日'
+            name='endDate'
+            control={control}
+            disabled={isPastEditForm}
+            error={!!deceaseExitErrors.endDate}
+            helperText={deceaseExitErrors?.endDate?.message}
+          />
+        </>
+      )}
+      {NoteTextField}
+    </BaseDialog>
   )
 }
