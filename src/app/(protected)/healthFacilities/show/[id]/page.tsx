@@ -7,7 +7,7 @@ import React from 'react'
 import { handleApiError, setTitle } from '@/core/utils/refineUtil'
 import { HealthFacilityModel } from '@/types'
 import { FieldItem } from '@components/core/content/FieldItem'
-import { formatDateTime, formatDate, isPastDate } from '@/core/utils/dateUtil'
+import { formatDateTime, formatDate } from '@/core/utils/dateUtil'
 import { getPatientSortTypeValue } from '@/shared/items/patientSortType'
 import { BasicTable } from '@/components/core/content/basicTable'
 import HistoryIcon from '@mui/icons-material/History'
@@ -22,6 +22,7 @@ import { HealthFacilityRelatePharmacySaveForm } from '@/components/domains/healt
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined'
 import useConfirm from '@/core/hooks/useConfirm'
 import Alert from '@mui/material/Alert'
+import { isPast } from 'date-fns'
 
 /**
  * createOpenDialogButtonプロップス型定義
@@ -136,7 +137,7 @@ const ShowPage: React.FC = () => {
 
     // 施設関連薬局のレコードをループし、テーブルボディー配列に格納
     relatePharmacies.forEach(([key, value]: [string, any]) => {
-      const isPastStartDate = isPastDate(value.startDate)
+      const isPastStartDate = isPast(value.startDate)
       const tableBodyRow = [
         <Box key={key} display='flex'>
           {createOpenDialogButton({
