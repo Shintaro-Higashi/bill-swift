@@ -136,7 +136,7 @@ const ShowPage: React.FC = () => {
 
     // 施設関連薬局のレコードをループし、テーブルボディー配列に格納
     relatePharmacies.forEach(([key, value]: [string, any]) => {
-      const isPastStartDate = isPastDate(new Date(value.startDate))
+      const isPastStartDate = isPastDate(value.startDate)
       const tableBodyRow = [
         <Box key={key} display='flex'>
           {createOpenDialogButton({

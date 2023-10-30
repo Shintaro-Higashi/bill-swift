@@ -34,7 +34,7 @@ const EditPage: React.FC = () => {
   useEffect(() => {
     const healthFacilityRelatePharmacies = queryResult?.data?.data?.healthFacilityRelatePharmacy ?? []
     if (healthFacilityRelatePharmacies?.length >= 1) {
-      setValue('startDate', new Date(healthFacilityRelatePharmacies[0].startDate))
+      setValue('startDate', healthFacilityRelatePharmacies[0].startDate)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryResult?.data?.data?.healthFacilityRelatePharmacy])
