@@ -4,7 +4,7 @@ import { prisma } from '@/servers/repositories/prisma/configs/prisma'
 import depend from '@/core/utils/velona'
 import { getCurrentDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
-import { createSearchName } from '@/core/utils/commonUtil'
+import { convertSearchName } from '@/core/utils/convertUtil'
 import SortOrder = Prisma.SortOrder
 
 /**
@@ -82,7 +82,7 @@ export const fetchPatient = depend({ client: prisma }, async ({ client }, id: st
 //     data: {
 //       id: createId(),
 //       ...params,
-//       searchName: createSearchName(params?.name, params?.nameKana),
+//       searchName: convertSearchName(params?.name, params?.nameKana),
 //       createdBy: userId,
 //       updatedBy: userId,
 //       createdAt: now,
@@ -106,7 +106,7 @@ export const updatePatient = depend({ client: prisma }, async ({ client }, id: s
       status: params?.status,
       name: params?.name,
       nameKana: params?.nameKana || '',
-      searchName: createSearchName(params?.name, params?.nameKana || ''),
+      searchName: convertSearchName(params?.name, params?.nameKana || ''),
       gender: params?.gender,
       birthday: params?.birthday,
       billEnableFlag: params?.billEnableFlag,

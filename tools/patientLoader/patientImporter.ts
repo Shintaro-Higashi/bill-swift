@@ -974,18 +974,18 @@ const doSamePatient = (
   ) {
     addResult = addPatientRelateHealthFacility(lastPatient, tempPatient, facilityRelateList)
   }
-  // 施設関連薬局が見つからない場合は患者関連施設は作成しないので、施設IDや患者コードは更新しない
+  // 施設関連薬局が見つからない場合は患者関連施設は作成しないので情報を更新しない
   if (!addResult) {
-    // 施設ID
-    lastPatient.healthFacilityId = tempPatient.healthFacilityId
-    // 施設情報（備考）
-    if (isFacilityComment(tempPatient.note)) {
-      lastPatient.healthFacilityInfo = tempPatient.note
-    }
-    // 最新の患者コードに変更（古いコードは患者コード履歴に存在）
-    lastPatient.code = tempPatient.patientCode
     return
   }
+  // 施設ID
+  lastPatient.healthFacilityId = tempPatient.healthFacilityId
+  // 施設情報（備考）
+  if (isFacilityComment(tempPatient.note)) {
+    lastPatient.healthFacilityInfo = tempPatient.note
+  }
+  // 最新の患者コードに変更（古いコードは患者コード履歴に存在）
+  lastPatient.code = tempPatient.patientCode
   // 古い順にソートされているので更新すべき内容を置き換える
   // 氏名カナ（元が連携されていないか対象が連携されている場合）
   if (tempPatient.patientKana !== '' && (!lastPatient.receiptSyncFlag || tempPatient.birthDate)) {
@@ -1099,32 +1099,31 @@ const setCommonColumns = (data: CommonColumns) => {
  * @param manageList 施設コード管理更新リスト
  */
 const affectDB = async (patientList: PatientInputModel[], manageList: any[]) => {
-  const notRelatedPatient = patientList.filter(
-    (p) =>
-      (!p.patientRelateHealthFacility || p.patientRelateHealthFacility.length === 0) &&
-      p.status !== PatientStatus.DECEASE,
-  )
-  logging('WRN', `ご逝去していなくて施設に紐づきがない患者数: ${notRelatedPatient.length}`)
-  logging('DBG', `一覧: \n\t${notRelatedPatient.map((p) => `${p.name}\t${p.code}\t${p.id}`).join('\n\t')}`)
   // 登録情報を用意
   const relateList: PatientRelateHealthFacilityInputModel[] = patientList.flatMap((p) =>
     p.patientRelateHealthFacility ? p.patientRelateHealthFacility : [],
   )
+  const registerPatientList: PatientInputModel[] = []
   patientList.forEach((p) => {
-    delete p.patientRelateHealthFacility
-    delete p.tempLastBillDate
-    // 空文字の場合は null を登録するようにする
-    if (p.deliveryName === '') p.deliveryName = null
-    if (p.deliveryPostalCode === '') p.deliveryPostalCode = null
-    if (p.deliveryAddress1 === '') p.deliveryAddress1 = null
-    if (p.deliveryAddress2 === '') p.deliveryAddress2 = null
-    if (p.deliveryTel === '') p.deliveryTel = null
-    if (p.healthFacilityInfo === '') p.healthFacilityInfo = null
-    if (p.note === '') p.note = null
+    if (p.patientRelateHealthFacility && p.patientRelateHealthFacility.length > 0) {
+      delete p.patientRelateHealthFacility
+      delete p.tempLastBillDate
+      // 空文字の場合は null を登録するようにする
+      if (p.deliveryName === '') p.deliveryName = null
+      if (p.deliveryPostalCode === '') p.deliveryPostalCode = null
+      if (p.deliveryAddress1 === '') p.deliveryAddress1 = null
+      if (p.deliveryAddress2 === '') p.deliveryAddress2 = null
+      if (p.deliveryTel === '') p.deliveryTel = null
+      if (p.healthFacilityInfo === '') p.healthFacilityInfo = null
+      if (p.note === '') p.note = null
+      registerPatientList.push(p)
+    } else {
+      logging('WRN', `施設に紐づきがない患者: ${p.code}\t${p.name}\t${p.note}`)
+    }
   })
   // 患者を登録
-  logging('INF', `患者データを登録します ${patientList.length}件`)
-  await loaderPrisma.patient.createMany({ data: patientList })
+  logging('INF', `患者データを登録します ${registerPatientList.length}件`)
+  await loaderPrisma.patient.createMany({ data: registerPatientList })
   // 患者関連施設を登録
   logging('INF', `患者関連施設データを登録します ${relateList.length}件`)
   await loaderPrisma.patientRelateHealthFacility.createMany({ data: relateList })
