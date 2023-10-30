@@ -11,17 +11,12 @@ import {
   PatientEditingFormFieldName,
   PatientEditingSchema,
   PatientModel,
+  PatientRelateHealthFacilityModel,
 } from '@/types'
 import { FieldItem } from '@components/core/content/FieldItem'
 import { formatDateTime } from '@/core/utils/dateUtil'
 import Grid from '@mui/material/Grid'
-import {
-  AttachmentOutlined,
-  ConnectWithoutContactOutlined,
-  HistoryOutlined,
-  InfoOutlined,
-  MessageOutlined,
-} from '@mui/icons-material'
+import { AttachmentOutlined, ConnectWithoutContactOutlined, InfoOutlined, MessageOutlined } from '@mui/icons-material'
 import Divider from '@mui/material/Divider'
 import { PaperBox } from '@components/core/content/paperBox'
 import { PatientProfileSwitchForm } from '@components/domains/patients/patientProfileSwitchForm'
@@ -32,6 +27,9 @@ import { FormProvider } from 'react-hook-form'
 import { PatientDeliverySwitchForm } from '@components/domains/patients/patientDeliverySwitchForm'
 import { PatientCheckListSwitchForm } from '@components/domains/patients/patientCheckListSwitchForm'
 import { PatientChangeHistory } from '@components/domains/patients/patientChangeHistory'
+import { PatientRelateHealthFacility } from '@components/domains/patients/patientHealthFacility/patientRelateHealthFacility'
+import { Loading } from '@components/core/content/loading'
+import { isFutureChangedPatientHealthFacility } from '@/shared/services/patientRelateHealthFacilityService'
 
 const ShowPage = () => {
   setTitle()
@@ -47,6 +45,20 @@ const ShowPage = () => {
       redirect: false,
       onMutationSuccess: (_data, _variables, _context, _isAutoSave) => {
         setBoxEditStatus(null)
+      },
+      successNotification: (data, values, resource) => {
+        if ((data?.data as any) === '') {
+          return {
+            description: `更新処理をスキップ`,
+            message: '編集内容に変更がありませんでした',
+            type: 'error',
+          }
+        }
+        return {
+          message: `操作の完了`,
+          description: '患者情報の変更が完了しました',
+          type: 'success',
+        }
       },
     },
   })
@@ -75,12 +87,26 @@ const ShowPage = () => {
     }
   }, [record, setValue])
 
+  // 変更履歴情報から施設変更操作有無を特定
+  const [enabledChangedHealthFacility, setEnabledChangedHealthFacility] = useState<boolean>(false)
+  const onLoadedPatientRelateHealthFacility = (records: PatientRelateHealthFacilityModel[]) => {
+    setEnabledChangedHealthFacility(!isFutureChangedPatientHealthFacility(records))
+  }
+
+  if (!record) {
+    return <Loading />
+  }
+
   return (
-    <Show isLoading={formLoading} canEdit={false}>
+    <Show isLoading={formLoading} canEdit={false} canDelete={false}>
       <FormProvider {...methods}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={4} lg={3}>
-            <PatientProfileSwitchForm boxEditStatus={boxEditStatus} setBoxEditStatus={setBoxEditStatus} />
+            <PatientProfileSwitchForm
+              enabledChangedHealthFacility={enabledChangedHealthFacility}
+              boxEditStatus={boxEditStatus}
+              setBoxEditStatus={setBoxEditStatus}
+            />
             <PatientDeliverySwitchForm
               sx={{ p: 0, mt: 2 }}
               boxEditStatus={boxEditStatus}
@@ -93,6 +119,7 @@ const ShowPage = () => {
               boxEditStatus={boxEditStatus}
               setBoxEditStatus={setBoxEditStatus}
             />
+            <PatientRelateHealthFacility patient={record} onLoaded={onLoadedPatientRelateHealthFacility} />
             <PatientNoteSwitchForm boxEditStatus={boxEditStatus} setBoxEditStatus={setBoxEditStatus} />
             <PaperBox title='添付資料' icon={<AttachmentOutlined />} sx={{ p: 0, mt: 2 }}>
               <Box sx={{ px: 1 }}>添付したファイル名とメモのリストを表示予定</Box>
@@ -117,11 +144,7 @@ const ShowPage = () => {
                 </Stack>
               </Box>
             </PaperBox>
-            <PaperBox title='患者情報変更履歴' icon={<HistoryOutlined />} sx={{ p: 0, mt: 2 }}>
-              <Box sx={{}}>
-                <PatientChangeHistory patientId={id?.toString()} updatedAt={record?.updatedAt} />
-              </Box>
-            </PaperBox>
+            <PatientChangeHistory patientId={id?.toString()} updatedAt={record?.updatedAt} />
             <PaperBox title='申し送り' icon={<ConnectWithoutContactOutlined />} sx={{ p: 0, mt: 2 }}>
               <Box sx={{ px: 1 }}>未確認の(未完了のステータスも必要?)店舗⇔業務課 の連絡情報を表示予定</Box>
             </PaperBox>

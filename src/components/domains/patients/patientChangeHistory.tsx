@@ -1,5 +1,10 @@
 'use client'
 
+/**
+ * 患者情報変更履歴を表示するコンポーネント定義です。
+ * <pre>
+ * </pre>
+ */
 import React, { Fragment, useState } from 'react'
 import { PatientChangeContentModel, PatientChangeHistoryModel } from '@/types'
 import { Alert, Box, Divider, List, ListItem, ListItemText, SxProps } from '@mui/material'
@@ -8,11 +13,15 @@ import { Loading } from '@components/core/content/loading'
 import { formatDateTime } from '@/core/utils/dateUtil'
 import { Theme } from '@mui/system'
 import useDiffContentDialog, { DiffContentDialogProvider } from '@components/domains/patients/diffContentDialog'
+import { HistoryOutlined } from '@mui/icons-material'
+import { PaperBox } from '@/components/core/content/paperBox'
 
+// 差分値のスタイル
 const DIFF_VALUE_SX: SxProps<Theme> = {
   fontWeight: 'bold',
 }
 
+// 差分内容表示コンポーネントProps
 type ContentProps = {
   patientChangeContent: PatientChangeContentModel
 }
@@ -137,7 +146,9 @@ const PatientChangeContent = (props: ContentProps) => {
 }
 
 type Props = {
+  // 変更履歴取得対象の患者ID
   patientId: string
+  // 該当患者IDの最終更新日時(変更が発生したら履歴の再取得を行う判定に利用)
   updatedAt: Date | null | undefined
 }
 
@@ -155,12 +166,6 @@ export const PatientChangeHistory = (props: Props) => {
     },
     filters: [{ field: 'uid', operator: 'eq', value: props.updatedAt }],
   })
-  const [open, setOpen] = useState(false)
-  const handleOpen = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e?.preventDefault()
-    setOpen(true)
-  }
-  const handleClose = () => setOpen(false)
 
   if (isLoading || isError) {
     return <Loading />
@@ -168,35 +173,38 @@ export const PatientChangeHistory = (props: Props) => {
   const records = data.data
 
   return (
-    <List sx={{ width: '100%', py: 0, maxHeight: 200, overflowY: 'auto' }}>
-      <Alert severity='info'>施設と患者番号以外の変更情報を確認可能です</Alert>
-      <DiffContentDialogProvider>
-        {records.map((record) => {
-          return (
-            <Fragment key={record.id}>
-              <ListItem alignItems='flex-start'>
-                <ListItemText
-                  primary={
-                    <Box component='ul' sx={{ paddingLeft: 1 }}>
-                      {record?.patientChangeContent?.map((content) => {
-                        return (
-                          <Fragment key={content.id}>
-                            <li>
-                              <PatientChangeContent patientChangeContent={content} />
-                            </li>
-                          </Fragment>
-                        )
-                      })}
-                    </Box>
-                  }
-                  secondary={`${record?.createdUser?.name} が ${formatDateTime(record?.updatedAt)} に更新`}
-                />
-              </ListItem>
-              <Divider component='li' />{' '}
-            </Fragment>
-          )
-        })}
-      </DiffContentDialogProvider>
-    </List>
+    <PaperBox title='患者情報変更履歴' icon={<HistoryOutlined />} sx={{ p: 0, mt: 2 }}>
+      <List sx={{ width: '100%', py: 0, maxHeight: 200, overflowY: 'auto' }}>
+        <Alert severity='info'>施設、患者番号の変更履歴は`施設変更履歴`から確認します</Alert>
+        {records.length === 0 && <Box sx={{ pl: 3 }}>変更はありません</Box>}
+        <DiffContentDialogProvider>
+          {records.map((record) => {
+            return (
+              <Fragment key={record.id}>
+                <ListItem alignItems='flex-start'>
+                  <ListItemText
+                    primary={
+                      <Box component='ul' sx={{ paddingLeft: 1 }}>
+                        {record?.patientChangeContent?.map((content) => {
+                          return (
+                            <Fragment key={content.id}>
+                              <li>
+                                <PatientChangeContent patientChangeContent={content} />
+                              </li>
+                            </Fragment>
+                          )
+                        })}
+                      </Box>
+                    }
+                    secondary={`${record?.createdUser?.name} が ${formatDateTime(record?.updatedAt)} に更新`}
+                  />
+                </ListItem>
+                <Divider component='li' />{' '}
+              </Fragment>
+            )
+          })}
+        </DiffContentDialogProvider>
+      </List>
+    </PaperBox>
   )
 }

@@ -5,6 +5,8 @@ import { PaperBoxEditButton } from '@components/domains/patients/paperBoxEditBut
 
 type Props = {
   boxName: BoxEditStatus
+  handleShow?: () => void
+  handleHide?: () => void
 } & BoxEditProps &
   PaperBoxProps
 
@@ -16,22 +18,29 @@ type Props = {
  * </pre>
  */
 export const PaperToggleBox = (props: Props) => {
-  const { title, icon, sx, children, boxName, boxEditStatus, setBoxEditStatus } = props
+  const { title, icon, sx, children, boxName, boxEditStatus, setBoxEditStatus, handleShow, handleHide } = props
   // 編集ボタン表示制御
   const [showEditButton, setShowEditButton] = useState(false)
 
   // 編集ボタンの表示制御
   const onMouseEnter = () => {
-    if (boxEditStatus === null) setShowEditButton(true)
+    if (boxEditStatus === null) {
+      setShowEditButton(true)
+      if (handleShow) handleShow()
+    }
   }
 
   const onMouseLeave = () => {
-    if (showEditButton) setShowEditButton(false)
+    if (showEditButton) {
+      setShowEditButton(false)
+      if (handleHide) handleHide()
+    }
   }
 
   const handleEditClick = () => {
     setBoxEditStatus(boxName)
     setShowEditButton(false)
+    if (handleHide) handleHide()
   }
 
   return (

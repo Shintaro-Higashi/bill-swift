@@ -124,3 +124,12 @@ export const handleApiError = (error: unknown) => {
     throw new Error('handleApiError')
   }
 }
+
+/**
+ * 最新に更新ボタンを取得します
+ */
+export const getRefineRefreshButton = () => {
+  const buttons = document.querySelectorAll('.MuiCardHeader-action button') as NodeListOf<HTMLButtonElement>
+  if (buttons.length === 0) return null
+  return buttons[buttons.length - 1]
+}

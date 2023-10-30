@@ -1,3 +1,5 @@
+import { toJSTDate } from '@/core/utils/dateUtil'
+
 /**
  * URLSearchParamsをObjectに変換します。
  * <pre>
@@ -23,6 +25,47 @@ export const queryToObject = <T>(query: URLSearchParams): T => {
   })
 
   return params
+}
+
+const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+
+/**
+ * Objectを精査してkey名およびvalueの形式から本来Date型と推測できる値をJST Date型に変換します。
+ * <pre>
+ * サーバ上ではDate型で扱っているがRestAPI Response結果を通すとフロント側ではJSONの仕様上文字列に
+ * 変換されてしまうため期待するResponseのType定義と実値の型が異なる問題を回避するための処理です。
+ * またレスポンスが返す日時はすべてJSTであるためDate型に変換する時はJST時刻への変換も行います。
+ * </pre>
+ * @param obj 引数指定のObject(copyではなく元のObject valueを書き換えて返します)
+ */
+export function toDateForStringDate(obj: any) {
+  if (!obj) {
+    return obj
+  }
+  if (Array.isArray(obj)) {
+    // 渡されたオブジェクトが配列の場合
+    for (const item of obj) {
+      toDateForStringDate(item) // 配列内の各要素を再帰的に検査
+    }
+  } else if (typeof obj === 'object' && obj !== null) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key]
+        if (key === 'birthday' || key.endsWith('At') || key.endsWith('Date') || key.endsWith('Datetime')) {
+          // プロパティ名が指定の条件を満たす場合
+          if (typeof value === 'string' && iso8601Regex.test(value)) {
+            // 値の書式が指定の条件を満たす場合
+            obj[key] = toJSTDate(value)
+          }
+        }
+        // プロパティがオブジェクトである場合、再帰的に検査
+        if (Array.isArray(value) || typeof value === 'object') {
+          toDateForStringDate(value)
+        }
+      }
+    }
+  }
+  return obj
 }
 
 /**
@@ -60,4 +103,16 @@ export const trimUnicode = (value: string | null | undefined, replaceEmptyValue:
  */
 export const joinString = (values: (string | null | undefined)[], separate = '\n') => {
   return values.filter((item): item is NonNullable<typeof item> => item != null && item !== '').join(separate)
+}
+
+/**
+ * 一部テーブルに存在する検索用名称の値を生成します。
+ * <pre>
+ *  余計な空白等の文字を取り除いて名前とカナを連結した値を検索用名称として扱います。
+ * </pre>
+ * @param name 名前
+ * @param nameKana 名前カナ
+ */
+export const createSearchName = (name: string, nameKana: string) => {
+  return name.replace(/[\s\u3000]+/g, '') + nameKana.replace(/[\s\u3000]+/g, '')
 }

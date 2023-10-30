@@ -12,8 +12,10 @@ import {
   PatientNursingInsuranceStatus,
   PatientNursingShare,
   PatientPaymentType,
+  PatientRelateHealthFacilityReason,
+  PatientStatus,
 } from '@prisma/client'
-import { zNullishDate } from '@/types/schema/base/zSchemaDate'
+import { zNullishDate, zRequiredDate } from '@/types/schema/base/zSchemaDate'
 
 // 患者検索クエリスキーマ
 export const PatientQuerySchema = z
@@ -32,6 +34,8 @@ export const PatientQuerySchema = z
       .transform((val) => (!val ? undefined : val))
       .nullish(),
     ...paginationQuerySchema,
+    // ステータス
+    status: z.nativeEnum(PatientStatus).array().nullish(),
     // ソート可能なカラム
     sort: z.union([z.literal('code'), z.literal('name'), z.literal('updatedAt')]),
   })
@@ -41,8 +45,9 @@ export const PatientQuerySchema = z
 export const PatientCreationSchema = z.object({
   // 患者名
   name: zRequiredString(64),
+  // TODO　DB上もNULL許可にするべきかも
   // 患者名カナ
-  nameKana: zRequiredString(128),
+  nameKana: zNullishString(128),
   // 性別
   gender: z.nativeEnum(PatientGender),
   // 生年月日
@@ -93,9 +98,9 @@ export const PatientCreationSchema = z.object({
   // 送付先郵便番号
   deliveryPostalCode: zNullishString().refine(validatePostalCode, validatePostalCodeMessage),
   // 送付先住所1
-  deliveryAddress1: zNullishString(20),
+  deliveryAddress1: zNullishString(40),
   // 送付先住所2
-  deliveryAddress2: zNullishString(20),
+  deliveryAddress2: zNullishString(40),
   // 送付先電話番号
   deliveryTel: zNullishString(16).refine(validateTel, validateTelMessage),
   // 施設情報
@@ -106,3 +111,42 @@ export const PatientCreationSchema = z.object({
 
 // 患者編集スキーマ
 export const PatientEditingSchema = PatientCreationSchema.extend({})
+
+// 患者施設変更共通スキーマ
+const PatientHealthFacilityBaseEditingSchema = z.object({
+  // 備考
+  note: zNullishString(9999),
+})
+
+// 患者施設変更(理由:逝去、退去)
+export const PatientHealthFacilityDeceaseExitEditingSchema = PatientHealthFacilityBaseEditingSchema.extend({
+  // 退去理由
+  reason: z.literal(PatientRelateHealthFacilityReason.DECEASE),
+  // 退去日
+  endDate: zRequiredDate(),
+})
+
+// 患者施設変更(理由:逝去、退去)
+export const PatientHealthFacilityExitEditingSchema = PatientHealthFacilityBaseEditingSchema.extend({
+  // 退去理由
+  reason: z.literal(PatientRelateHealthFacilityReason.EXIT),
+  // 退去日
+  endDate: zRequiredDate(),
+})
+
+// 患者施設変更(理由:転居)
+export const PatientHealthFacilityRelocationEditingSchema = PatientHealthFacilityBaseEditingSchema.extend({
+  // 退去理由
+  reason: z.literal(PatientRelateHealthFacilityReason.RELOCATION),
+  // 転出先施設
+  healthFacilityId: zRequiredString(64),
+  // 入居日
+  startDate: zRequiredDate(),
+})
+
+// 患者施設変更スキーマ
+export const PatientHealthFacilityEditingSchema = z.discriminatedUnion('reason', [
+  PatientHealthFacilityDeceaseExitEditingSchema,
+  PatientHealthFacilityExitEditingSchema,
+  PatientHealthFacilityRelocationEditingSchema,
+])
