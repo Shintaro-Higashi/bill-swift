@@ -12,6 +12,7 @@ import { getCurrentDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
 import { createId } from '@paralleldrive/cuid2'
 import SortOrder = Prisma.SortOrder
+import IntegrityDeletedError from '../core/errors/integrityDeletedError'
 
 /**
  * 施設のページング検索を実施します。
@@ -155,3 +156,22 @@ export const updateHealthFacility = depend(
     })
   },
 )
+
+/**
+ * 指定の施設情報を論理削除します。
+ * @param id 施設ID
+ * @throws IntegrityDeletedError 使用中の患者が存在する場合
+ */
+export const archiveHealthFacility = depend({ client: prisma }, async ({ client }, id: string) => {
+  const now = getCurrentDate()
+  const archiveData = await client.healthFacility.update({
+    data: {
+      updatedBy: getAuthorizedUserId(),
+      deletedAt: now,
+    },
+    where: { id: id, deletedAt: null },
+  })
+  const existsPatient = await client.patient.findFirst({ where: { healthFacilityId: id, existence: true } })
+  if (existsPatient) throw new IntegrityDeletedError()
+  return archiveData
+})

@@ -102,10 +102,10 @@ export const archiveAccountManage = depend({ client: prisma }, async ({ client }
     },
     where: { id: id, deletedAt: null },
   })
-  const exitstPatient = await client.patient.findFirst({ where: { accountManageId: id, existence: true } })
-  if (exitstPatient) throw new IntegrityDeletedError()
-  const exitstFacility = await client.healthFacility.findFirst({ where: { accountManageId: id, existence: true } })
-  if (exitstFacility) throw new IntegrityDeletedError()
+  const existPatient = await client.patient.findFirst({ where: { accountManageId: id, existence: true } })
+  if (existPatient) throw new IntegrityDeletedError()
+  const existFacility = await client.healthFacility.findFirst({ where: { accountManageId: id, existence: true } })
+  if (existFacility) throw new IntegrityDeletedError()
   const existsPharmacy = await client.pharmacy.findFirst({
     where: {
       OR: [{ withdrawalAccountManageId: id }, { transferAccountManageId: id }],

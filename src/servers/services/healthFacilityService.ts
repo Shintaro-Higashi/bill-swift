@@ -1,5 +1,6 @@
 import { HealthFacilityCreationDto, HealthFacilityEditingDto, HealthFacilityQueryDto } from '@/types'
 import {
+  archiveHealthFacility as archive,
   createHealthFacility as rCreateHealthFacility,
   updateHealthFacility as update,
   fetchHealthFacility as fetch,
@@ -146,3 +147,15 @@ export const updateHealthFacility: any = depend(
     })
   },
 )
+
+/**
+ * 指定IDの施設情報を論理削除します。
+ * @param id 施設ID
+ * @return 施設情報
+ */
+export const archiveHealthFacility = depend({ archive }, async ({ archive }, id: string) => {
+  return await performTransaction(async (tx: any) => {
+    const tArchive: typeof archive = (archive as any).inject({ client: tx })
+    return await tArchive(id)
+  })
+})
