@@ -8,7 +8,8 @@ const ROLE = {
     ...PHARMACY_ROLE.companies,
     create: false,
     edit: false,
-    archive: false,
+    // 所属施設の変更
+    'change-health-facilities': false,
   },
 }
 

@@ -90,10 +90,17 @@ const theme: ThemeOptions = {
         },
       },
     },
-
     // テキスト入力デフォルトスタイルを定義
     MuiTextField: {
       defaultProps: { margin: 'normal', size: 'small', fullWidth: true, InputLabelProps: { shrink: true } },
+    },
+    // デフォルトフォントサイズを変更
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          fontSize: '1rem',
+        },
+      },
     },
   },
   // ヘッダToolBar高さを最小に

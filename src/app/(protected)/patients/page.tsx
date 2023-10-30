@@ -19,7 +19,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import { zodResolver } from '@hookform/resolvers/zod'
 import StickyTableContent from '@/components/core/grid/stickyTableContent'
 import MuiLink from '@mui/material/Link'
-import { PatientModel, PatientQueryRequest, PatientQuerySchema } from '@/types'
+import { PatientModel, PatientQueryForm, PatientQueryRequest, PatientQuerySchema } from '@/types'
 import { ControlAutocomplete } from '@/components/core/form/controlAutocomplete'
 import { RubyItem } from '@components/core/content/rubyItem'
 import { ControlSwitch } from '@components/core/form/controlSwitch'
@@ -56,7 +56,7 @@ const ListPage: React.FC = () => {
     control,
     formState: { errors },
     setError,
-  } = useForm<BaseRecord, HttpError, PatientQueryRequest>({
+  } = useForm<BaseRecord, HttpError, PatientQueryForm>({
     resolver: zodResolver(PatientQuerySchema),
     defaultValues: {
       code: getDefaultFilter('code', filters, 'eq'),

@@ -2,6 +2,7 @@ import { DataProvider, HttpError } from '@refinedev/core'
 import dataProvider, { generateFilter, generateSort } from '@refinedev/simple-rest'
 import axios, { AxiosInstance } from 'axios'
 import { stringify } from 'query-string'
+import { toDateForStringDate } from '@/core/utils/commonUtil'
 
 type MethodTypes = 'get' | 'delete' | 'head' | 'options'
 
@@ -9,6 +10,9 @@ type MethodTypes = 'get' | 'delete' | 'head' | 'options'
 export const axiosInstance = axios.create()
 axiosInstance.interceptors.response.use(
   (response) => {
+    // 日付と推測可能なフィールドをModelTypeと合わせるためDate型かつJSTに変換
+    const fixDateResponseData = toDateForStringDate(response?.data)
+    if (response?.data) response.data = fixDateResponseData
     return response
   },
   (error) => {

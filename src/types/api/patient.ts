@@ -1,5 +1,10 @@
 import { z } from 'zod'
-import { PatientCreationSchema, PatientEditingSchema, PatientQuerySchema } from '@/types'
+import {
+  PatientCreationSchema,
+  PatientEditingSchema,
+  PatientHealthFacilityEditingSchema,
+  PatientQuerySchema,
+} from '@/types'
 
 // 患者検索リクエスト
 export type PatientQueryRequest = z.infer<typeof PatientQuerySchema>
@@ -7,3 +12,5 @@ export type PatientQueryRequest = z.infer<typeof PatientQuerySchema>
 export type PatientCreationRequest = z.infer<typeof PatientCreationSchema>
 // 患者編集リクエスト
 export type PatientEditingRequest = z.infer<typeof PatientEditingSchema>
+// 患者施設変更リクエスト
+export type PatientHealthFacilityEditingRequest = z.infer<typeof PatientHealthFacilityEditingSchema>

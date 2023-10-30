@@ -1,12 +1,13 @@
 import { useFormContext } from 'react-hook-form'
 import { BoxEditProps, BoxEditStatus, PatientEditingForm, PatientEditingSchema, PatientModel } from '@/types'
 import { Box, Button, Chip, Stack, SxProps, TextField } from '@mui/material'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { HttpError } from '@refinedev/core'
 import {
   ArrowBackOutlined,
   CakeOutlined,
   FormatListNumberedOutlined,
+  GroupRemoveOutlined,
   HowToRegOutlined,
   InfoOutlined,
   PersonOutlineOutlined,
@@ -25,11 +26,15 @@ import useConfirm from '@/core/hooks/useConfirm'
 import { PaperToggleBox } from '@components/domains/patients/paperToggleBox'
 import { Theme } from '@mui/system'
 import { ControlDatePicker } from '@components/core/form/controlDatePicker'
+import { ChangePatientHealthFacilityButton } from '@components/domains/patients/patientHealthFacility/changePatientHealthFacilityButton'
+import { getPatientStatusValue } from '@/shared/items/patientStatus'
 
 const BOX_NAME: BoxEditStatus = 'profile'
 
 type Props = {
   sx?: SxProps<Theme> | undefined
+  // 施設の変更操作が可能か否か
+  enabledChangedHealthFacility: boolean
 } & BoxEditProps
 
 /**
@@ -40,8 +45,14 @@ export const PatientProfileSwitchForm = (props: Props) => {
     refineCore: { queryResult },
   } = useFormContext<PatientModel, HttpError, PatientEditingForm>()
   const patient = queryResult ? queryResult.data?.data : undefined
-  const { boxEditStatus, setBoxEditStatus } = props
-
+  const { boxEditStatus, setBoxEditStatus, enabledChangedHealthFacility } = props
+  const [viewBoxEditButton, setViewBoxEditButton] = useState<boolean>(false)
+  const handleShowEditButton = () => {
+    setViewBoxEditButton(true)
+  }
+  const handleHideEditButton = () => {
+    setViewBoxEditButton(false)
+  }
   return (
     <PaperToggleBox
       title='基本情報'
@@ -49,9 +60,15 @@ export const PatientProfileSwitchForm = (props: Props) => {
       boxName={BOX_NAME}
       boxEditStatus={boxEditStatus}
       setBoxEditStatus={setBoxEditStatus}
+      handleShow={handleShowEditButton}
+      handleHide={handleHideEditButton}
     >
       {boxEditStatus !== BOX_NAME ? (
-        <PatientProfileView record={patient} />
+        <PatientProfileView
+          record={patient}
+          viewBoxEditButton={viewBoxEditButton}
+          enabledChangedHealthFacility={enabledChangedHealthFacility}
+        />
       ) : (
         <PatientProfileForm
           handleCancelButtonClick={() => setBoxEditStatus(null)}
@@ -65,13 +82,16 @@ export const PatientProfileSwitchForm = (props: Props) => {
 
 type ViewProps = {
   record: PatientModel | undefined
+  viewBoxEditButton: boolean
+  // 施設の変更操作が可能か否か
+  enabledChangedHealthFacility: boolean
 }
 
 /**
  * 患者基本情報表示コンポーネントです。
  */
 const PatientProfileView = (props: ViewProps) => {
-  const { record } = props
+  const { record, viewBoxEditButton, enabledChangedHealthFacility } = props
   return (
     <Stack alignItems='flex-start' spacing={1} sx={{ ml: 1 }}>
       {record?.receiptSyncFlag ? (
@@ -79,11 +99,23 @@ const PatientProfileView = (props: ViewProps) => {
       ) : (
         <Chip icon={<SyncProblemOutlined />} color='warning' label='レセコン同期未確認' size='small' />
       )}
+      {record?.status && record.status !== 'INRESIDENCE' && (
+        <Chip
+          icon={<GroupRemoveOutlined />}
+          color='warning'
+          label={getPatientStatusValue(record?.status)}
+          size='small'
+        />
+      )}
       <FieldItem
         label='施設'
         icon={<StoreOutlined />}
         value={<RubyItem value={record?.healthFacility?.name} ruby={record?.healthFacility?.nameKana} />}
       />
+      {enabledChangedHealthFacility && (
+        <ChangePatientHealthFacilityButton patient={record} viewBoxEditButton={viewBoxEditButton} />
+      )}
+
       <FieldItem label='施設メモ' icon={<InfoOutlined />} value={record?.healthFacilityInfo} />
       <FieldItem label='患者番号' icon={<FormatListNumberedOutlined />} value={record?.code} />
       <FieldItem

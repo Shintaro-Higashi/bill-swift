@@ -1,4 +1,4 @@
-import { PatientEditingDto, PatientModel, PatientQueryDto } from '@/types'
+import { HealthFacilityCodeManageModel, PatientEditingDto, PatientModel, PatientQueryDto } from '@/types'
 import {
   fetchPagedPatients as fetchPaged,
   fetchPatient as fetch,
@@ -9,6 +9,7 @@ import { createManyPatientChangeContent } from '@/servers/repositories/patientCh
 import depend from '@/core/utils/velona'
 import { performTransaction } from '@/servers/repositories/performTransaction'
 import { createPatientChangeContentList } from '@/servers/services/patientChangeHistoryService'
+import NoContentError from '@/servers/core/errors/noContentError'
 
 /**
  * 患者のページング検索を実地します。
@@ -27,6 +28,15 @@ export const fetchPagedPatients = depend({ fetchPaged }, async ({ fetchPaged }, 
 export const fetchPatient = depend({ fetch }, async ({ fetch }, id: string) => {
   return await fetch(id)
 })
+
+/**
+ * 対象施設の新規患者番号を払い出します。
+ */
+export const createNewPatientCode = (healthFacilityCodeManage: HealthFacilityCodeManageModel) => {
+  // 施設コードの0埋めは対応後に格納されているため処理不要。下４桁は無条件で0埋め
+  const { code, sequenceNo, healthFacilityCodeGroup } = healthFacilityCodeManage
+  return `${code}${sequenceNo.toString().padStart(4, '0')}`
+}
 
 // /**
 //  * 患者を作成します。
@@ -62,6 +72,9 @@ export const updatePatient = depend(
       ).inject({ client: tx })
       const { id: patientChangeHistoryId } = await tCreatePatientChangeHistory({ patientId: id, changeType: 'MANUAL' })
       const patientChangeContentList = createPatientChangeContentList(previousPatient, latestPatient)
+      if (patientChangeContentList.length === 0) {
+        throw new NoContentError()
+      }
       await tCreateManyPatientChangeContent(patientChangeHistoryId, patientChangeContentList)
       return result
     })
@@ -74,6 +87,8 @@ export const updatePatient = depend(
  * @param params
  */
 const isBillEnablePatient = (params: PatientEditingDto) => {
+  // レセコン同期済
+  if (!params.receiptSyncFlag) return false
   // [同意書]
   if (params.consentStatus !== 'COLLECTED' || !params.consentConfirmDate) return false
   // [医療保険]

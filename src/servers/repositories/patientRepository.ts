@@ -1,10 +1,11 @@
 import { PaginationModel, PatientEditingDto, PatientModel, PatientQueryDto } from '@/types'
 import { Prisma } from '.prisma/client'
 import { prisma } from '@/servers/repositories/prisma/configs/prisma'
-import SortOrder = Prisma.SortOrder
 import depend from '@/core/utils/velona'
 import { getCurrentDate } from '@/core/utils/dateUtil'
 import { getAuthorizedUserId } from '@/core/utils/requestUtil'
+import { convertSearchName } from '@/core/utils/convertUtil'
+import SortOrder = Prisma.SortOrder
 
 /**
  * 患者のページング検索を実施します。
@@ -57,17 +58,17 @@ export const fetchPagedPatients = async (params: PatientQueryDto): Promise<Pagin
  * @return 患者情報
  */
 export const fetchPatient = depend({ client: prisma }, async ({ client }, id: string) => {
-  return await client.patient.findUniqueOrThrow({
+  return (await client.patient.findUniqueOrThrow({
     where: { id: id, existence: true },
     include: {
       healthFacility: { select: { code: true, name: true, nameKana: true } },
-      patientRelateHealthFacility: { include: { healthFacility: true } },
-      patientFile: true,
+      // patientRelateHealthFacility: { include: { healthFacility: true } },
+      // patientFile: true,
       accountManage: { select: { name: true } },
       createdUser: true,
       updatedUser: true,
     },
-  })
+  })) as unknown as PatientModel
 })
 
 // /**
@@ -81,6 +82,7 @@ export const fetchPatient = depend({ client: prisma }, async ({ client }, id: st
 //     data: {
 //       id: createId(),
 //       ...params,
+//       searchName: convertSearchName(params?.name, params?.nameKana),
 //       createdBy: userId,
 //       updatedBy: userId,
 //       createdAt: now,
@@ -98,7 +100,57 @@ export const updatePatient = depend({ client: prisma }, async ({ client }, id: s
   const now = getCurrentDate()
   return await client.patient.update({
     data: {
-      ...params,
+      // ...params,
+      healthFacilityId: params?.healthFacilityId,
+      code: params?.code,
+      status: params?.status,
+      name: params?.name,
+      nameKana: params?.nameKana || '',
+      searchName: convertSearchName(params?.name, params?.nameKana || ''),
+      gender: params?.gender,
+      birthday: params?.birthday,
+      billEnableFlag: params?.billEnableFlag,
+      medicalInsuranceStatus: params?.medicalInsuranceStatus,
+      medicalInsuranceStartDate: params?.medicalInsuranceStartDate,
+      medicalInsuranceEndDate: params?.medicalInsuranceEndDate,
+      medicalShareConfirmDate: params?.medicalShareConfirmDate,
+      medicalShare: params?.medicalShare,
+      nursingInsuranceStatus: params?.nursingInsuranceStatus,
+      nursingInsuranceStartDate: params?.nursingInsuranceStartDate,
+      nursingInsuranceEndDate: params?.nursingInsuranceEndDate,
+      nursingShareConfirmDate: params?.nursingShareConfirmDate,
+      nursingShare: params?.nursingShare,
+      publicExpense: params?.publicExpense,
+      consentStatus: params?.consentStatus,
+      consentConfirmDate: params?.consentConfirmDate,
+      paymentType: params?.paymentType,
+      accountConfirmStatus: params?.accountConfirmStatus,
+      accountManageId: params?.accountManageId,
+      receiptSyncFlag: params?.receiptSyncFlag,
+      deliveryName: params?.deliveryName,
+      deliveryPostalCode: params?.deliveryPostalCode,
+      deliveryAddress1: params?.deliveryAddress1,
+      deliveryAddress2: params?.deliveryAddress2,
+      deliveryTel: params?.deliveryTel,
+      healthFacilityInfo: params?.healthFacilityInfo,
+      note: params?.note,
+      updatedBy: getAuthorizedUserId(),
+      updatedAt: now,
+    },
+    where: { id: id, existence: true },
+  })
+})
+
+/**
+ * 指定患者の更新者情報のみを更新します。
+ * <pre>
+ *  主に関連テーブルのみ変更した時に利用します。
+ * </pre>
+ */
+export const updatePatientUpdated = depend({ client: prisma }, async ({ client }, id: string) => {
+  const now = getCurrentDate()
+  return await client.patient.update({
+    data: {
       updatedBy: getAuthorizedUserId(),
       updatedAt: now,
     },

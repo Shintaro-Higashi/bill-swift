@@ -11,7 +11,7 @@ import { joinString } from '@/core/utils/commonUtil'
 import { Theme } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import { CONSENT_STATUS_LIST, getConsentStatusValue } from '@/shared/items/consentStatus'
-import { formatDate } from '@/core/utils/dateUtil'
+import { formatDate, getCurrentDate } from '@/core/utils/dateUtil'
 import { getInsuranceStatusValue, INSURANCE_STATUS_LIST } from '@/shared/items/medicalInsuranceStatus'
 import { getMedicalNursingShareValue, MEDICAL_NURSING_SHARE_LIST } from '@/shared/items/medicalNursingShare'
 import {
@@ -214,7 +214,7 @@ const PatientCheckListForm = (props: FormProps) => {
   // 同意書フォーム制御
   const consentStatus = useWatch({ control: control, name: 'consentStatus' })
   useEffect(
-    () => setValue('consentConfirmDate', consentStatus === 'COLLECTED' ? new Date() : null),
+    () => setValue('consentConfirmDate', consentStatus === 'COLLECTED' ? getCurrentDate() : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [consentStatus],
   )
@@ -233,7 +233,7 @@ const PatientCheckListForm = (props: FormProps) => {
   }, [medicalInsuranceStatus])
   useEffect(() => {
     if (medicalShare && medicalShare !== 'NONE' && getValues('medicalShareConfirmDate') === null) {
-      setValue('medicalShareConfirmDate', new Date())
+      setValue('medicalShareConfirmDate', getCurrentDate())
     } else if (!medicalShare || medicalShare === 'NONE') {
       setValue('medicalShareConfirmDate', null)
     }
@@ -253,7 +253,7 @@ const PatientCheckListForm = (props: FormProps) => {
   }, [nursingInsuranceStatus])
   useEffect(() => {
     if (nursingShare && nursingShare !== 'NONE' && getValues('nursingShareConfirmDate') === null) {
-      setValue('nursingShareConfirmDate', new Date())
+      setValue('nursingShareConfirmDate', getCurrentDate())
     } else if (!nursingShare || nursingShare === 'NONE') {
       setValue('nursingShareConfirmDate', null)
     }

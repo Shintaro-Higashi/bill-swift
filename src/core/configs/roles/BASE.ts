@@ -39,7 +39,9 @@ const BASE_ROLE = {
     read: true,
     create: true,
     edit: true,
-    archive: true,
+    // 所属施設の変更
+    'change-health-facilities': false,
+    // archive: true,
   },
   // ユーザ
   users: {

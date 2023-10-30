@@ -7,10 +7,13 @@ import { performRequest } from '@/core/utils/requestUtil'
  * 患者詳細情報を取得するAPIです。
  */
 export async function GET(_req: NextRequest, { params: { id } }: { params: ByIdRequest }) {
-  return await performRequest(async () => {
-    const entity = await fetchPatient(id)
-    return NextResponse.json(entity)
-  })
+  return await performRequest(
+    async () => {
+      const entity = await fetchPatient(id)
+      return NextResponse.json(entity)
+    },
+    { action: 'read', id },
+  )
 }
 
 /**
@@ -18,27 +21,14 @@ export async function GET(_req: NextRequest, { params: { id } }: { params: ByIdR
  * @param req リクエスト情報
  * @param params パスパラメータ
  */
-export async function PATCH(req: NextRequest, { params }: { params: ByIdRequest }) {
+export async function PATCH(req: NextRequest, { params: { id } }: { params: ByIdRequest }) {
   return await performRequest(
     async () => {
       const editData = await req.json()
       const parsedEditData = PatientEditingSchema.parse(editData)
-      const response = await updatePatient(params.id, parsedEditData)
+      const response = await updatePatient(id, parsedEditData)
       return NextResponse.json(response)
     },
-    { action: 'edit' },
+    { action: 'edit', id },
   )
 }
-
-// /**
-//  * 患者詳細情報を削除するAPIです。
-//  */
-// export async function DELETE(_req: NextRequest, { params: { id } }: { params: ByIdRequest }) {
-//   return await performRequest(
-//     async () => {
-//       const entity = await archivePatient(id)
-//       return NextResponse.json({ id: entity.id })
-//     },
-//     { action: 'archive' },
-//   )
-// }
