@@ -1,4 +1,4 @@
-import { Control, FieldErrors, UseFormRegister, useWatch, UseFormSetValue } from 'react-hook-form'
+import { Control, FieldErrors, UseFormRegister, useWatch } from 'react-hook-form'
 import { HealthFacilityCreationForm, HealthFacilityEditingForm, HealthFacilityModel } from '@/types'
 import { Box, TextField } from '@mui/material'
 import { GetOneResponse } from '@refinedev/core'

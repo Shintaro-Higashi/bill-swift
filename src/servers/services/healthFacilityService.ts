@@ -74,6 +74,10 @@ export const createHealthFacility = depend(
         healthFacilityId: resultCreateHealthFacility.id,
         pharmacyId: params.pharmacyId,
         startDate: params.startDate,
+        billingType: params.billingType,
+        paymentType: params.paymentType,
+        accountManageId: params.accountManageId,
+        patientSortType: params.patientSortType,
       }
       const resultCreateHealthFacilityRelatePharmacy = await tCreateHealthFacilityRelatePharmacy(
         healthFacilityRelatePharmacyParams,
