@@ -83,14 +83,18 @@ export const HealthFacilityRelatePharmacySaveForm = (props: Props) => {
       enabled: !!watchPharmacyId,
     },
   })
+  // 作成フォームでは、最初から店舗選択時のロジックを発動させる
   useEffect(() => {
-    // 初期値設定では請求関連項目の制御が発動しないようにする
+    if (!healthFacilityRelatePharmacyId) {
+      setEditSetValue(true)
+    }
+  }, [healthFacilityRelatePharmacyId])
+  useEffect(() => {
+    // 編集フォームの初期値設定では請求関連項目の制御が発動しないようにする
     if (editSetValue) {
-      const accountManageId = pharmacy?.data?.transferAccountManage?.id
-      if (accountManageId) {
-        setValue('billingType', 'BATCH')
-        setValue('paymentType', 'TRANSFER')
-        setValue('accountManageId', accountManageId)
+      const accountManage = pharmacy?.data?.transferAccountManage
+      if (accountManage) {
+        setValue('accountManageId', accountManage.id)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -131,7 +135,7 @@ export const HealthFacilityRelatePharmacySaveForm = (props: Props) => {
             control={control}
             error={!!errors.pharmacyId}
             helperText={
-              '選択した新しい店舗に合わせて施設の請求関連情報を変更します。 ' + (errors.pharmacyId?.message || '')
+              '選択した新しい店舗に合わせて施設の振込口座を変更します。 ' + (errors.pharmacyId?.message || '')
             }
             optionLabel={(option: any) => {
               return option?.pharmacyGroup?.name + ' ' + option?.name ?? ''
